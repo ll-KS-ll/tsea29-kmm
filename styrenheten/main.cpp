@@ -7,9 +7,14 @@
 
 #include <avr/io.h>
 
+void init() {
+	
+	// DDRD=1<<PD5; 
+}
 
 int main(void)
 {
+	init();
     /* Replace with your application code */
     while (1) 
     {
