@@ -21,7 +21,7 @@ void initMotorPWM() {
 	/************************************************************************/
 	//TCCRnx, COMnx, WGn1:0
 	TCCR1A |= (1<<COM1A1)|(1<<COM1B1)|(1<<WGM10);
-	TCCR1B |= (1<<WGM12)|(0<<CS11)|(1<<CS10);
+	TCCR1B |= (1<<WGM12)|(1<<CS10);
 
 	
 }
@@ -79,8 +79,6 @@ int main(void)
 		rotateRight();
 		setMotorSpeed(150, 150);
 		_delay_ms(3000);
-		setMotorSpeed(0,0);
-		_delay_ms(2000);
 		//counter +=5;
 		//if(counter >= 200) counter = 0;
 	}
