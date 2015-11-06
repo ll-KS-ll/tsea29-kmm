@@ -15,7 +15,11 @@
 int i2c_main(void)
 {
 	_delay_ms(2000);
+	/* Whole port B is now outputs */
 	DDRB=0xff;
+	/* Define pull-up for our SDA, sets output high */
+	PORTC = (1<<PCINT17);
+	
 	TWI_init_master();  // Function to initialize TWI
 	while(1)
 	{
@@ -45,8 +49,8 @@ int i2c_main(void)
 
 void TWI_init_master(void) // Function to initialize master
 {
-	TWBR=0x4E;    // Bit rate ---- Bit rate = 0x4E(=78) and Prescale = 64 => SCL = 100KHz
-	TWSR=(1<<TWPS1)|(1<<TWPS0);    // Setting prescalar bits - do we need prescalar bits?
+	TWBR=0x4E;	// Bit rate = 0x4E(=78) and Prescale = 64 => SCL = 100KHz
+	TWSR=(1<<TWPS1)|(1<<TWPS0);   // Setting prescalar bits (1,1) = 64
 	// SCL freq= F_CPU/(16+2(TWBR).4^TWPS)
 	
 	// TWCR=(1<<TWEN); // Enable TWI?	

@@ -11,7 +11,7 @@
 
 int i2c_slave_main(void)
 {
-	DDRB=0xff;
+	DDRB=0xff; // Set all B ports to output.
 	TWI_init_slave(); // Function to initialize slave
 	while(1)
 	{
@@ -25,14 +25,14 @@ int i2c_slave_main(void)
 	}
 }
 
-void TWI_init_slave(void) // Function to initilize slave
+void TWI_init_slave(void) // Function to initialize slave
 {
 	TWAR=0x20; // Fill slave address to TWAR
 }
 
 void TWI_write_slave(void) // Function to write data
 {
-	TWDR= write_data;           // Fill TWDR register whith the data to be sent
+	TWDR= write_data;           // Fill TWDR register with the data to be sent
 	TWCR= (1<<TWEN)|(1<<TWINT);   // Enable TWI, Clear TWI interrupt flag
 	while((TWSR & 0xF8) != 0xC0); // Wait for the acknowledgement
 }
@@ -54,7 +54,7 @@ void TWI_read_slave(void)
 	while (!(TWCR & (1<<TWINT))); // Wait for TWINT flag
 	while((TWSR & 0xF8)!=0x80); // Wait for acknowledgement
 	recv_data=TWDR; // Get value from TWDR
-	PORTB=recv_data; // send the receive value on PORTB
+	PORTB=recv_data; // send the received value on PORTB
 }
 
 void TWI_match_read_slave(void) //Function to match the slave address and slave direction bit(read)
