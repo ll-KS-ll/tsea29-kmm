@@ -2,20 +2,14 @@
  * slave.c
  * Program for Slave Mode
  * Created: 2015-11-05 14:47:54
- *  Author: Viktor
+ *  Author: Viktor & Victor
  */ 
-#include<avr/io.h>
-#include<util/delay.h>
+#include <avr/io.h>
+#include <util/delay.h>
+#include <i2c_slave.h>
 
-void TWI_init_slave(void);
-void TWI_match_read_slave(void);
-void TWI_read_slave(void);
-void TWI_match_write_slave(void);
-void TWI_write_slave(void);
 
-unsigned char write_data,recv_data;
-
-int main(void)
+int i2c_slave_main(void)
 {
 	DDRB=0xff;
 	TWI_init_slave(); // Function to initialize slave
