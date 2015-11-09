@@ -5,7 +5,7 @@
  * Author : Victor
  */ 
 
-#define F_CPU 8000000UL	// CPU clock frequency is 8MHz
+#define F_CPU 15000000UL	// CPU clock frequency is 8MHz
 
 #include <avr/io.h>
 #include <i2c_slave.h>	// Com module is a Slave on the I2C-bus. 

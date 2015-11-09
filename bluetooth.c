@@ -1,11 +1,12 @@
 #include <avr/io.h>
 #include <bluetooth.h>
 
-void bt_init( void )
+void bt_init( unsigned long f_cpu )
 {
 	/* Set baud rate */
-	UBRR0H = (uint8_t)(BAUDRATE>>8);
-	UBRR0L = (uint8_t)BAUDRATE;
+	uint16_t buadrate = (((f_cpu / (BAUD * 16UL))) - 1);	// Calculate baud rate to put in UBRR. 
+	UBRR0H = (uint8_t)(buadrate>>8);
+	UBRR0L = (uint8_t)buadrate;
 	/* Enable receiver and transmitter */
 	UCSR0B = (1<<RXEN0)|(1<<TXEN0);
 	/* Set frame format: 8data, 1stop bit */
