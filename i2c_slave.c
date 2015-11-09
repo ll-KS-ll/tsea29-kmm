@@ -12,32 +12,32 @@
 int i2c_slave_main(void)
 {
 	DDRB=0xff; // Set all B ports to output.
-	TWI_init_slave(); // Function to initialize slave
+	i2c_init_slave(); // Function to initialize slave
 	while(1)
 	{
-		TWI_match_read_slave(); //Function to match the slave address and slave direction bit(read)
-		TWI_read_slave(); // Function to read data
+		i2c_match_read_slave(); //Function to match the slave address and slave direction bit(read)
+		i2c_read_slave(); // Function to read data
 		
 		write_data=~recv_data; // Toggle the receive data
 		
-		TWI_match_write_slave(); //Function to match the slave address and slave direction bit(write)
-		TWI_write_slave();       // Function to write data
+		i2c_match_write_slave(); //Function to match the slave address and slave direction bit(write)
+		i2c_write_slave();       // Function to write data
 	}
 }
 
-void TWI_init_slave(void) // Function to initialize slave
+void i2c_init_slave(void) // Function to initialize slave
 {
 	TWAR=0x20; // Fill slave address to TWAR
 }
 
-void TWI_write_slave(void) // Function to write data
+void i2c_write_slave(void) // Function to write data
 {
 	TWDR= write_data;           // Fill TWDR register with the data to be sent
 	TWCR= (1<<TWEN)|(1<<TWINT);   // Enable TWI, Clear TWI interrupt flag
 	while((TWSR & 0xF8) != 0xC0); // Wait for the acknowledgement
 }
 
-void TWI_match_write_slave(void) //Function to match the slave address and slave direction bit(write)
+void i2c_match_write_slave(void) //Function to match the slave address and slave direction bit(write)
 {
 	while((TWSR & 0xF8)!= 0xA8) // Loop till correct acknowledgement have been received
 	{
@@ -47,7 +47,7 @@ void TWI_match_write_slave(void) //Function to match the slave address and slave
 	}
 }
 
-void TWI_read_slave(void)
+void i2c_read_slave(void)
 {
 	// Clear TWI interrupt flag,Get acknowledgement, Enable TWI
 	TWCR= (1<<TWINT)|(1<<TWEA)|(1<<TWEN);
@@ -57,7 +57,7 @@ void TWI_read_slave(void)
 	PORTB=recv_data; // send the received value on PORTB
 }
 
-void TWI_match_read_slave(void) //Function to match the slave address and slave direction bit(read)
+void i2c_match_read_slave(void) //Function to match the slave address and slave direction bit(read)
 {
 	while((TWSR & 0xF8)!= 0x60)  // Loop till correct acknowledgement have been received
 	{

@@ -21,24 +21,24 @@ int i2c_main(void)
 	/* Define pull-up for our SDA, sets output high */
 	PORTC = (1<<PCINT17);
 	
-	TWI_init_master();  // Function to initialize TWI
+	i2c_init_master();  // Function to initialize TWI
 	while(1)
 	{
 		if(write_data==0x00)
 		write_data=1;
 		
-		TWI_start(); // Function to send start condition
-		TWI_write_address(address+write); // Function to write address and data direction bit(write) on SDA
-		TWI_write_data(write_data);      // Function to write data in slave
-		TWI_stop(); // Function to send stop condition
+		i2c_start(); // Function to send start condition
+		i2c_write_address(address+write); // Function to write address and data direction bit(write) on SDA
+		i2c_write_data(write_data);      // Function to write data in slave
+		i2c_stop(); // Function to send stop condition
 		
 		
 		_delay_ms(10); // Delay of 10 milliseconds
 		
-		TWI_start();
-		TWI_read_address(address+read); // Function to write address and data direction bit(read) on SDA
-		TWI_read_data(); // Function to read data from slave
-		TWI_stop();
+		i2c_start();
+		i2c_read_address(address+read); // Function to write address and data direction bit(read) on SDA
+		i2c_read_data(); // Function to read data from slave
+		i2c_stop();
 		
 		_delay_ms(1000);
 		
@@ -48,7 +48,7 @@ int i2c_main(void)
 	
 }
 
-void TWI_init_master(void) // Function to initialize master
+void i2c_init_master(void) // Function to initialize master
 {
 	TWBR=0x4E;	// Bit rate = 0x4E(=78) and Prescale = 64 => SCL = 100KHz
 	TWSR=(1<<TWPS1)|(1<<TWPS0);   // Setting prescalar bits (1,1) = 64
@@ -57,7 +57,7 @@ void TWI_init_master(void) // Function to initialize master
 	// TWCR=(1<<TWEN); // Enable TWI?	
 }
 
-void TWI_start(void)
+void i2c_start(void)
 {
 	// Clear TWI interrupt flag, Put start condition on SDA, Enable TWI
 	TWCR= (1<<TWINT)|(1<<TWSTA)|(1<<TWEN);
@@ -65,7 +65,7 @@ void TWI_start(void)
 	while((TWSR & 0xF8)!= 0x08); // Check for the acknowledgement
 }
 
-void TWI_repeated_start(void)
+void i2c_repeated_start(void)
 {
 	// Clear TWI interrupt flag, Put start condition on SDA, Enable TWI
 	TWCR= (1<<TWINT)|(1<<TWSTA)|(1<<TWEN);
@@ -73,7 +73,7 @@ void TWI_repeated_start(void)
 	while((TWSR & 0xF8)!= 0x10); // Check for the acknowledgement
 }
 
-void TWI_write_address(unsigned char data)
+void i2c_write_address(unsigned char data)
 {
 	TWDR=data; // Address and write instruction
 	TWCR=(1<<TWINT)|(1<<TWEN);    // Clear TWI interrupt flag,Enable TWI
@@ -81,7 +81,7 @@ void TWI_write_address(unsigned char data)
 	while((TWSR & 0xF8)!= 0x18);  // Check for the acknowledgement
 }
 
-void TWI_read_address(unsigned char data)
+void i2c_read_address(unsigned char data)
 {
 	TWDR=data;					  // Address and read instruction
 	TWCR=(1<<TWINT)|(1<<TWEN);    // Clear TWI interrupt flag,Enable TWI
@@ -89,7 +89,7 @@ void TWI_read_address(unsigned char data)
 	while((TWSR & 0xF8)!= 0x40);  // Check for the acknowledgement
 }
 
-void TWI_write_data(unsigned char data)
+void i2c_write_data(unsigned char data)
 {
 	TWDR=data;    // put data in TWDR
 	TWCR=(1<<TWINT)|(1<<TWEN);    // Clear TWI interrupt flag,Enable TWI
@@ -97,7 +97,7 @@ void TWI_write_data(unsigned char data)
 	while((TWSR & 0xF8) != 0x28); // Check for the acknowledgement
 }
 
-void TWI_read_data(void)
+void i2c_read_data(void)
 {
 	TWCR=(1<<TWINT)|(1<<TWEN);    // Clear TWI interrupt flag,Enable TWI
 	while (!(TWCR & (1<<TWINT))); // Wait till complete TWDR byte transmitted
@@ -106,7 +106,7 @@ void TWI_read_data(void)
 	PORTB=recv_data;	
 }
 
-void TWI_stop(void)
+void i2c_stop(void)
 {
 	// Clear TWI interrupt flag, Put stop condition on SDA, Enable TWI
 	TWCR= (1<<TWINT)|(1<<TWEN)|(1<<TWSTO);
