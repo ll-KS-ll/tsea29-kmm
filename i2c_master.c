@@ -17,9 +17,11 @@ int i2c_main(void)
 {
 	_delay_ms(2000);
 	/* Whole port B is now outputs */
-	DDRB=0xff;
+	// DDRB=0xff;
+	
 	/* Define pull-up for our SDA, sets output high */
-	PORTC = (1<<PCINT17);
+	DDRC = (0<<DDC0)|(0<<DDC1);
+	PORTC = (1<<DDC0)|(1<<DDC1);
 	
 	i2c_init_master();  // Function to initialize TWI
 	while(1)
@@ -50,7 +52,7 @@ int i2c_main(void)
 
 void i2c_init_master(void) // Function to initialize master
 {
-	TWBR=0x4E;	// Bit rate = 0x4E(=78) and Prescale = 64 => SCL = 100KHz
+	TWBR= 0x4E;	// Bit rate = 0x4E(=78) and Prescale = 64 => SCL = 100KHz
 	TWSR=(1<<TWPS1)|(1<<TWPS0);   // Setting prescalar bits (1,1) = 64
 	// SCL freq= F_CPU/(16+2(TWBR).4^TWPS)
 	
@@ -103,7 +105,7 @@ void i2c_read_data(void)
 	while (!(TWCR & (1<<TWINT))); // Wait till complete TWDR byte transmitted
 	while((TWSR & 0xF8) != 0x58); // Check for the acknowledgement
 	recv_data=TWDR;
-	PORTB=recv_data;	
+	// PORTB=recv_data;	
 }
 
 void i2c_stop(void)
