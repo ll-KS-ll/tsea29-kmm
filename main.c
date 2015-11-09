@@ -13,34 +13,28 @@
 #include <util/delay.h>
 
 
-
-/* Simple program polling for data from bluetooth and sending it back. */
+/* Simple program waiting for data on the i2c bus. */
 int main(void)
 {	
+	/* Initialize bluetooth, enables global interrupts for handling interrupt when receiving data. */
 	bt_init( F_CPU );
+	/* Initialize as a slave on I2C-bus. */
 	i2c_init_slave(); 
 	
-	uint8_t data = 'a'; // Data received on bt. 
-	_delay_ms( 1000 );
-	bt_transmit( data );
-	
+	/* Main loop */
 	while ( 1 ) 
     {
 		/* Receive data from bus */
-		i2c_match_read_slave();		// Function to match the slave address and slave direction bit(read)
-		i2c_read_slave();			// Function to read data
+		i2c_match_read_slave();		// Wait for connection from master to read data.
+		i2c_read_slave();			// Read incoming data.
 		
 		bt_transmit( recv_data );	// Transmit received data on I2C-bus to the PC.
 		
 		/* Write data to bus */
-		write_data=recv_data;		// Toggle the receive data
-		i2c_match_write_slave();	//Function to match the slave address and slave direction bit(write)
-		i2c_write_slave();			// Function to write data
+		write_data=recv_data;		// Echo the receive data.
+		i2c_match_write_slave();	// Request to connect to master to write data.
+		i2c_write_slave();			// Write data to master.
 		
-		/* Bluetooth echo */
-		//data = bt_receive();
-		//bt_transmit( data );
-		_delay_ms( 10 );
     }
 }
 
