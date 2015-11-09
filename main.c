@@ -18,12 +18,28 @@
 int main(void)
 {	
 	bt_init( F_CPU );
-	uint8_t data;
+	i2c_init_slave(); 
+	
+	uint8_t data = 'a'; // Data received on bt. 
+	_delay_ms( 1000 );
+	bt_transmit( data );
 	
 	while ( 1 ) 
     {
-		data = bt_receive();
-		bt_transmit( data );
+		/* Receive data from bus */
+		i2c_match_read_slave();		// Function to match the slave address and slave direction bit(read)
+		i2c_read_slave();			// Function to read data
+		
+		bt_transmit( recv_data );	// Transmit received data on I2C-bus to the PC.
+		
+		/* Write data to bus */
+		write_data=recv_data;		// Toggle the receive data
+		i2c_match_write_slave();	//Function to match the slave address and slave direction bit(write)
+		i2c_write_slave();			// Function to write data
+		
+		/* Bluetooth echo */
+		//data = bt_receive();
+		//bt_transmit( data );
 		_delay_ms( 10 );
     }
 }
