@@ -1,8 +1,9 @@
 /*
 *
 */
+#define COM_ADDRESS 0x20
 
-void i2c_init_slave( void );	// Init the I2C slave.
+void i2c_init_slave( void );				// Init the I2C slave.
 void i2c_match_read_slave( void );			// Connect as reader.
 void i2c_read_slave( void );				// Read data from bus. (Polling)
 void i2c_match_write_slave( void );			// Connect as writer.
