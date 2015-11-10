@@ -47,7 +47,54 @@ void rotateRight() {
 	PORTD = (0<<3)|(0<<6);
 }
 
+void testMotor() {
+	forward();
+	setMotorSpeed(0,0);
+	_delay_ms(2000);
+	setMotorSpeed(150, 150);
+	_delay_ms(3000);
+	setMotorSpeed(0,0);
+	_delay_ms(2000);
+	reverse();
+	setMotorSpeed(150, 150);
+	_delay_ms(3000);
+	setMotorSpeed(0,0);
+	_delay_ms(2000);
+	rotateLeft();
+	setMotorSpeed(150, 150);
+	_delay_ms(3000);
+	setMotorSpeed(0,0);
+	_delay_ms(2000);
+	rotateRight();
+	setMotorSpeed(150, 150);
+	_delay_ms(3000);
+	//counter +=5;
+	//if(counter >= 200) counter = 0;
+}
 
+//Inte klart än
+void initClawPWM() {
+	TCCR3A |= (1<<COM1A1)|(1<<COM1B1)|(1<<WGM11);
+	TCCR3B |= (1<<WGM13)|(1<<WGM12)|(1<<CS11)|(1<<CS10);
+	
+	ICR3=4999;  //fPWM=50Hz (Period = 20ms Standard).
+	PORTB |= (1<<6);
+}
+
+void openClaw() {
+	OCR3A = 280;	//45 < x < 90 degree
+}
+
+void closeClaw(){
+	OCR3A = 97;		//0 degree
+}
+
+void testClaw(){
+	closeClaw();
+	_delay_ms(1000);
+	openClaw();
+	_delay_ms(1000);
+}
 
 int main(void)
 {
@@ -55,32 +102,13 @@ int main(void)
 	// unsigned int i;
 	// Initializes the PWM signal output for the motors.
 	initMotorPWM();
+	initClawPWM();
 	DDRD |= 0x78; // 0111_1000;
-
+	
 	while (1)
 	{
-		forward();
-		setMotorSpeed(0,0);
-		_delay_ms(2000);
-		setMotorSpeed(150, 150);
-		_delay_ms(3000);
-		setMotorSpeed(0,0);
-		_delay_ms(2000);
-		reverse();
-		setMotorSpeed(150, 150);
-		_delay_ms(3000);
-		setMotorSpeed(0,0);
-		_delay_ms(2000);
-		rotateLeft();
-		setMotorSpeed(150, 150);
-		_delay_ms(3000);
-		setMotorSpeed(0,0);
-		_delay_ms(2000);
-		rotateRight();
-		setMotorSpeed(150, 150);
-		_delay_ms(3000);
-		//counter +=5;
-		//if(counter >= 200) counter = 0;
+		//testMotor();
+		testClaw();
 	}
 	
 }
