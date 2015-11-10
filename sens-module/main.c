@@ -12,16 +12,16 @@
 
 int main(void)
 {
+	/* Initialize sensor module as I2C master */
     i2c_init_master();
 	
     while (1) 
     {
 		/* Write data to bus */
-		write_data = 'a';
-		i2c_start();						// Send start condition
-		i2c_write_address(COM_ADDRESS+I2C_WRITE);	// Write address and data direction bit(write) on SDA
-		i2c_write_data(write_data);			// Write data in slave
-		i2c_stop();							// Send stop condition
+		i2c_start();								// Send start condition
+		i2c_write_address(COM_ADDRESS|I2C_WRITE);	// Write address and data direction bit(write) on SDA
+		i2c_write_data('a');						// Write data to slave
+		i2c_stop();									// Send stop condition
 		
 		/* Read data from bus */
 		/*

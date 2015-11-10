@@ -4,6 +4,15 @@
 #define STY_ADDRESS 0x30			// Establish connection with styr-module.
 #define I2C_READ 1					// Read bit, signals read mode.
 #define I2C_WRITE 0					// Write bit, signals write mode.
+/* STATUS CODES */
+#define NO_RELEVANT_STATE_INFO 0xF8		// No relevant state information available; TWINT = "0". Wait or proceed current transfer.
+#define START_COND_TRANSMITTED 0x08		// A Start condition has been transmitted.
+#define RSTART_COND_TRANSMITTED	0x10	// A Repeated Start condition has been transmitted. 
+#define SLAW_ACK_RECEIVED 0x18			// SLA+W has been transmitted; ACK has been received.
+#define SLAR_ACK_RECEIVED 0x40			// SLA+R has been transmitted; ACK has been received.
+#define DATA_ACK_RECEIVED 0x28			// Data byte has been transmitted; ACK has been received. 
+#define DATA_NACK_RECEIVED 0x58			// Data byte has been transmitted; NOT ACK has been received.
+
 
 void i2c_start(void);
 void i2c_repeated_start(void);
@@ -14,4 +23,4 @@ void i2c_write_data(unsigned char);
 void i2c_read_data(void);
 void i2c_stop(void);
 
-unsigned char write_data, recv_data;
+unsigned char recv_data;	// Received data from the bus is put here.
