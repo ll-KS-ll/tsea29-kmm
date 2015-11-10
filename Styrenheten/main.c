@@ -5,7 +5,7 @@
 * Author : Lukas
 */
 
-#define F_CPU 1000000UL
+#define F_CPU 15000000UL
 #include <avr/io.h>
 #include <util/delay.h>
 
@@ -20,8 +20,8 @@ void initMotorPWM() {
 	/* Setting up Timer Control Register A/B for fast PWM			        */
 	/************************************************************************/
 	//TCCRnx, COMnx, WGn1:0
-	TCCR1A |= (1<<COM1A1)|(1<<COM1B1)|(1<<WGM10);
-	TCCR1B |= (1<<WGM12)|(1<<CS10);
+	TCCR1A |= (1<<COM1A1)|(1<<COM1B1);
+	TCCR1B |= (1<<WGM12)|(1<<WGM11)|(1<<CS11)|(1<<CS10);
 
 	
 }
@@ -68,8 +68,6 @@ void testMotor() {
 	rotateRight();
 	setMotorSpeed(150, 150);
 	_delay_ms(3000);
-	//counter +=5;
-	//if(counter >= 200) counter = 0;
 }
 
 //Inte klart än
@@ -102,13 +100,16 @@ int main(void)
 	// unsigned int i;
 	// Initializes the PWM signal output for the motors.
 	initMotorPWM();
-	initClawPWM();
+	//initClawPWM();
 	DDRD |= 0x78; // 0111_1000;
 	
 	while (1)
 	{
 		//testMotor();
-		testClaw();
+		//testClaw();
+		
+		forward();
+		setMotorSpeed(128, 64);
 	}
 	
 }
