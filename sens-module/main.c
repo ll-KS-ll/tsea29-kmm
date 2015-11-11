@@ -13,25 +13,25 @@
 int main(void)
 {
 	/* Initialize sensor module as I2C master */
-    i2c_init_master();
+	i2c_init_master();
 	
+	data_package data = {0, "ab"};
+	
+	/* Main loop */
     while (1) 
     {
-		/* Write data to bus */
-		i2c_start();								// Send start condition
-		i2c_write_address(COM_ADDRESS|I2C_WRITE);	// Write address and data direction bit(write) on SDA
-		i2c_write_data('a');						// Write data to slave
-		i2c_stop();									// Send stop condition
 		
-		/* Read data from bus */
+		i2c_write(COM_ADDRESS, data);
 		/*
-		i2c_start();
-		i2c_read_address(address+read); // Function to write address and data direction bit(read) on SDA
-		i2c_read_data(); // Function to read data from slave
-		i2c_stop();
-		*/
+		i2c_write_byte(COM_ADDRESS, 'k'); // Write data to bus.
+		_delay_ms(10);
+
+		i2c_read_byte(COM_ADDRESS); // Read data from bus.
+		_delay_ms(10);
 		
+		i2c_write_byte(COM_ADDRESS, recv_data);
 		_delay_ms(1000);
+		*/
     }
 }
 

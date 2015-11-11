@@ -14,6 +14,14 @@ void i2c_init_slave(void)
 	TWAR=COM_ADDRESS; // Set the address of the slave.
 }
 
+
+void i2c_send_ack ( void )
+{
+	// Get acknowledgment, Enable TWI, Clear TWI interrupt flag
+	TWCR=(1<<TWEA)|(1<<TWEN)|(1<<TWINT);
+	while (!(TWCR & (1<<TWINT)));  // Wait for TWINT flag
+}
+
 /* Write data to bus */
 void i2c_write_slave(void)
 {
@@ -27,11 +35,7 @@ void i2c_match_write_slave(void)
 {
 	/* Match the slave address and slave direction bit(write)  */
 	while((TWSR & 0xF8)!= 0xA8) // Loop till correct acknowledgment have been received
-	{
-		// Get acknowledgment, Enable TWI, Clear TWI interrupt flag
-		TWCR=(1<<TWEA)|(1<<TWEN)|(1<<TWINT);
-		while (!(TWCR & (1<<TWINT)));  // Wait for TWINT flag
-	}
+		i2c_send_ack();
 }
 
 /* Read data from bus */
@@ -42,7 +46,6 @@ void i2c_read_slave(void)
 	while (!(TWCR & (1<<TWINT)));	// Wait for TWINT flag
 	while((TWSR & 0xF8)!=0x80);		// Wait for acknowledgment
 	recv_data=TWDR;					// Get value from TWDR
-	PORTB=recv_data;				// send the received value on PORTB
 }
 
 /* Wait for read connection */
@@ -50,9 +53,24 @@ void i2c_match_read_slave(void)
 {
 	/* Match the slave address and slave direction bit(read) */
 	while((TWSR & 0xF8)!= 0x60)  // Loop till correct acknowledgment have been received
-	{
-		/* Get acknowledgment, Enable TWI, Clear TWI interrupt flag. */
-		TWCR=(1<<TWEA)|(1<<TWEN)|(1<<TWINT);
-		while (!(TWCR & (1<<TWINT)));  // Wait for TWINT flag
-	}
+		i2c_send_ack();
+}
+
+void i2c_read ( void )
+{
+	data_package package;
+	
+	i2c_match_read_slave();
+	i2c_read_slave();
+	package.id = recv_data;
+	
+	i2c_send_ack();
+	i2c_read_slave();
+	uint8_t hdata = recv_data;
+	
+	i2c_send_ack();
+	i2c_read_slave();
+	uint8_t ldata = recv_data;
+	
+	package.data = (hdata<<8)|ldata;
 }
