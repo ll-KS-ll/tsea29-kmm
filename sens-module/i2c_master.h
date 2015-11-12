@@ -21,10 +21,10 @@ typedef struct {
 } data_package;
 
 
-void i2c_init_master( void );				// Initialize processor as master on i2c_bus.
+void i2c_init_master( void );							// Initialize processor as master on i2c_bus.
 void i2c_write_byte( uint8_t address, uint8_t byte );	// Write a byte to slave with specified address.
 void i2c_read_byte( uint8_t address );					// Read a byte from slave with specified address. 
-void i2c_write( uint8_t address, data_package data);	// Transmit a data package to slave with specified address.
+void i2c_write_package( uint8_t address, data_package package);	// Transmit a data package to slave with specified address.
 
 
 uint8_t recv_data;	// Received data from the bus is put here.

@@ -9,10 +9,10 @@
 #include <i2c_slave.h>
 
 
-void i2c_init_slave(void)
+void i2c_init_slave( uint8_t address )
 {
 	/* Set the address of the slave. */
-	TWAR = COM_ADDRESS;
+	TWAR = address;
 	
 	/* Set ACK, enable I2C pins and enable interrupt. */
 	TWCR = (1<<TWEA) | (1<<TWEN) | (1<<TWIE);
@@ -24,27 +24,13 @@ void i2c_init_slave(void)
 	recv_data = '0';
 }
 
-/* Set i2c hardware to answer with an ACK when conditions comes from master. */
-void set_ack( void )
-{
-	TWCR = TWCR | (1<<TWEA);
-}
-
-/* Set i2c hardware to answer with an NACK when conditions comes from master. */
-void set_nack( void )
-{
-	TWCR = TWCR & ~(0x00 | (1<<TWEA));
-}
-
 /* Clear the i2c interrupt flag. */
 void clear_twint( void )
 {
-	/* ================= */
-	//TWCR = TWCR | (1<<TWINT); // Clear interrupt flag.
-	TWCR = (1<<TWEA) | (1<<TWEN) | (1<<TWIE) | (1<<TWINT);
-	/* ================= */
+	TWCR = (1<<TWEA) | (1<<TWEN) | (1<<TWIE) | (1<<TWINT);	// Activate ACK as response. Keep i2c enabled. Keep interrupts enabled. Clear interrupt flag.
 }
 
+/* Unknown state. */
 void i2c_write_slave(void)
 {
 	TWDR= write_data;				// Fill TWDR register with the data to be sent.
@@ -52,6 +38,7 @@ void i2c_write_slave(void)
 	while((TWSR & NO_RELEVANT_STATE_INFO) != SLAR_DATA_TRANSMITTED);	// Wait for the acknowledgment.
 }
 
+/* Unknown state. */
 void i2c_match_write_slave(void)
 {
 	/* Match the slave address and slave direction bit(write)  */
@@ -59,6 +46,7 @@ void i2c_match_write_slave(void)
 		clear_twint();
 }
 
+/* Unknown state. */
 void i2c_read_slave(void)
 {
 	/* Clear TWI interrupt flag, Set acknowledgment, Enable TWI. */ 
@@ -68,6 +56,7 @@ void i2c_read_slave(void)
 	recv_data=TWDR;					// Get value from TWDR
 }
 
+/* Unknown state. */
 void i2c_match_read_slave(void) 
 {
 	/* Match the slave address and slave direction bit(read) */
@@ -75,8 +64,8 @@ void i2c_match_read_slave(void)
 		clear_twint();
 }
 
-/*
-void i2c_read ( void )
+/* Broken. */
+void i2c_read_package ( void )
 {
 	data_package package;
 	
@@ -84,17 +73,17 @@ void i2c_read ( void )
 	i2c_read_slave();
 	package.id = recv_data;
 	
-	i2c_send_ack();
+	TWCR = (1<<TWEA) | (1<<TWEN) | (1<<TWINT);
 	i2c_read_slave();
 	uint8_t hdata = recv_data;
 	
-	i2c_send_ack();
+	TWCR = (1<<TWEA) | (1<<TWEN) | (1<<TWINT);
 	i2c_read_slave();
 	uint8_t ldata = recv_data;
 	
 	package.data = (hdata<<8)|ldata;
+	datap = package;
 }
-*/
 
 /* Interrupt handler for I2C interrupts. */
 ISR(TWI_vect){
@@ -106,7 +95,7 @@ ISR(TWI_vect){
 			clear_twint();	// ACK sent, clear interrupt flag.
 			break;
 			
-		case SLAW_DATA_RECEIVED:	// Data from master is received.
+		case SLAW_DATA_RECEIVED: // Data from master is received.
 			/* Read data */
 			recv_data=TWDR;	// Load incoming data into recv_data.
 			clear_twint();	// ACK sent, clear interrupt flag.
@@ -114,14 +103,12 @@ ISR(TWI_vect){
 			
 		case SLAR_REQUEST_RECEIVED:	// Request from master to read.
 			/* Load data to write */
-			set_nack();		// Enable NACK to generate correct status for master.
-			TWDR = 'd';		// Load outgoing data with 'd'.
-			clear_twint();	// ACK sent, clear interrupt flag.
+			TWDR = write_data;							// Load outgoing data with write_data.
+			TWCR = (1<<TWEN) | (1<<TWIE) | (1<<TWINT);	// Keep i2c enabled. Keep interrupts enabled. Clear interrupt flag. NACK.
 			break;	
 			
 		case SLAR_DATA_TRANSMITTED:	// Data to master has been transmitted.
 			/* Data written */ 
-			set_ack();		// Enable ACK again.
 			clear_twint();	// NACK sent, clear interrupt flag.
 			break;
 		

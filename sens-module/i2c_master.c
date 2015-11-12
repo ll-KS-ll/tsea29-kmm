@@ -10,7 +10,7 @@
 
 #include <avr/io.h>
 #include <i2c_master.h>
-
+#include <util/delay.h>
 
 void i2c_init_master( void )
 {
@@ -25,6 +25,8 @@ void i2c_init_master( void )
 	
 	/* Enable TWI */
 	TWCR = (1<<TWEN);
+	
+	recv_data = 0;
 }
 
 /* Clear the i2c interrupt flag. */
@@ -44,8 +46,7 @@ void start( void )
 /* Send repeated START condition. */
 void repeated_start( void )
 {
-	TWCR = TWCR | (1<<TWSTA);		// Activate START condition.
-	clear_twint();					// Clear interrupt flag.
+	TWCR = (1<<TWEN) | (1<<TWSTA) | (1<<TWINT); // Keep i2c enabled. Activate START condition. Clear interrupt flag.
 	while( !(TWCR & (1<<TWINT)) );  // Wait till restart condition is transmitted.
 	while( (TWSR & NO_RELEVANT_STATE_INFO) != RSTART_COND_TRANSMITTED ); // Check for the acknowledgment
 }
@@ -56,7 +57,8 @@ void send_address( uint8_t address )
 	TWDR = address;					// Load address and write instruction to send.
 	clear_twint();					// Clear interrupt flag.
 	while ( !(TWCR & (1<<TWINT)) );	// Wait till complete TWDR byte transmitted.
-	while( (TWSR & NO_RELEVANT_STATE_INFO) != SLAW_ACK_RECEIVED );	// Check for the acknowledgment
+	/* W returns ACK but R returns NACK, hence removal of check for ACK. */
+	//while( (TWSR & NO_RELEVANT_STATE_INFO) != SLAW_ACK_RECEIVED );	// Check for the acknowledgment
 }
 
 /* Send a byte of data. */
@@ -100,14 +102,27 @@ void i2c_read_byte( uint8_t address )
 	stop();								// Send stop condition.
 }
 
-void i2c_write( uint8_t address, data_package data )
+void i2c_write_package( uint8_t address, data_package package )
 {
+	/* Writes data package but without repeated start. */
 	start();									// Send start condition.
 	send_address ( address|I2C_WRITE );			// Write address and data direction bit(write) on SDA.
-	send_data( data.id );						// Write data to slave.
-	repeated_start();							// Send repeated start condition.
-	send_data( (data.data<<8) );				// Write data to slave.
-	repeated_start();							// Send repeated start condition.
-	send_data( data.data );						// Write data to slave.
+	send_data( package.id );					// Write data to slave.
+	/* ======================= */
+	stop();
+	_delay_ms(10);
+	start();
+	send_address ( address|I2C_WRITE );
+	//repeated_start();							// Send repeated start condition.
+	/* ======================= */
+	send_data( (package.data<<8) );				// Write data to slave.
+	/* ======================= */
+	stop();
+	_delay_ms(10);
+	start();
+	send_address ( address|I2C_WRITE );
+	//repeated_start();							// Send repeated start condition.
+	/* ======================= */
+	send_data( package.data );					// Write data to slave.
 	stop();										// Send stop condition.	
 }

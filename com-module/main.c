@@ -19,27 +19,16 @@ int main(void)
 {	
 	/* Initialize bluetooth, enables global interrupts for handling interrupt when receiving data. */
 	bt_init( F_CPU );
-	/* Initialize as a slave on I2C-bus. */
-	i2c_init_slave(); 
+	/* Initialize com-module as a slave on I2C-bus with the address of com-module. */
+	i2c_init_slave( COM_ADDRESS ); 
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
-	
 	
 	/* Main loop */
 	while ( 1 ) 
     {
-		/* Receive data from bus */
-		//i2c_match_read_slave();		// Wait for connection from master to read data.
-		//i2c_read_slave();			// Read incoming data.
-		
 		_delay_ms(500);
 		bt_transmit( recv_data );	// Transmit received data on I2C-bus to the PC.
-		
-		/* Write data to bus */
-		//write_data=recv_data;		// Echo the receive data.
-		//i2c_match_write_slave();	// Request to connect to master to write data.
-		//i2c_write_slave();			// Write data to master.
-		
     }
 }
 
