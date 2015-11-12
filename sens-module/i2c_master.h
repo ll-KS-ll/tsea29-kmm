@@ -13,24 +13,19 @@
 #define DATA_ACK_RECEIVED 0x28			// Data byte has been transmitted; ACK has been received. 
 #define DATA_NACK_RECEIVED 0x58			// Data byte has been transmitted; NOT ACK has been received.
 
+
 /* Structure of a data package. */
 typedef struct {
 	uint8_t id;
 	uint16_t data;
 } data_package;
 
-/* Internal functions */
+
 void i2c_init_master( void );				// Initialize processor as master on i2c_bus.
-void i2c_start( void );						// Send a start condition.
-void i2c_repeated_start( void );			// Send a repeated start condition.
-void i2c_stop( void );						// Send stop condition.
-void i2c_send_address( uint8_t address );	// Send address of slave.
-void i2c_send_data( uint8_t data );			// Send data to slave.
-void i2c_read_data( void );					// Read data from slave.
-/* External functions */
 void i2c_write_byte( uint8_t address, uint8_t byte );	// Write a byte to slave with specified address.
 void i2c_read_byte( uint8_t address );					// Read a byte from slave with specified address. 
-void i2c_write( uint8_t address, data_package data);	// Transmitt a data package to slave with specified address.
+void i2c_write( uint8_t address, data_package data);	// Transmit a data package to slave with specified address.
+
 
 uint8_t recv_data;	// Received data from the bus is put here.
 

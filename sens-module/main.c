@@ -15,23 +15,20 @@ int main(void)
 	/* Initialize sensor module as I2C master */
 	i2c_init_master();
 	
-	data_package data = {0, "ab"};
+	_delay_ms(1000); // Chilla lite.
+	
+	//data_package data = {0, "ab"};
 	
 	/* Main loop */
     while (1) 
     {
 		
-		i2c_write(COM_ADDRESS, data);
-		/*
-		i2c_write_byte(COM_ADDRESS, 'k'); // Write data to bus.
-		_delay_ms(10);
-
-		i2c_read_byte(COM_ADDRESS); // Read data from bus.
-		_delay_ms(10);
+		i2c_write_byte(COM_ADDRESS, 'k');
+		//_delay_ms(10);
 		
-		i2c_write_byte(COM_ADDRESS, recv_data);
+		//i2c_read_byte(COM_ADDRESS); // Read data from bus.
 		_delay_ms(1000);
-		*/
+		
     }
 }
 

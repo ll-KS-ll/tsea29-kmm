@@ -12,8 +12,6 @@ void bt_init( unsigned long f_cpu )
 	UCSR0B = (1<<RXEN0)|(1<<TXEN0)|(1<<RXCIE0);
 	/* Set frame format: 8data, 1stop bit */
 	UCSR0C = (0<<USBS0)|(3<<UCSZ00);
-	
-	sei(); // Enable the Global Interrupt Enable flag so that interrupts can be processed.
 }
 
 
