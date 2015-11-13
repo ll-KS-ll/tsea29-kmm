@@ -8,6 +8,7 @@
 #define F_CPU 15000000UL
 #include <avr/io.h>
 #include <util/delay.h>
+#include <avr/interrupt.h>
 
 
 void initMotorPWM() {
@@ -20,54 +21,60 @@ void initMotorPWM() {
 	/* Setting up Timer Control Register A/B for fast PWM			        */
 	/************************************************************************/
 	//TCCRnx, COMnx, WGn1:0
-	TCCR1A |= (1<<COM1A1)|(1<<COM1B1);
-	TCCR1B |= (1<<WGM12)|(1<<WGM11)|(1<<CS11)|(1<<CS10);
+	TCCR1A = (1<<COM1A1)|(1<<COM1B1)|(1<<WGM11)|(1<<WGM10);
+	TCCR1B = (1<<WGM12)|(1<<CS11);
 
 	
 }
 
 void setMotorSpeed(int leftSpeed, int rightSpeed) {
+	cli();
 	OCR1A = leftSpeed; 
-	OCR1B = rightSpeed; 
+	OCR1B = rightSpeed;
+	sei(); 
 }
 
-void forward() {
+void setForward() {
 	PORTD = (1<<3)|(0<<6);
 }
 
-void reverse() {
+void setReverse() {
 	PORTD = (0<<3)|(1<<6);
 }
 
-void rotateLeft() {
+void setRotateLeft() {
 	PORTD = (1<<3)|(1<<6);
 }
 
-void rotateRight() {
+void setRotateRight() {
 	PORTD = (0<<3)|(0<<6);
 }
 
-void testMotor() {
-	forward();
-	setMotorSpeed(0,0);
-	_delay_ms(2000);
-	setMotorSpeed(150, 150);
-	_delay_ms(3000);
-	setMotorSpeed(0,0);
-	_delay_ms(2000);
-	reverse();
-	setMotorSpeed(150, 150);
-	_delay_ms(3000);
-	setMotorSpeed(0,0);
-	_delay_ms(2000);
-	rotateLeft();
-	setMotorSpeed(150, 150);
-	_delay_ms(3000);
-	setMotorSpeed(0,0);
-	_delay_ms(2000);
-	rotateRight();
-	setMotorSpeed(150, 150);
-	_delay_ms(3000);
+void driveForward(int leftSpeed, int rightSpeed) {
+	setForward();
+	setMotorSpeed(leftSpeed,rightSpeed);
+}
+
+void rotateLeft() {
+	setRotateLeft();
+	setMotorSpeed(300, 300);
+}
+
+void rotateRight() {
+	setRotateRight();
+	setMotorSpeed(300, 300);
+}
+
+void ninetyDegreesTime() {
+	_delay_ms(1420);
+}
+
+void oneSquare() {
+	_delay_ms(1500);
+}
+
+void stop() {
+	setMotorSpeed(0, 0);
 }
 
 //Inte klart än
@@ -94,23 +101,43 @@ void testClaw(){
 	_delay_ms(1000);
 }
 
+
+void thereAndBackAgain() {
+	driveForward(250, 250);
+	oneSquare();
+	oneSquare();
+	stop();
+	rotateLeft();
+	ninetyDegreesTime();
+	ninetyDegreesTime();
+	stop();
+	driveForward(250, 250);
+	oneSquare();
+	oneSquare();
+	stop();
+	rotateRight();
+	ninetyDegreesTime();
+	ninetyDegreesTime();
+	stop();
+}
 int main(void)
 {
 	//unsigned int counter = 0;
 	// unsigned int i;
 	// Initializes the PWM signal output for the motors.
 	initMotorPWM();
-	//initClawPWM();
+	//initClawPWM();h
 	DDRD |= 0x78; // 0111_1000;
+
+	//while(1) {
+		//thereAndBackAgain();
+	//}
 	
-	while (1)
-	{
-		//testMotor();
-		//testClaw();
-		
-		forward();
-		setMotorSpeed(128, 64);
-	}
+	rotateLeft();
+	ninetyDegreesTime();
+	ninetyDegreesTime();
+	stop();
+
 	
 }
 
