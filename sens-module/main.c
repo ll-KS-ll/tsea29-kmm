@@ -8,7 +8,7 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
-#include <i2c_master.h>
+#include <i2c_master.h>	// Sensor module is a i2c master.
 
 int main(void)
 {
@@ -23,7 +23,7 @@ int main(void)
 	/* Main loop */
     while (1) 
     {
-		i2c_write_package(COM_ADDRESS, datap);	// Write a entire package to com-module.
+		i2c_write_package(STY_ADDRESS, datap);	// Write an entire package to com-module.
 		_delay_ms(2000);	// Chilla lite va.
     }
 }
