@@ -15,30 +15,6 @@
 #include "boot.h"
 
 
-//Inte klart än
-void initClawPWM() {
-	
-	//set clock
-	TCCR3A |= (1<<COM3A1)|(1<<COM3B1)|(1<<WGM30);
-	TCCR3B |= (1<<WGM32)|(1<<CS31)|(1<<CS30);
-	
-	//set output pin
-	DDRB |= 0x40; // 0100 0000
-}
-
-void openClaw() {
-	OCR3A = 150;
-}
-
-void closeClaw(){
-	OCR3A = 113;
-}
-
-void testClaw(){
-	openClaw();
-}
-
-
 int main(void)
 {
 	

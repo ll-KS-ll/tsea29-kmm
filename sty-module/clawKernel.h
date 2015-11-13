@@ -1,16 +1,19 @@
 /************************************************************************
  *																		*
  * Author: Lukas Lindqvist & Jacob Johansson                            *
- * Purpose: Boot the sty-module											*
+ * Purpose: Basic claw functions for robot							    *
  * Language: C															*
- * File type: Source													*
+ * File type: Header													*
  *																		*
 /************************************************************************/
 
-#include "motorKernel.h"
-#include "clawKernel.h"
 
-void boot() {
-	initMotor();
-	initClaw();
-}
+#ifndef CLAWKERNEL_
+#define CLAWKERNEL_
+
+void initClaw();
+void openClaw();
+void closeClaw();
+void testClaw();
+
+#endif
