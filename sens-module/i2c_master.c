@@ -115,7 +115,7 @@ void i2c_write_package( uint8_t address, data_package package )
 	send_address ( address|I2C_WRITE );
 	//repeated_start();							// Send repeated start condition.
 	/* ======================= */
-	send_data( (package.data<<8) );				// Write data to slave.
+	send_data( (package.data>>8) );				// Write data to slave.
 	/* ======================= */
 	stop();
 	_delay_ms(10);
