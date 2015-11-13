@@ -1,4 +1,5 @@
 /*
+<<<<<<< HEAD
 * Styrenheten.c
 *
 * Created: 2015-11-05 10:11:22
@@ -9,6 +10,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
+#include <i2c_slave.h> // Is slave module
 
 
 void initMotorPWM() {
@@ -121,21 +123,33 @@ void thereAndBackAgain() {
 }
 int main(void)
 {
-	//unsigned int counter = 0;
-	// unsigned int i;
+	
+	/* Initialize com-module as a slave on I2C-bus with the address of com-module. */
+	i2c_init_slave( STY_ADDRESS );
+	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
+	sei();
+	
 	// Initializes the PWM signal output for the motors.
 	initMotorPWM();
-	initClawPWM();
+	//initClawPWM();
 	
 	DDRD |= 0x78; // 0111_1000;
 
-	//while(1) {
-		//thereAndBackAgain();
-	//}
 	rotateLeft();
 	ninetyDegreesTime();
 	ninetyDegreesTime();
 	stop();
 	
+	/* Main loop */
+	while (1)
+	{
+		/* The data package datap is automatically read when sens-module sends new data. */
+		
+		/* Example of how to get stuff from data packages. */
+		uint8_t pid = datap.id;
+		uint16_t pdata = datap.data;
+		
+		_delay_ms(2000);	// Chilla lite
+	}
 }
 

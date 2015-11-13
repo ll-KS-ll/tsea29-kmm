@@ -8,30 +8,23 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
-#include <i2c_master.h>
+#include <i2c_master.h>	// Sensor module is a i2c master.
 
 int main(void)
 {
-    i2c_init_master();
+	/* Initialize sensor module as I2C master */
+	i2c_init_master();
 	
+	_delay_ms(1000); // Chilla lite!
+	
+	/* Create a data package to send. */
+	data_package datap = {'a', ('k'<<8) | 's'}; // Creates a data package with "a" as id and "ks" as data. 
+	
+	/* Main loop */
     while (1) 
     {
-		/* Write data to bus */
-		write_data = 'a';
-		i2c_start();						// Send start condition
-		i2c_write_address(COM_ADDRESS+I2C_WRITE);	// Write address and data direction bit(write) on SDA
-		i2c_write_data(write_data);			// Write data in slave
-		i2c_stop();							// Send stop condition
-		
-		/* Read data from bus */
-		/*
-		i2c_start();
-		i2c_read_address(address+read); // Function to write address and data direction bit(read) on SDA
-		i2c_read_data(); // Function to read data from slave
-		i2c_stop();
-		*/
-		
-		_delay_ms(1000);
+		i2c_write_package(STY_ADDRESS, datap);	// Write an entire package to com-module.
+		_delay_ms(2000);	// Chilla lite va.
     }
 }
 

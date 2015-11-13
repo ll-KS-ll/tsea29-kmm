@@ -9,76 +9,120 @@
 #define F_CPU 1000000UL
 
 #include <avr/io.h>
-#include <util/delay.h>
-#include <inttypes.h>
 #include <i2c_master.h>
+#include <util/delay.h>
 
-
-void i2c_init_master(void)
+void i2c_init_master( void )
 {
 	/* Set SDA, SCL as input and activate pull-up */
-	DDRC = (0<<DDC0)|(0<<DDC1);
-	PORTC = (1<<DDC0)|(1<<DDC1);
+	DDRC = (0<<DDC0) | (0<<DDC1);
+	PORTC = (1<<DDC0) | (1<<DDC1);
 	
-	TWBR= 0x4E;						// Bit rate = 0x4E(=78) and Prescale = 64 => SCL = 100KHz
-	TWSR=(1<<TWPS1)|(1<<TWPS0);		// Setting prescalar bits (1,1) = 64
+	/* Set register for clock generation */
+	TWBR = 0x4E;						// Bit rate = 0x4E(=78) and Prescale = 64 => SCL = 100kHz for f_cpu 1MHz ...but it's really 100Hz 
+	TWSR = (1<<TWPS1) | (1<<TWPS0);		// Setting prescalar bits (1,1) = 64
 	// SCL freq= F_CPU/(16+2(TWBR).4^TWPS)
 	
-	// TWCR=(1<<TWEN); // Enable TWI?	
+	/* Enable TWI */
+	TWCR = (1<<TWEN);
+	
+	recv_data = 0;
 }
 
-void i2c_start(void)
+/* Clear the i2c interrupt flag. */
+void clear_twint( void )
 {
-	// Clear TWI interrupt flag, Put start condition on SDA, Enable TWI
-	TWCR= (1<<TWINT)|(1<<TWSTA)|(1<<TWEN);
-	while(!(TWCR & (1<<TWINT))); // Wait till start condition is transmitted
-	while((TWSR & 0xF8)!= 0x08); // Check for the acknowledgment
+	TWCR = (1<<TWEN) | (1<<TWINT);	// Keep i2c enabled. Clear interrupt flag. 
 }
 
-void i2c_repeated_start(void)
+/* Send START condition. */
+void start( void )
 {
-	// Clear TWI interrupt flag, Put start condition on SDA, Enable TWI
-	TWCR= (1<<TWINT)|(1<<TWSTA)|(1<<TWEN);
-	while(!(TWCR & (1<<TWINT))); // wait till restart condition is transmitted
-	while((TWSR & 0xF8)!= 0x10); // Check for the acknowledgment
+	TWCR = (1<<TWEN) | (1<<TWSTA) | (1<<TWINT); // Keep i2c enabled. Activate START condition. Clear interrupt flag. 
+	while( !(TWCR & (1<<TWINT)) );				// Wait till start condition is transmitted
+	while( (TWSR & NO_RELEVANT_STATE_INFO) != START_COND_TRANSMITTED ); // Check for the acknowledgment
 }
 
-void i2c_write_address(unsigned char data)
+/* Send repeated START condition. */
+void repeated_start( void )
 {
-	TWDR=data; // Address and write instruction
-	TWCR=(1<<TWINT)|(1<<TWEN);    // Clear TWI interrupt flag,Enable TWI
-	while (!(TWCR & (1<<TWINT))); // Wait till complete TWDR byte transmitted
-	while((TWSR & 0xF8)!= 0x18);  // Check for the acknowledgment
+	TWCR = (1<<TWEN) | (1<<TWSTA) | (1<<TWINT); // Keep i2c enabled. Activate START condition. Clear interrupt flag.
+	while( !(TWCR & (1<<TWINT)) );  // Wait till restart condition is transmitted.
+	while( (TWSR & NO_RELEVANT_STATE_INFO) != RSTART_COND_TRANSMITTED ); // Check for the acknowledgment
 }
 
-void i2c_read_address(unsigned char data)
+/* Send slave address to connect with. (SLA+R/W). */
+void send_address( uint8_t address )
 {
-	TWDR=data;					  // Address and read instruction
-	TWCR=(1<<TWINT)|(1<<TWEN);    // Clear TWI interrupt flag,Enable TWI
-	while (!(TWCR & (1<<TWINT))); // Wait till complete TWDR byte received
-	while((TWSR & 0xF8)!= 0x40);  // Check for the acknowledgment
+	TWDR = address;					// Load address and write instruction to send.
+	clear_twint();					// Clear interrupt flag.
+	while ( !(TWCR & (1<<TWINT)) );	// Wait till complete TWDR byte transmitted.
+	/* W returns ACK but R returns NACK, hence removal of check for ACK. */
+	//while( (TWSR & NO_RELEVANT_STATE_INFO) != SLAW_ACK_RECEIVED );	// Check for the acknowledgment
 }
 
-void i2c_write_data(unsigned char data)
+/* Send a byte of data. */
+void send_data( uint8_t data )
 {
-	TWDR=data;    // put data in TWDR
-	TWCR=(1<<TWINT)|(1<<TWEN);    // Clear TWI interrupt flag,Enable TWI
-	while (!(TWCR & (1<<TWINT))); // Wait till complete TWDR byte transmitted
-	while((TWSR & 0xF8) != 0x28); // Check for the acknowledgment
+	TWDR = data;					// Put data in TWDR
+	clear_twint();					// Clear interrupt flag.
+	while ( !(TWCR & (1<<TWINT)) );	// Wait till complete TWDR byte transmitted.
+	while( (TWSR & NO_RELEVANT_STATE_INFO) != DATA_ACK_RECEIVED ); // Check for the acknowledgment
 }
 
-void i2c_read_data(void)
+/* Read a byte of data. */
+void read_data( void )
 {
-	TWCR=(1<<TWINT)|(1<<TWEN);    // Clear TWI interrupt flag,Enable TWI
-	while (!(TWCR & (1<<TWINT))); // Wait till complete TWDR byte transmitted
-	while((TWSR & 0xF8) != 0x58); // Check for the acknowledgment
-	recv_data=TWDR;
+	clear_twint();					// Clear interrupt flag.
+	while ( !(TWCR & (1<<TWINT)) ); // Wait till complete TWDR byte transmitted.
+	while( (TWSR & NO_RELEVANT_STATE_INFO) != DATA_NACK_RECEIVED ); // Check for the acknowledgment. 
+	recv_data = TWDR;				// Load incoming data to recv_data.
 }
 
-void i2c_stop(void)
+/* Send STOP condition. */
+void stop( void )
 {
-	// Clear TWI interrupt flag, Put stop condition on SDA, Enable TWI
-	TWCR= (1<<TWINT)|(1<<TWEN)|(1<<TWSTO);
-	while(!(TWCR & (1<<TWSTO)));  // Wait till stop condition is transmitted
+	TWCR = (1<<TWEN) | (1<<TWSTO) | (1<<TWINT); // Keep i2c enabled. Activate STOP condition. Clear interrupt flag.
+	while( !(TWCR & (1<<TWSTO)) );				// Wait till stop condition is transmitted.
 }
 
+void i2c_write_byte( uint8_t address, uint8_t byte )
+{
+	start();							// Send start condition.
+	send_address ( address|I2C_WRITE );	// Write address and data direction bit(write) on SDA.
+	send_data( byte );					// Write data to slave.
+	stop();								// Send stop condition.
+}
+
+void i2c_read_byte( uint8_t address )
+{
+	start();							// Send start condition.
+	send_address ( address|I2C_READ );	// Write address and data direction bit(write) on SDA.
+	read_data();						// Read data from bus to recv_data. 
+	stop();								// Send stop condition.
+}
+
+void i2c_write_package( uint8_t address, data_package package )
+{
+	/* Writes data package but without repeated start. */
+	start();									// Send start condition.
+	send_address ( address|I2C_WRITE );			// Write address and data direction bit(write) on SDA.
+	send_data( package.id );					// Write data to slave.
+	/* ======================= */
+	stop();
+	_delay_ms(10);
+	start();
+	send_address ( address|I2C_WRITE );
+	//repeated_start();							// Send repeated start condition.
+	/* ======================= */
+	send_data( (package.data>>8) );				// Write data to slave.
+	/* ======================= */
+	stop();
+	_delay_ms(10);
+	start();
+	send_address ( address|I2C_WRITE );
+	//repeated_start();							// Send repeated start condition.
+	/* ======================= */
+	send_data( package.data );					// Write data to slave.
+	stop();										// Send stop condition.	
+}
