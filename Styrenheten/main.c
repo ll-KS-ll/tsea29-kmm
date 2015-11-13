@@ -72,26 +72,25 @@ void testMotor() {
 
 //Inte klart än
 void initClawPWM() {
-	TCCR3A |= (1<<COM1A1)|(1<<COM1B1)|(1<<WGM11);
-	TCCR3B |= (1<<WGM13)|(1<<WGM12)|(1<<CS11)|(1<<CS10);
 	
-	ICR3=4999;  //fPWM=50Hz (Period = 20ms Standard).
-	PORTB |= (1<<6);
+	//set clock
+	TCCR3A |= (1<<COM3A1)|(1<<COM3B1)|(1<<WGM30);
+	TCCR3B |= (1<<WGM32)|(1<<CS31)|(1<<CS30);
+	
+	//set output pin
+	DDRB |= 0x40; // 0100 0000
 }
 
 void openClaw() {
-	OCR3A = 280;	//45 < x < 90 degree
+	OCR3A = 150;
 }
 
 void closeClaw(){
-	OCR3A = 97;		//0 degree
+	OCR3A = 113;
 }
 
 void testClaw(){
-	closeClaw();
-	_delay_ms(1000);
 	openClaw();
-	_delay_ms(1000);
 }
 
 int main(void)
@@ -100,16 +99,15 @@ int main(void)
 	// unsigned int i;
 	// Initializes the PWM signal output for the motors.
 	initMotorPWM();
-	//initClawPWM();
+	initClawPWM();
 	DDRD |= 0x78; // 0111_1000;
 	
 	while (1)
 	{
+		openClaw();	
 		//testMotor();
-		//testClaw();
-		
-		forward();
-		setMotorSpeed(128, 64);
+		//forward();
+		//setMotorSpeed(128, 64);
 	}
 	
 }
