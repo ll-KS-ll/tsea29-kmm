@@ -27,8 +27,12 @@ int main(void)
 	/* Main loop */
 	while ( 1 ) 
     {
-		_delay_ms(500);
-		bt_transmit( recv_data );	// Transmit received data on I2C-bus to the PC.
+		_delay_ms(1500);
+		bt_transmit( datap.id );
+		bt_transmit( ':' );
+		bt_transmit( (datap.data>>8) );
+		bt_transmit( datap.data );
+		bt_transmit( ' ' );
     }
 }
 

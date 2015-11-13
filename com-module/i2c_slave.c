@@ -8,6 +8,10 @@
 #include <avr/interrupt.h>
 #include <i2c_slave.h>
 
+/* Variables to track progress of package */
+typedef enum { false, true } bool;
+bool id, datah;
+
 
 void i2c_init_slave( uint8_t address )
 {
@@ -21,6 +25,8 @@ void i2c_init_slave( uint8_t address )
 	DDRC = (0<<DDC0) | (0<<DDC1);
 	PORTC = (1<<DDC0) | (1<<DDC1);
 	
+	id = true;
+	datah = true;
 	recv_data = '0';
 }
 
@@ -81,7 +87,7 @@ void i2c_read_package ( void )
 	i2c_read_slave();
 	uint8_t ldata = recv_data;
 	
-	package.data = (hdata<<8)|ldata;
+	package.data = (hdata<<8) | ldata;
 	datap = package;
 }
 
@@ -98,6 +104,19 @@ ISR(TWI_vect){
 		case SLAW_DATA_RECEIVED: // Data from master is received.
 			/* Read data */
 			recv_data=TWDR;	// Load incoming data into recv_data.
+			
+			/* Read data package */
+			if ( id ) {
+				datap.id = recv_data;
+				id = false;
+			} else if ( datah ) {
+				datap.data = (recv_data<<8);
+				datah = false;	
+			} else {
+				datap.data = datap.data | recv_data;
+				id = datah = true;
+			}
+			
 			clear_twint();	// ACK sent, clear interrupt flag.
 			break;
 			
