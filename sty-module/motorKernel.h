@@ -18,5 +18,7 @@ void setRotateLeft();
 void setRotateRight();
 void stop();
 
+void driveForward();
+
  
 #endif /* MOTORKERNEL_H_ */
