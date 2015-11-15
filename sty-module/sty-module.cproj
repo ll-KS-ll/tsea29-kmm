@@ -150,10 +150,22 @@
     <Compile Include="boot.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="clawKernel.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="clawKernel.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="i2c_slave.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="i2c_slave.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensorValues.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensorValues.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.c">

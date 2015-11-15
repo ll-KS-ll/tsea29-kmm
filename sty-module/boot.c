@@ -1,6 +1,6 @@
 /************************************************************************
  *																		*
- * Author: Lukas Lindqvist & Jacob Johansson                            *
+ * Author: Güntech							                            *
  * Purpose: Boot the sty-module											*
  * Language: C															*
  * File type: Source													*

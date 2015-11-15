@@ -1,15 +1,15 @@
 /************************************************************************
  *																		*
- * Author: Lukas Lindqvist & Jacob Johansson                            *
+ * Author: Güntech														*
  * Purpose: Boot the sty-module											*
  * Language: C															*
  * File type: Header													*
  *																		*
 /************************************************************************/
 
-#ifndef BOOT_
-#define BOOT_
+#ifndef BOOT_H_
+#define BOOT_H_
 
 void boot();
 
-#endif
+#endif /* BOOT_H_ */

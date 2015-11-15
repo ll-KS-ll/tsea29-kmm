@@ -1,19 +1,19 @@
 /************************************************************************
  *																		*
- * Author: Lukas Lindqvist & Jacob Johansson                            *
- * Purpose: Basic claw functions for robot							    *
+ * Author: Güntech														*
+ * Purpose: Kernel for the claw										    *
  * Language: C															*
  * File type: Header													*
  *																		*
 /************************************************************************/
 
 
-#ifndef CLAWKERNEL_
-#define CLAWKERNEL_
+
+#ifndef CLAWKERNEL_H_
+#define CLAWKERNEL_H_
 
 void initClaw();
 void openClaw();
 void closeClaw();
-void testClaw();
 
-#endif
+#endif /* CLAWKERNEL_H_ */

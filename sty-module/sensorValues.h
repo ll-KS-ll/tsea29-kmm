@@ -1,17 +1,16 @@
 /************************************************************************
  *																		*
- * Author: Güntech							                            *
- * Purpose: Logic used by robot to drive through labyrinth				*
+ * Author: Güntech														*
+ * Purpose: Storage for the different sensor values						*
  * Language: C															*
  * File type: Header													*
  *																		*
 /************************************************************************/
 
-#ifndef AUTONOMOUS_H_
-#define AUTONOMOUS_H_
 
-void exploreLabyrinth();
+#ifndef SENSORVALUES_H_
+#define SENSORVALUES_H_
 
-void rotateOnSpot(int startAngle, int endAngle);
+int getCurrentAngle();
 
-#endif /* AUTONOMOUS_H_ */
+#endif /* SENSORVALUES_H_ */

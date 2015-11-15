@@ -1,6 +1,6 @@
 /************************************************************************
  *																		*
- * Author: Lukas Lindqvist & Jacob Johansson                            *
+ * Author: Güntech							                            *
  * Purpose: Drive robot through labyrinth								*
  * Language: C															*
  *																		*
@@ -13,7 +13,7 @@
 #include <i2c_slave.h> // Is slave module
 #include "autonomous.h"
 #include "boot.h"
-
+#include "sensorValues.h"
 
 int main(void)
 {
