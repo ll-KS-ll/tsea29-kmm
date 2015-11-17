@@ -146,8 +146,8 @@ int main(void)
 		/* The data package datap is automatically read when sens-module sends new data. */
 		
 		/* Example of how to get stuff from data packages. */
-		uint8_t pid = datap.id;
-		uint16_t pdata = datap.data;
+		uint8_t pid = datap->id;
+		uint16_t pdata = datap->data;
 		
 		_delay_ms(2000);	// Chilla lite
 	}

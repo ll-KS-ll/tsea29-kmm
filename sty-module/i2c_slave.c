@@ -11,6 +11,10 @@
 /* Variables to track progress of package */
 typedef enum { false, true } bool;
 bool id, datah;
+/* Variables for simple two state buffer for reading. */
+uint8_t buffer;
+data_package* datap_buffer_ptr;
+data_package datap_buffer1, datap_buffer2;	// Data package buffer.
 
 
 void i2c_init_slave( uint8_t address )
@@ -28,6 +32,10 @@ void i2c_init_slave( uint8_t address )
 	id = true;
 	datah = true;
 	recv_data = '0';
+	//datap_buffer1 = {0, 0};
+	datap = &datap_buffer1;
+	buffer = 0;
+	
 }
 
 /* Clear the i2c interrupt flag. */
@@ -70,26 +78,6 @@ void i2c_match_read_slave(void)
 		clear_twint();
 }
 
-/* Broken. */
-void i2c_read_package ( void )
-{
-	data_package package;
-	
-	i2c_match_read_slave();
-	i2c_read_slave();
-	package.id = recv_data;
-	
-	TWCR = (1<<TWEA) | (1<<TWEN) | (1<<TWINT);
-	i2c_read_slave();
-	uint8_t hdata = recv_data;
-	
-	TWCR = (1<<TWEA) | (1<<TWEN) | (1<<TWINT);
-	i2c_read_slave();
-	uint8_t ldata = recv_data;
-	
-	package.data = (hdata<<8) | ldata;
-	datap = package;
-}
 
 /* Interrupt handler for I2C interrupts. */
 ISR(TWI_vect){
@@ -105,16 +93,26 @@ ISR(TWI_vect){
 			/* Read data */
 			recv_data=TWDR;	// Load incoming data into recv_data.
 			
+			/* Select buffer */
+			if (buffer ) {
+				datap_buffer_ptr = &datap_buffer1;
+				buffer = 1;
+			} else {
+				datap_buffer_ptr = &datap_buffer2;
+				buffer = 0;
+			}
+			
 			/* Read data package */
 			if ( id ) {
-				datap.id = recv_data;
+				datap_buffer_ptr->id = recv_data;
 				id = false;
 			} else if ( datah ) {
-				datap.data = (recv_data<<8);
+				datap_buffer_ptr->data = (recv_data<<8);
 				datah = false;	
 			} else {
-				datap.data = datap.data | recv_data;
+				datap_buffer_ptr->data = datap_buffer_ptr->data | recv_data;
 				id = datah = true;
+				datap = datap_buffer_ptr; // Set data package.
 			}
 			
 			clear_twint();	// ACK sent, clear interrupt flag.
