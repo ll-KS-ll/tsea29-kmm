@@ -1,6 +1,6 @@
 /************************************************************************
  *																		*
- * Author: Güntech							                            *
+ * Author: GünTECH							                            *
  * Purpose: Logic used by robot to drive through labyrinth				*
  * Language: C															*
  * File type: Header													*
@@ -13,5 +13,8 @@
 void exploreLabyrinth();
 
 void rotateOnSpot(int startAngle, int endAngle);
+void moveOneNode();
+void autoAdjustPosition();
+
 
 #endif /* AUTONOMOUS_H_ */
