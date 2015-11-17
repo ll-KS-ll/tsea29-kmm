@@ -162,6 +162,12 @@
     <Compile Include="i2c_slave.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="labyrinthMap.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="labyrinthMap.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="sensorValues.c">
       <SubType>compile</SubType>
     </Compile>

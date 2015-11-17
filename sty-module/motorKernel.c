@@ -28,11 +28,11 @@ void initMotor() {
 		TCCR1A |= (1<<COM1A1);
 		TCCR1A |= (1<<COM1B1);
 		// Set WGM for 10-bit Fast PWM
-		TCCR1A |= (1<<WGM11);
 		TCCR1A |= (1<<WGM10);
+		TCCR1A |= (1<<WGM11);
 		TCCR1B |= (1<<WGM12);
 		// Set CS bits for 8 prescaler
-		TCCR1B |=(1<<CS11);
+		TCCR1B |= (1<<CS11);
 		
 		/* Set processor outputs for motor control */
 		DDRD |= 0x78; // 0111_1000;

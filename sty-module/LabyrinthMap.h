@@ -1,17 +1,18 @@
 /************************************************************************
  *																		*
- * Author: Güntech														*
- * Purpose: Storage for the different sensor values						*
+ * Author: Güntech							                            *
+ * Purpose: Storage and functions for the labyrinth map structure		*
  * Language: C															*
  * File type: Header													*
  *																		*
 /************************************************************************/
 
 
-#ifndef SENSORVALUES_H_
-#define SENSORVALUES_H_
+#ifndef LABYRINTHMAP_H_
+#define LABYRINTHMAP_H_
 
-void updateRegisters(uint8_t dataId, uint16_t dataPacket);
-int getCurrentAngle();
 
-#endif /* SENSORVALUES_H_ */
+
+
+
+#endif /* LABYRINTHMAP_H_ */
