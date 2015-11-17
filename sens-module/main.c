@@ -61,7 +61,7 @@ int main(void)
 	DDRB = 0xFF; // PORTB as OUTPUT
 	DDRD = 0xFF; //PORTD as OUTPUT
 	uint16_t angle;
-	uint8_t ch = 0b00000011; //ch = 5 = angular rate sensor
+	uint8_t ch = 0b00000101; //ch = 5 = angular rate sensor
 	adc_init();
 	
 	float gyro_voltage = 5;
