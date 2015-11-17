@@ -35,6 +35,7 @@ void exploreLabyrinth() {
 	
 }
 
+
 /* Private function used for rotating 90 degrees left */
 static void rotateLeftOnce() {
 	uint16_t currentAngle = getCurrentAngle();
@@ -117,3 +118,17 @@ void rotateOnSpot(direction targetDirection) {
 	// Update current direction
 	currentDirection = targetDirection;
 }
+
+void rotateOnSpot(int startAngle, int endAngle) {
+	// fill
+}
+
+	//Move the equivalent of one node
+void moveOneNode(){
+	
+}
+	//Adjust position to move straight in the labyrinth
+void autoAdjustPosition(){
+	
+}
+
