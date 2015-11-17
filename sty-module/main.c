@@ -15,6 +15,8 @@
 #include "boot.h"
 #include "sensorValues.h"
 
+#include "motorKernel.h"
+
 int main(void)
 {
 	
@@ -26,17 +28,32 @@ int main(void)
 	/* Boot Claw-/Motor-kernel */
 	boot();
 	
+	_delay_ms(2000);
 	
+	uint16_t angle;
+	
+	setRotateLeft();
+	setMotorSpeed(400, 400);
 	/* Main loop */
+	// Testa att rotera
 	while (1)
 	{
+		_delay_ms(2000);
 		/* The data package datap is automatically read when sens-module sends new data. */
 		
 		/* Example of how to get stuff from data packages. */
-		uint8_t pid = datap.id;
-		uint16_t pdata = datap.data;
+		data_package tmp = datap;
+		uint8_t pid = tmp.id;
+		uint16_t pdata = tmp.data;
 		
-		_delay_ms(2000);	// Chilla lite
+		angle = pdata;
+		
+		if(angle >= 30) {
+			stop();
+			break;
+		}
+		
+		_delay_ms(500);	// Chilla lite
 	}
 }
 

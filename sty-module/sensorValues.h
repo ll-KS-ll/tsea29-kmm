@@ -7,6 +7,8 @@
  *																		*
 /************************************************************************/
 
+#include <stdint-gcc.h>
+
 
 #ifndef SENSORVALUES_H_
 #define SENSORVALUES_H_

@@ -10,8 +10,9 @@
 #ifndef AUTONOMOUS_H_
 #define AUTONOMOUS_H_
 
-void exploreLabyrinth();
 
-void rotateOnSpot(int startAngle, int endAngle);
+typedef enum { north, south, west, east} direction;
+
+void exploreLabyrinth();
 
 #endif /* AUTONOMOUS_H_ */

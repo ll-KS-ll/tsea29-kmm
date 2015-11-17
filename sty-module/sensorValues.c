@@ -11,23 +11,25 @@
 #include "sensorValues.h"
 
 // Init all values to zero
-static int angle = 0;
-static int frontDistance = 0;
-static int frontLeftDistance = 0;
-static int backLeftDistance = 0;
-static int frontRightDistance = 0;
-static int backRightDistance = 0;
-static int sensorBar[] = {0, 0, 0, 0, 0, 0, 0, 0}
+static uint16_t angle = 0;
+static uint16_t frontDistance = 0;
+static uint16_t frontLeftDistance = 0;
+static uint16_t backLeftDistance = 0;
+static uint16_t frontRightDistance = 0;
+static uint16_t backRightDistance = 0;
+static uint16_t sensorBar[] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 
 void updateRegisters(uint8_t dataId, uint16_t dataPacket) {
-	switch dataId {
-		case 5:
-			angle = dataPacket;
-			break;
-	}
+	
+	angle = dataPacket;
+	//switch (dataId) {
+		//case 5:
+			//break;
+	//}
 }
-int getCurrentAngle() {
+
+uint16_t getCurrentAngle() {
 	return angle;
 }
 
