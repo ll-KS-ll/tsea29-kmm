@@ -36,3 +36,13 @@ void exploreLabyrinth() {
 void rotateOnSpot(int startAngle, int endAngle) {
 	// fill
 }
+
+	//Move the equivalent of one node
+void moveOneNode(){
+	
+}
+	//Adjust position to move straight in the labyrinth
+void autoAdjustPosition(){
+	
+}
+
