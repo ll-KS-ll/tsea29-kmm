@@ -119,7 +119,6 @@ void i2c_read_byte( uint8_t address )
 
 uint8_t i2c_write_package( uint8_t address, data_package package )
 {
-	/* Writes data package but without repeated start. */
 	error_status = 0;	// Clear Error status.
 	
 	start();									// Send start condition.
@@ -128,28 +127,21 @@ uint8_t i2c_write_package( uint8_t address, data_package package )
 	if ( error_status ) return error_status;	// Check if an error occurred.
 	send_data( package.id );					// Write data to slave.
 	if ( error_status ) return error_status;	// Check if an error occurred.
-	/* ======================= */
-	stop();
-	_delay_ms(10);
-	start();
+	
+	repeated_start();							// Send repeated start condition.
+	if ( error_status ) return error_status;	// Check if an error occurred.	
+	send_address ( address|I2C_WRITE );			// Write address and data direction bit(write) on SDA.
 	if ( error_status ) return error_status;	// Check if an error occurred.
-	send_address ( address|I2C_WRITE );
-	if ( error_status ) return error_status;	// Check if an error occurred.
-	//repeated_start();							// Send repeated start condition.
-	/* ======================= */
 	send_data( (package.data>>8) );				// Write data to slave.
 	if ( error_status ) return error_status;	// Check if an error occurred.
-	/* ======================= */
-	stop();
-	_delay_ms(10);
-	start();
+	
+	repeated_start();							// Send repeated start condition.
 	if ( error_status ) return error_status;	// Check if an error occurred.
-	send_address ( address|I2C_WRITE );
+	send_address ( address|I2C_WRITE );			// Write address and data direction bit(write) on SDA.
 	if ( error_status ) return error_status;	// Check if an error occurred.
-	//repeated_start();							// Send repeated start condition.
-	/* ======================= */
 	send_data( package.data );					// Write data to slave.
 	if ( error_status ) return error_status;	// Check if an error occurred.
+	
 	stop();										// Send stop condition.	
 	return 0;
 }

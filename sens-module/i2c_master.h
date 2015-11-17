@@ -27,7 +27,7 @@ typedef struct {
 } data_package;
 
 uint8_t error_status;	// Status code of I2C errors. 0 is no error.
-uint8_t recv_data;	// Received data from the bus is put here.
+uint8_t recv_data;		// Received data from the bus is put here.
 
 
 void i2c_init_master( void );							// Initialize processor as master on i2c_bus.

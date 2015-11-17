@@ -15,15 +15,15 @@ int main(void)
 	/* Initialize sensor module as I2C master */
 	i2c_init_master();
 	
-	_delay_ms(1000); // Chilla lite!
+	_delay_ms(5000); // Chilla lite!
 	
 	/* Create a data package to send. */
-	data_package datap = {'a', ('k'<<8) | 's'}; // Creates a data package with "a" as id and "ks" as data. 
+	data_package datap = {0x56, 0xAAAA}; // Creates a data package with "01010110" as id and "10101010 10101010" as data. 
 	
 	/* Main loop */
     while (1) 
     {
-		i2c_write_package(STY_ADDRESS, datap);	// Write an entire package to com-module.
+		i2c_write_package(COM_ADDRESS, datap);	// Write an entire package to com-module.
 		_delay_ms(2000);	// Chilla lite va.
     }
 }
