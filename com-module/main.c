@@ -28,10 +28,13 @@ int main(void)
 	while ( 1 ) 
     {
 		_delay_ms(1500);
-		bt_transmit( datap->id );
-		bt_transmit( ':' );
-		bt_transmit( (datap->data >> 8) );
-		bt_transmit( datap->data );
+		data_package tmp = *datap; // Store entire package in case a new is read.
+		bt_transmit( '<' );
+		bt_transmit( tmp.id );
+		bt_transmit( ',' );
+		bt_transmit( (tmp.data >> 8) );
+		bt_transmit( tmp.data );
+		bt_transmit( '>' );
 		bt_transmit( ' ' );
     }
 }
