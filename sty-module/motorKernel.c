@@ -69,3 +69,8 @@ void setRotateRight() {
 void stop() {
 	setMotorSpeed(0, 0);
 }
+
+void driveForward() {
+	setForward();
+	setMotorSpeed(250, 250);
+}
