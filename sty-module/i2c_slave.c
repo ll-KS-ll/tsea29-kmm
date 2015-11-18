@@ -20,7 +20,7 @@ data_package datap_buffer1, datap_buffer2;	// Data package buffer.
 void i2c_init_slave( uint8_t address )
 {
 	/* Set the address of the slave. */
-	TWAR = address;
+	TWAR = address | 1;
 	
 	/* Set ACK, enable I2C pins and enable interrupt. */
 	TWCR = (1<<TWEA) | (1<<TWEN) | (1<<TWIE);
