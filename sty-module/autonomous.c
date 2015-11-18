@@ -12,6 +12,9 @@
 #include "motorKernel.h"
 #include "sensorValues.h"
 
+#define kp 1
+#define kd 1
+
 static bool exploring = false;
 
 direction currentDirection = north;
@@ -37,6 +40,7 @@ void exploreLabyrinth() {
 
 
 /* Private function used for rotating 90 degrees left */
+/* Unknown in-data from gyro */
 static void rotateLeftOnce() {
 	uint16_t currentAngle = getCurrentAngle();
 	uint16_t endAngle = currentAngle + 256;
@@ -53,6 +57,7 @@ static void rotateLeftOnce() {
 }
 
 /* Private function used for rotating 90 degrees right */
+/* Unknown in-data from gyro */
 static void rotateRightOnce() {
 	uint16_t currentAngle = getCurrentAngle();
 	uint16_t endAngle = currentAngle - 256;
@@ -69,7 +74,7 @@ static void rotateRightOnce() {
 }
 
 /* Private function used by algorithms to rotate robot on the spot to the desired direction */
-void rotateOnSpot(direction targetDirection) {
+static void rotateOnSpot(direction targetDirection) {
 	if(currentDirection == targetDirection) {
 		return;
 	}
@@ -119,16 +124,34 @@ void rotateOnSpot(direction targetDirection) {
 	currentDirection = targetDirection;
 }
 
-void rotateOnSpot(int startAngle, int endAngle) {
-	// fill
+	//Move the equivalent of one node
+static void moveOneNode(){
+	
 }
 
-	//Move the equivalent of one node
-void moveOneNode(){
+/* Using PD-regulator to make robot drive in middle of corridor */
+/*
+	u[n] = Kp * e[n] + Kd * (e[n]-e[n-1])
+	u[n] -> how much to turn. u[n] < 0 turn right, u[n] > 0 turn left, u[n] = 0 go straight
+	Kp	 -> constant
+	e[n] ->	how wrong our direction is
+	Kd	 -> constant
+*/
+static int16_t pdRegulator(){
+	int16_t u, e;
+	static int16_t preE;
 	
-}
-	//Adjust position to move straight in the labyrinth
-void autoAdjustPosition(){
+	/* Choose to regulate depending on which side of robot is closest to the walls */
+	if(getFrontLeftDistance() + getBackLeftDistance() <= getFrontRightDistance() + getBackRightDistance()) {
+		e = getFrontLeftDistance() - getBackLeftDistance();
+	} else {
+		e = getFrontRightDistance() - getBackRightDistance();
+	}
 	
+	u = kd * e + kp * (e-preE);
+	
+	preE = e;
+	
+	return u;
 }
 

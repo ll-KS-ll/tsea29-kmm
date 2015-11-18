@@ -15,6 +15,7 @@
 #include "boot.h"
 #include "sensorValues.h"
 
+// temporary, only for testing
 #include "motorKernel.h"
 
 int main(void)
@@ -30,15 +31,14 @@ int main(void)
 	
 	_delay_ms(2000);
 	
-	uint16_t angle;
+	volatile angle;
 	
 	setRotateLeft();
-	setMotorSpeed(400, 400);
+	setMotorSpeed(400, 400);	
 	/* Main loop */
 	// Testa att rotera
 	while (1)
 	{
-		_delay_ms(2000);
 		/* The data package datap is automatically read when sens-module sends new data. */
 		
 		/* Example of how to get stuff from data packages. */
