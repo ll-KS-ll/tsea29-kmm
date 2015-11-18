@@ -28,10 +28,10 @@ int main(void)
 	while ( 1 ) 
     {
 		_delay_ms(1500);
-		bt_transmit( datap.id );
+		bt_transmit( datap->id );
 		bt_transmit( ':' );
-		bt_transmit( (datap.data>>8) );
-		bt_transmit( datap.data );
+		bt_transmit( (datap->data >> 8) );
+		bt_transmit( datap->data );
 		bt_transmit( ' ' );
     }
 }
