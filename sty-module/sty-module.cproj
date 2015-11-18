@@ -45,7 +45,7 @@
     <com_atmel_avrdbg_tool_atmelice>
       <ToolOptions>
         <InterfaceProperties>
-          <JtagDbgClock>200000</JtagDbgClock>
+          <JtagDbgClock>2000000</JtagDbgClock>
           <JtagEnableExtResetOnStartSession>false</JtagEnableExtResetOnStartSession>
           <JtagInChain>true</JtagInChain>
           <JtagDevicesBefore>0</JtagDevicesBefore>
@@ -64,7 +64,7 @@
       <ToolName>Atmel-ICE</ToolName>
     </com_atmel_avrdbg_tool_atmelice>
     <avrtoolinterface>JTAG</avrtoolinterface>
-    <avrtoolinterfaceclock>200000</avrtoolinterfaceclock>
+    <avrtoolinterfaceclock>2000000</avrtoolinterfaceclock>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
@@ -138,13 +138,49 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="autonomous.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="autonomous.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="boot.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="boot.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="clawKernel.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="clawKernel.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="i2c_slave.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="i2c_slave.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="labyrinthMap.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="labyrinthMap.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensorValues.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensorValues.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="motorKernel.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="motorKernel.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
