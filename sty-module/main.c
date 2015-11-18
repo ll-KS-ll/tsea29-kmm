@@ -31,7 +31,7 @@ int main(void)
 	
 	_delay_ms(2000);
 	
-	volatile angle;
+	volatile angle = 0;
 	
 	setRotateLeft();
 	setMotorSpeed(400, 400);	
@@ -47,7 +47,7 @@ int main(void)
 		
 		angle = pdata;
 		
-		if(angle >= 30) {
+		if(angle >= 0.5) {
 			stop();
 			break;
 		}
