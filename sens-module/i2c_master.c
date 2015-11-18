@@ -19,9 +19,10 @@ void i2c_init_master( void )
 	PORTC = (1<<DDC0) | (1<<DDC1);
 	
 	/* Set register for clock generation */
-	TWBR = 0x4E;						// Bit rate = 0x4E(=78) and Prescale = 64 => SCL = 100kHz for f_cpu 1MHz ...but it's really 100Hz 
-	TWSR = (1<<TWPS1) | (1<<TWPS0);		// Setting prescalar bits (1,1) = 64
-	// SCL freq= F_CPU/(16+2(TWBR).4^TWPS)
+	TWBR = 0;							// Bit rate: 62.5 kHz for F_SCL=1 MhZ
+	TWSR = (0<<TWPS1) | (0<<TWPS0);		// Setting pre-scalar bits 00 = 4^0 = 0
+	// SCL freq= F_CPU/(16 + 2*(TWBR)*4^TWPS)
+	// 100 kHz = 16 MHz / (16 + 2 * 72 * 4^0)	TWBR=72, TWSR=0. 
 	
 	/* Enable TWI */
 	TWCR = (1<<TWEN);
