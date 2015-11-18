@@ -79,6 +79,33 @@ void i2c_match_read_slave(void)
 }
 
 
+void read ( void ) {
+	recv_data=TWDR;	// Load incoming data into recv_data.
+	
+	/* Select buffer */
+	if (buffer ) {
+		datap_buffer_ptr = &datap_buffer1;
+		buffer = 1;
+		} else {
+		datap_buffer_ptr = &datap_buffer2;
+		buffer = 0;
+	}
+	
+	/* Read data package */
+	if ( id ) {
+		datap_buffer_ptr->id = recv_data;
+		id = false;
+		} else if ( datah ) {
+		datap_buffer_ptr->data = (recv_data<<8);
+		datah = false;
+		} else {
+		datap_buffer_ptr->data = datap_buffer_ptr->data | recv_data;
+		id = datah = true;
+		datap = datap_buffer_ptr; // Set data package.
+	}
+}
+
+
 /* Interrupt handler for I2C interrupts. */
 ISR(TWI_vect){
 	uint8_t status = (TWSR & NO_RELEVANT_STATE_INFO);	// Get status code of incoming I2C interrupt.
@@ -91,29 +118,17 @@ ISR(TWI_vect){
 			
 		case SLAW_DATA_RECEIVED: // Data from master is received.
 			/* Read data */
-			recv_data=TWDR;	// Load incoming data into recv_data.
+			read();
+			clear_twint();	// ACK sent, clear interrupt flag.
+			break;
 			
-			/* Select buffer */
-			if (buffer ) {
-				datap_buffer_ptr = &datap_buffer1;
-				buffer = 1;
-			} else {
-				datap_buffer_ptr = &datap_buffer2;
-				buffer = 0;
-			}
+		case GENERAL_CALL_RECEIVED:
+			clear_twint();
+			break;	
 			
-			/* Read data package */
-			if ( id ) {
-				datap_buffer_ptr->id = recv_data;
-				id = false;
-			} else if ( datah ) {
-				datap_buffer_ptr->data = (recv_data<<8);
-				datah = false;	
-			} else {
-				datap_buffer_ptr->data = datap_buffer_ptr->data | recv_data;
-				id = datah = true;
-				datap = datap_buffer_ptr; // Set data package.
-			}
+		case GENERAL_CALL_DATA:
+			/* Read data */
+			read();
 			clear_twint();	// ACK sent, clear interrupt flag.
 			break;
 			

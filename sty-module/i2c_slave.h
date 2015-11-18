@@ -17,7 +17,9 @@
 /* STATUS CODES */
 #define NO_RELEVANT_STATE_INFO 0xF8	// No relevant state information available; TWINT = "0". Wait or proceed current transfer.
 #define SLAW_REQUEST_RECEIVED 0x60	// Write request to this slave is received. Answer with ACK/NACK.
+#define GENERAL_CALL_RECEIVED 0x70	// A general call to write is received. Answer with ACK/NACK.
 #define SLAW_DATA_RECEIVED 0x80		// Write data to this slave is received. Answer with ACK/NACK.
+#define GENERAL_CALL_DATA 0x90		// Write data to this slave is received. Answer with ACK/NACK.
 #define SLAR_REQUEST_RECEIVED 0xA8	// Read request to this slave is received. Answer with ACK/NACK.
 #define SLAR_DATA_TRANSMITTED 0xC0	// Data in TWDR has been transmitted.
 #define STOP_COND_RECEIVED 0xA0		// A STOP condition or repeated START condition has been received.
