@@ -73,11 +73,11 @@ void send_address( uint8_t address )
 	if (address & 1) {	// Check for the acknowledgment
 		/* Read returns NACK. */
 		if ((TWSR & NO_RELEVANT_STATE_INFO) != SLAR_NACK)
-			error(ERROR_READ_DATA);
+			error(ERROR_ADDRESS_READ);
 	} else {
 		/* Write returns ACK */
 		if ((TWSR & NO_RELEVANT_STATE_INFO) != SLAW_ACK_RECEIVED)
-			error(ERROR_READ_DATA);	
+			error(ERROR_ADDRESS_WRITE);	
 	}
 }
 

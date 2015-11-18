@@ -16,9 +16,10 @@
 /* ERROR CODES */
 #define ERROR_START 0x1
 #define ERROR_REPAETED_START 0x2
-#define ERROR_ADDRESS 0x3
-#define ERROR_SEND_DATA 0x4
-#define ERROR_READ_DATA 0x5
+#define ERROR_ADDRESS_WRITE 0x3
+#define ERROR_ADDRESS_READ 0x4
+#define ERROR_SEND_DATA 0x5
+#define ERROR_READ_DATA 0x6
 
 
 /* Structure of a data package. */
