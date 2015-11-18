@@ -70,8 +70,15 @@ void send_address( uint8_t address )
 	clear_twint();					// Clear interrupt flag.
 	while ( !(TWCR & (1<<TWINT)) );	// Wait till complete TWDR byte transmitted.
 	
-	/* W returns ACK but R returns NACK, hence removal of check for ACK. */
-	//while( (TWSR & NO_RELEVANT_STATE_INFO) != SLAW_ACK_RECEIVED );	// Check for the acknowledgment
+	if (address & 1) {	// Check for the acknowledgment
+		/* Read returns NACK. */
+		if ((TWSR & NO_RELEVANT_STATE_INFO) != SLAR_NACK)
+			error(ERROR_READ_DATA);
+	} else {
+		/* Write returns ACK */
+		if ((TWSR & NO_RELEVANT_STATE_INFO) != SLAW_ACK_RECEIVED)
+			error(ERROR_READ_DATA);	
+	}
 }
 
 /* Send a byte of data. */

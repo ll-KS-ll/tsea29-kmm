@@ -10,6 +10,7 @@
 #define RSTART_COND_TRANSMITTED	0x10	// A Repeated Start condition has been transmitted. 
 #define SLAW_ACK_RECEIVED 0x18			// SLA+W has been transmitted; ACK has been received.
 #define SLAR_ACK_RECEIVED 0x40			// SLA+R has been transmitted; ACK has been received.
+#define SLAR_NACK 0x48
 #define DATA_ACK_RECEIVED 0x28			// Data byte has been transmitted; ACK has been received. 
 #define DATA_NACK_RECEIVED 0x58			// Data byte has been transmitted; NOT ACK has been received.
 /* ERROR CODES */
