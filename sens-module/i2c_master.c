@@ -153,3 +153,26 @@ uint8_t i2c_write_package( uint8_t address, data_package package )
 	stop();										// Send stop condition.	
 	return 0;
 }
+
+uint16_t i2c_read_data(uint8_t id, uint8_t address)
+{	
+	start();									// Send start condition.
+	send_address( address|I2C_WRITE );			// Write address and data direction bit(write) on SDA.
+	send_data(id);								// Send id of the kind of data you want from the listening slave.
+	
+	repeated_start();							// Send repeated start condition.
+	send_address( address| I2C_READ );			// Write address and data direction bit(read) on SDA.
+	uint8_t hdata = read_data();				// Read the data the slave now sends you and save it.
+	 
+	repeated_start();						    // Send repeated start condition.
+	send_address( address| I2C_READ );			// Write address and data direction bit(read) on SDA.
+	uint8_t ldata = read_data();				// Read the data the slave now sends you and save it as well.
+	
+	stop();										// Send stop condition.
+	
+	uint16_t data = (hdata<<8) + ldata;			// Save the data all together.
+	
+	return data;								// Return the data of the id-type you requested.
+}
+
+
