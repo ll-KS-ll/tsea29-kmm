@@ -69,9 +69,10 @@ int main(void)
 	float gyro_sensitivity = 0.00667;
 	float rotation_threshold = 5;
 	float gyro_rate;
-	float d_angle = 0;
+	int d_angle = 0;
 	uint16_t data_out;
 	uint8_t distance;
+	long tick = 0;
 	
 	while(1)
 	{
@@ -109,9 +110,9 @@ int main(void)
 			gyro_rate /= gyro_sensitivity;
 			if(gyro_rate >= rotation_threshold || gyro_rate <= -rotation_threshold)
 			{
-				d_angle += gyro_rate/1000;
+				d_angle += gyro_rate/10;
 			}
-			data_out = (uint8_t)d_angle;
+			data_out = d_angle;
 			break;
 		}
 		//ch++;
@@ -121,9 +122,17 @@ int main(void)
 		}
 		
 		PORTB = data_out;
-		data_package datap = {'0', data_out};
-		i2c_write_package(STY_ADDRESS, datap);	// Write an entire package to com-module.
-		_delay_ms(500);
+		if (tick == 5)
+		{
+			
+			
+			data_package datap = {'0', data_out};
+			i2c_write_package(STY_ADDRESS, datap);
+			tick = 0;
+		}
+			// Write an entire package to com-module.
+		//_delay_ms(500);
+		tick++;
 	}
 }
 
