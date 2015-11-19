@@ -72,40 +72,35 @@ int main(void)
 	int d_angle = 0;
 	uint16_t data_out;
 	uint8_t distance;
+	uint8_t mux = 0;
 	long tick = 0;
 	
 	while(1)
 	{
 		switch(ch) 
-		// case 0-3 distance sensors
+		// case 0-4 IR sensors
 		// case 5 gyro
+		// case 6 line sensor
 		
 		{
 			case 0:
 			data_out = adc_read(ch);
 			data_out = (data_out >> 2); // shifts out the 2 lsb so we have an 8bit representation
-			//_delay_ms(40);
 			break;
 			case 1:
 			data_out = adc_read(ch);
 			data_out = (data_out >> 2);
-			//data_out &= 0xF8;
-			_delay_ms(40);
 			break;
 			case 2:
 			data_out = adc_read(ch);
 			data_out = (data_out >> 2);
-			//data_out &= 0xF8;
-			_delay_ms(40);
 			break;
 			case 3:
 			data_out = adc_read(ch);
 			data_out = (data_out >> 2);
-			//data_out &= 0xF8;
-			_delay_ms(40);
 			break;
 			case 4:
-			case 5:
+			case 5: // read gyro
 			gyro_rate = (adc_read(ch) - gyro_zero_voltage) * gyro_voltage / 1024;
 			gyro_rate /= gyro_sensitivity;
 			if(gyro_rate >= rotation_threshold || gyro_rate <= -rotation_threshold)
@@ -114,6 +109,14 @@ int main(void)
 			}
 			data_out = d_angle;
 			break;
+			case 6: // not tested
+			PORTB = mux;
+			data_out = adc_read(ch);
+			mux++
+			if (mux == 8)
+			{
+				mux = 0;
+			}
 		}
 		//ch++;
 		if (ch == 3)
@@ -124,8 +127,6 @@ int main(void)
 		PORTB = data_out;
 		if (tick == 5)
 		{
-			
-			
 			data_package datap = {'0', data_out};
 			i2c_write_package(STY_ADDRESS, datap);
 			tick = 0;
