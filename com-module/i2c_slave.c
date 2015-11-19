@@ -66,7 +66,7 @@ void i2c_read_slave(void)
 	/* Clear TWI interrupt flag, Set acknowledgment, Enable TWI. */ 
 	TWCR= (1<<TWINT)|(1<<TWEA)|(1<<TWEN);
 	while (!(TWCR & (1<<TWINT)));	// Wait for TWINT flag
-	while((TWSR & NO_RELEVANT_STATE_INFO)!= SLAW_DATA_RECEIVED );		// Wait for acknowledgment
+	while((TWSR & NO_RELEVANT_STATE_INFO)!= SLAW_DATA_ACK_RECEIVED );		// Wait for acknowledgment
 	recv_data=TWDR;					// Get value from TWDR
 }
 
@@ -111,34 +111,47 @@ ISR(TWI_vect){
 	uint8_t status = (TWSR & NO_RELEVANT_STATE_INFO);	// Get status code of incoming I2C interrupt.
 	switch ( status ) {
 		
+		/* ====== READ ====== */
 		case SLAW_REQUEST_RECEIVED:	// Request from master to write.
 			/* Incoming data */
 			clear_twint();	// ACK sent, clear interrupt flag.
 			break;
 			
-		case SLAW_DATA_RECEIVED: // Data from master is received.
+		case DATA_ACK_RECEIVED: // Data from master is received.
 			/* Read data */
 			read();
 			clear_twint();	// ACK sent, clear interrupt flag.
 			break;
 			
+		case DATA_NACK_TRANSMITTED:
+			clear_twint();	// ACK sent, clear interrupt flag.
+			break;
+		/* ================== */
+			
+		/* ====== GENERAL CALL ====== */
 		case GENERAL_CALL_RECEIVED:
 			clear_twint();
 			break;	
 			
-		case GENERAL_CALL_DATA:
+		case GENERAL_CALL_DATA_ACK:
 			/* Read data */
 			read();
 			clear_twint();	// ACK sent, clear interrupt flag.
 			break;
-			
+		
+		case GENERAL_CALL_DATA_NACK:
+			clear_twint();
+			break;
+		/* ========================== */
+		
+		/* ====== WRITE ====== */
 		case SLAR_REQUEST_RECEIVED:	// Request from master to read.
 			/* Load data to write */
 			TWDR = write_data;							// Load outgoing data with write_data.
 			TWCR = (1<<TWEN) | (1<<TWIE) | (1<<TWINT);	// Keep i2c enabled. Keep interrupts enabled. Clear interrupt flag. NACK.
 			break;	
 			
-		case SLAR_DATA_TRANSMITTED:	// Data to master has been transmitted.
+		case DATA_ACK_TRANSMITTED:	// Data to master has been transmitted.
 			/* Data written */ 
 			clear_twint();	// NACK sent, clear interrupt flag.
 			break;
@@ -147,6 +160,7 @@ ISR(TWI_vect){
 			/* Stop */
 			clear_twint();	// ACK sent, clear interrupt flag.
 			break;
+		/* =================== */
 		
 		/*
 		default:

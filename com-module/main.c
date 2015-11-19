@@ -5,7 +5,7 @@
  * Author : Victor
  */ 
 
-#define F_CPU 15000000UL	// CPU clock frequency is 8MHz
+#define F_CPU 15000000UL	// CPU clock frequency is 15MHz
 
 #include <avr/io.h>
 #include <avr/interrupt.h>

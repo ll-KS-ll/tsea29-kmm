@@ -4,14 +4,14 @@
 * Created: 2015-11-10 16:02:48
 * Author : hakan
 */
-#define F_CPU 1000000UL // Set clock frequency to 1 MHz
+#define F_CPU 15000000UL // Set clock frequency to 15 MHz
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/atomic.h>
 #include <util/delay.h>
 #include <math.h>
-#include <i2c_master.h>	// Sensor module is a i2c master.
+#include <i2c_master.h>	// Sensor module is an i2c master.
 
 volatile uint8_t count;
 volatile int angular_rate;
@@ -56,6 +56,8 @@ int main(void)
 {
 	/* Initialize sensor module as I2C master */
 	i2c_init_master();
+	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
+	sei();
 
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT

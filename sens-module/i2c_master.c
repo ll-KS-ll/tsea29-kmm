@@ -11,6 +11,8 @@
 #include <avr/io.h>
 #include <i2c_master.h>
 #include <util/delay.h>
+#include <avr/interrupt.h>
+#include <stdbool.h>
 
 void i2c_init_master( void )
 {
@@ -24,9 +26,10 @@ void i2c_init_master( void )
 	// SCL freq= F_CPU/(16 + 2*(TWBR)*4^TWPS)
 	// 100 kHz = 16 MHz / (16 + 2 * 72 * 4^0)	TWBR=72, TWSR=0. 
 	
-	/* Enable TWI */
-	TWCR = (1<<TWEN);
+	/* Enable TWI and Interrupts. */
+	TWCR = (1<<TWEN) | (1<<TWIE);
 	
+	bus_busy = false;
 	recv_data = 0;
 	error_status = 0;
 }
@@ -61,7 +64,7 @@ void repeated_start( void )
 	TWCR = (1<<TWEN) | (1<<TWSTA) | (1<<TWINT); // Keep i2c enabled. Activate START condition. Clear interrupt flag.
 	while( !(TWCR & (1<<TWINT)) );  // Wait till restart condition is transmitted.
 	if( (TWSR & NO_RELEVANT_STATE_INFO) != RSTART_COND_TRANSMITTED ) // Check for the acknowledgment
-		error(ERROR_REPAETED_START);	// Notify an error occurred. 
+		error(ERROR_REPEATED_START);	// Notify an error occurred. 
 }
 
 /* Send slave address to connect with. (SLA+R/W). */
@@ -73,11 +76,11 @@ void send_address( uint8_t address )
 	
 	if (address & 1) {	// Check for the acknowledgment
 		/* Read returns NACK. */
-		if ((TWSR & NO_RELEVANT_STATE_INFO) != SLAR_NACK)
+		if ((TWSR & NO_RELEVANT_STATE_INFO) != SLAR_NACK_RECEIVED)
 			error(ERROR_ADDRESS_READ);
 	} else {
 		/* Write returns ACK */
-		if ((TWSR & NO_RELEVANT_STATE_INFO) != SLAW_ACK_RECEIVED)
+		if ((TWSR & NO_RELEVANT_STATE_INFO) != SLAW_ACK_TRANSMITTED)
 			error(ERROR_ADDRESS_WRITE);	
 	}
 }
@@ -88,7 +91,7 @@ void send_data( uint8_t data )
 	TWDR = data;					// Put data in TWDR
 	clear_twint();					// Clear interrupt flag.
 	while ( !(TWCR & (1<<TWINT)) );	// Wait till complete TWDR byte transmitted.
-	if ( (TWSR & NO_RELEVANT_STATE_INFO) != DATA_ACK_RECEIVED ) // Check for the acknowledgment
+	if ( (TWSR & NO_RELEVANT_STATE_INFO) != DATA_NACK_RECEIVED ) // Check for the acknowledgment
 		error(ERROR_SEND_DATA);	// Notify an error occurred. 
 }
 
@@ -180,3 +183,86 @@ uint16_t i2c_read_data(uint8_t id, uint8_t address)
 }
 
 
+uint8_t adr, data_package dp;
+bool bus_busy;
+
+void i2c_write(uint8_t address, data_package datap)
+{
+	if ( bus_busy ) // Don't start new write while still writing.
+		return;
+	bus_busy = true;	
+	adr = address + I2C_WRITE;
+	dp = datap;
+	/* Send START */
+	TWCR = (1<<TWEN) | (1<<TWSTA) | (1<<TWINT); // Keep i2c enabled. Activate START condition. Clear interrupt flag.	
+}
+
+
+/* Interrupt handler for I2C interrupts. */
+ISR(TWI_vect){
+	uint8_t status = (TWSR & NO_RELEVANT_STATE_INFO);	// Get status code of incoming I2C interrupt.
+	switch ( status ) {
+
+		case START_COND_TRANSMITTED:		// START condition has been transmitted.
+			TWDR = adr;						// Load address and write instruction to send.
+			clear_twint();					// Clear interrupt flag.
+			break;
+		
+		case RSTART_COND_TRANSMITTED:		// Repeated START condition has been transmitted.
+			TWDR = adr;						// Load address and write instruction to send.
+			clear_twint();					// Clear interrupt flag.
+			break;
+
+		/* ====== WRITE ====== */
+		case SLAW_ACK_TRANSMITTED:			// SLA+W has been transmitted; ACK received.
+			TWDR = data;					// Put data in TWDR.
+			clear_twint();					// Clear interrupt flag.
+			break;
+			
+		case SLAW_NACK_TRANSMITTED:			// SLA+W has been transmitted; NACK received.
+			TWDR = data;					// Put data in TWDR.
+			clear_twint();					// Clear interrupt flag.
+			break;	
+			
+		case DATA_ACK_TRANSMITTED:			// Data byte has been transmitted; ACK received.
+			// TODO: Check OP data transfer
+			TWDR = data;					// Put data in TWDR.
+			clear_twint();					// Clear interrupt flag.
+			break;
+			
+		case DATA_NACK_TRANSMITTED:			// Data byte has been transmitted; NACK received.
+			// TODO: Check OP data transfer
+			TWDR = data;					// Put data in TWDR.
+			clear_twint();					// Clear interrupt flag.	
+			break;
+		/* ==================== */
+		
+		/* ====== READ ====== */
+		case SLAR_ACK_TRANSMITTED:			// SLA+R has been transmitted; ACK received.
+			// Nu kommer det data! :D
+			// TODO: Return ACK or NACK, that is the question.
+			clear_twint();					// Data byte will be received and ACK will be returned.
+			break;
+		
+		case SLAR_NACK_RECEIVED:			// SLA+R has been transmitted; NACK received.
+			// Mer data tack! ^^
+			TWCR = (1<<TWSTO | 1<<TWINT);	// Stop will be transmitted. Fuck you slave, you fucked up.
+			bus_busy = false;
+			break;
+		
+		case DATA_ACK_RECEIVED:				// Data byte has been received, ACK returned.
+			// Datan är här! 
+			read_data();
+			// TODO: Return ACK or NACK, that is the question.
+			TWCR = (1<<TWINT | 1<<TWEA);	// Data byte has been received, ACK returned.		
+			break;
+			
+		case DATA_NACK_RECEIVED:				// Data byte has been received; NACK received.
+			read_data();
+			TWCR = (1<<TWSTO | 1<<TWINT);		// Data byte has been received. Slave fucked up.
+			bus_busy = false;
+			break;		
+		/* ================== */
+	}
+}
+			
