@@ -45,7 +45,17 @@
     <com_atmel_avrdbg_tool_atmelice>
       <ToolOptions>
         <InterfaceProperties>
-          <JtagDbgClock>200000</JtagDbgClock>
+          <JtagDbgClock>3000000</JtagDbgClock>
+          <JtagEnableExtResetOnStartSession>false</JtagEnableExtResetOnStartSession>
+          <JtagInChain>true</JtagInChain>
+          <JtagDevicesBefore>2</JtagDevicesBefore>
+          <JtagDevicesAfter>0</JtagDevicesAfter>
+          <JtagInstrBitsBefore>8</JtagInstrBitsBefore>
+          <JtagInstrBitsAfter>0</JtagInstrBitsAfter>
+          <JtagSelectedDeviceIndexInChain>
+          </JtagSelectedDeviceIndexInChain>
+          <JtagDaisyChainDevices>
+          </JtagDaisyChainDevices>
         </InterfaceProperties>
         <InterfaceName>JTAG</InterfaceName>
       </ToolOptions>
@@ -54,7 +64,7 @@
       <ToolName>Atmel-ICE</ToolName>
     </com_atmel_avrdbg_tool_atmelice>
     <avrtoolinterface>JTAG</avrtoolinterface>
-    <avrtoolinterfaceclock>200000</avrtoolinterfaceclock>
+    <avrtoolinterfaceclock>3000000</avrtoolinterfaceclock>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
