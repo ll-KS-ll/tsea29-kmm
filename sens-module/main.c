@@ -2,7 +2,7 @@
 * TSEA29.c
 *
 * Created: 2015-11-10 16:02:48
-* Author : hakan
+* Author : sara
 */
 #define F_CPU 16000000UL // Set clock frequency to 1 MHz
 
@@ -130,51 +130,46 @@ int main(void)
 	while(1)
 	{
 		switch(ch) 
-		// case 0-4 IR sensors
-		// case 5 gyro
-		// case 6 line sensor
-		
 		{
-			case 0:
-			data_out = adc_read(ch);
-			break;
-			
-			case 1:
-			data_out = adc_read(ch);
-			break;
-			
-			case 2:
-			data_out = adc_read(ch);
-			break;
-			
+			case 1: // reflexsensorer - not tested
+				turn_on_light(mux);
+				PORTD = mux;
+				data_out = adc_read(ch);
+				turn_off_light();
+				mux++;
+				if (mux == 8)
+				{
+					mux = 0;
+				}
+				break;
+			case 2: // gyro
+				gyro_rate = (adc_read(ch) - gyro_zero_voltage) * gyro_voltage / 1024;
+				gyro_rate /= gyro_sensitivity;
+				if(gyro_rate >= rotation_threshold || gyro_rate <= -rotation_threshold)
+				{
+					d_angle += gyro_rate/10;
+				}
+				data_out = d_angle;
+				break;
 			case 3:
-			data_out = adc_read(ch);
-			break;
+				data_out = adc_read(ch); //IR-sensor v.fram
+				break;
 			
 			case 4:
-			data_out = adc_read(ch);
-			break;
+				data_out = adc_read(ch); //IR-sensor v.bak
+				break;
 			
-			case 5: // read gyro
-			gyro_rate = (adc_read(ch) - gyro_zero_voltage) * gyro_voltage / 1024;
-			gyro_rate /= gyro_sensitivity;
-			if(gyro_rate >= rotation_threshold || gyro_rate <= -rotation_threshold)
-			{
-				d_angle += gyro_rate/10;
-			}
-			data_out = d_angle;
-			break;
+			case 5:
+				data_out = adc_read(ch); //IR-sensor fram
+				break;
 			
-			case 6: // not tested
-			turn_on_light(mux);
-			PORTD = mux;
-			data_out = adc_read(ch);
-			turn_off_light();
-			mux++;
-			if (mux == 8)
-			{
-				mux = 0;
-			}
+			case 6:
+				data_out = adc_read(ch); //IR-sensor h.bak
+				break;
+			
+			case 7:
+				data_out = adc_read(ch); //IR-sensor h.fram
+				break;
 		}
 		/*ch++;
 		if (ch == 3)
