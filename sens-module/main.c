@@ -23,7 +23,7 @@ void adc_init()
 	ADMUX = (1<<REFS0); // AREF = AVcc
 	// ADC Enable and prescale of 16
 	// 1000000/16 = 62500
-	ADCSRA = (1<<ADEN)|(1<<ADPS2)|(0<<ADPS1)|(0<<ADPS0);
+	ADCSRA = (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(0<<ADPS0);
 }
 
 uint16_t adc_read(uint8_t ch)
@@ -131,7 +131,16 @@ int main(void)
 	{
 		switch(ch) 
 		{
-			case 1: // reflexsensorer - not tested
+			case 1: // gyro
+				gyro_rate = (adc_read(ch) - gyro_zero_voltage) * gyro_voltage / 1024;
+				gyro_rate /= gyro_sensitivity;
+				if(gyro_rate >= rotation_threshold || gyro_rate <= -rotation_threshold)
+				{
+					d_angle += gyro_rate/10;
+				}
+				data_out = d_angle;
+				break;
+			case 2: // line sensor, not tested
 				turn_on_light(mux);
 				PORTD = mux;
 				data_out = adc_read(ch);
@@ -142,15 +151,7 @@ int main(void)
 					mux = 0;
 				}
 				break;
-			case 2: // gyro
-				gyro_rate = (adc_read(ch) - gyro_zero_voltage) * gyro_voltage / 1024;
-				gyro_rate /= gyro_sensitivity;
-				if(gyro_rate >= rotation_threshold || gyro_rate <= -rotation_threshold)
-				{
-					d_angle += gyro_rate/10;
-				}
-				data_out = d_angle;
-				break;
+				
 			case 3:
 				data_out = adc_read(ch); //IR-sensor v.fram
 				break;
