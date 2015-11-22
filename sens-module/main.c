@@ -21,8 +21,8 @@ volatile float sec;
 void adc_init()
 {
 	ADMUX = (1<<REFS0); // AREF = AVcc
-	// ADC Enable and prescale of 16
-	// 1000000/16 = 62500
+	// ADC Enable and prescale of 64
+	// 16000000/64 = 250kHz
 	ADCSRA = (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(0<<ADPS0);
 }
 
@@ -114,7 +114,7 @@ int main(void)
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
 	DDRD = 0xFF; //PORTD as OUTPUT
-	uint8_t ch = 0b00000101; //ch = 5 = angular rate sensor
+	uint8_t ch = 1; //ch = 1 = angular rate sensor
 	adc_init();
 	
 	float gyro_voltage = 5;
@@ -123,7 +123,7 @@ int main(void)
 	float rotation_threshold = 5;
 	float gyro_rate;
 	int d_angle = 0;
-	uint16_t data_out;
+	uint16_t data_out = 0;
 	uint8_t mux = 0;
 	long tick = 0;
 	
@@ -138,7 +138,9 @@ int main(void)
 				{
 					d_angle += gyro_rate/10;
 				}
+				d_angle;
 				data_out = d_angle;
+				PORTB = data_out;
 				break;
 			case 2: // line sensor, not tested
 				turn_on_light(mux);
@@ -153,40 +155,40 @@ int main(void)
 				break;
 				
 			case 3:
-				data_out = adc_read(ch); //IR-sensor v.fram
+				data_out = adc_read(ch); //IR-sensor front left
 				break;
 			
 			case 4:
-				data_out = adc_read(ch); //IR-sensor v.bak
+				data_out = adc_read(ch); //IR-sensor back left
 				break;
 			
 			case 5:
-				data_out = adc_read(ch); //IR-sensor fram
+				data_out = adc_read(ch); //IR-sensor front
 				break;
 			
 			case 6:
-				data_out = adc_read(ch); //IR-sensor h.bak
+				data_out = adc_read(ch); //IR-sensor back right
 				break;
 			
 			case 7:
-				data_out = adc_read(ch); //IR-sensor h.fram
+				data_out = adc_read(ch); //IR-sensor front right
 				break;
 		}
+		//PORTB = data_out;
 		/*ch++;
-		if (ch == 3)
+		if (ch == 8)
 		{
 			ch = 1;
-		}
-		*/
-		PORTB = data_out;
-		if (tick == 5)
-		/*{
-			data_package datap = {'0', data_out};
-			i2c_write_package(STY_ADDRESS, datap);
-			tick = 0;
 		}*/
+		
+		/*if (tick == 5)
+		{
+			//data_package datap = {'0', data_out};
+			//i2c_write_package(STY_ADDRESS, datap);
+			tick = 0;
+		}
 			// Write an entire package to com-module.
-		tick++;
+		tick++;*/
 	}
 }
 
