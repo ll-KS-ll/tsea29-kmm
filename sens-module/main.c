@@ -66,44 +66,40 @@ void turn_off_light(void)
 turns on one light on line sensor depending on which channel
 is chosen from the mux
 */
-void turn_on_light(uint8_t mux) 
+uint8_t turn_on_light(uint8_t mux) 
 {
 	uint8_t output = 0x00;
 	switch(mux)
 	{
 		case 0:
-		output = 0b00000001;
+		output = 0b00000001; //PB0 (line sensor 8)
 		break;
 		
 		case 1:
-		output = 0b00000010;
+		output = 0b00000010; //PB1 (line sensor 10)
 		break;
 		
 		case 2:
-		output = 0b00000100;
+		output = 0b00000100; //PB2 (line sensor 12)
 		break;
 		
 		case 3:
-		output = 0b00001000;
+		output = 0b00001000; //PB3 (line sensor 14)
 		break;
 		
 		case 4:
-		output = 0b00010000;
+		output = 0b00010000; //PB4 (line sensor 16)
 		break;
 		
 		case 5:
-		output = 0b00100000;
+		output = 0b00100000; //PB5 (line sensor 18)
 		break;
 		
 		case 6:
-		output = 0b01000000;
-		break;
-		
-		case 7:
-		output = 0b10000000;
+		output = 0b01000000; //PB6 (line sensor 20)
 		break;
 	}
-	PORTB = output;
+	return output;
 }
 
 int main(void)
@@ -114,7 +110,7 @@ int main(void)
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
 	DDRD = 0xFF; //PORTD as OUTPUT
-	uint8_t ch = 0b00000101; //ch = 5 = angular rate sensor
+	uint8_t ch = 0b00000010; //ch = 2 = line sensor
 	adc_init();
 	
 	float gyro_voltage = 5;
@@ -124,7 +120,7 @@ int main(void)
 	float gyro_rate;
 	int d_angle = 0;
 	uint16_t data_out;
-	uint8_t mux = 0;
+	uint8_t mux = 0x00;
 	long tick = 0;
 	
 	while(1)
@@ -141,12 +137,12 @@ int main(void)
 				data_out = d_angle;
 				break;
 			case 2: // line sensor, not tested
-				turn_on_light(mux);
+				PORTB = turn_on_light(mux);
 				PORTD = mux;
 				data_out = adc_read(ch);
 				turn_off_light();
 				mux++;
-				if (mux == 8)
+				if (mux == 7)
 				{
 					mux = 0;
 				}
@@ -178,7 +174,7 @@ int main(void)
 			ch = 1;
 		}
 		*/
-		PORTB = data_out;
+		//PORTB = data_out;
 		if (tick == 5)
 		/*{
 			data_package datap = {'0', data_out};
