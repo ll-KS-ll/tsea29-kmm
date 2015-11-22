@@ -19,8 +19,8 @@ data_package datap_buffer1, datap_buffer2;	// Data package buffer.
 
 void i2c_init_slave( uint8_t address )
 {
-	/* Set the address of the slave. */
-	TWAR = address | 1;
+	/* Set the address of the slave. Enable General Call. */
+	TWAR = address | (1<<TWGCE);
 	
 	/* Set ACK, enable I2C pins and enable interrupt. */
 	TWCR = (1<<TWEA) | (1<<TWEN) | (1<<TWIE);
@@ -31,8 +31,6 @@ void i2c_init_slave( uint8_t address )
 	
 	id = true;
 	datah = true;
-	recv_data = '0';
-	//datap_buffer1 = {0, 0};
 	datap = &datap_buffer1;
 	buffer = 0;
 	
@@ -44,49 +42,15 @@ void clear_twint( void )
 	TWCR = (1<<TWEA) | (1<<TWEN) | (1<<TWIE) | (1<<TWINT);	// Activate ACK as response. Keep i2c enabled. Keep interrupts enabled. Clear interrupt flag.
 }
 
-/* Unknown state. */
-void i2c_write_slave(void)
-{
-	TWDR= write_data;				// Fill TWDR register with the data to be sent.
-	TWCR= (1<<TWEN)|(1<<TWINT);		// Enable TWI, Clear TWI interrupt flag.
-	while((TWSR & NO_RELEVANT_STATE_INFO) != SLAR_DATA_TRANSMITTED);	// Wait for the acknowledgment.
-}
-
-/* Unknown state. */
-void i2c_match_write_slave(void)
-{
-	/* Match the slave address and slave direction bit(write)  */
-	while((TWSR & NO_RELEVANT_STATE_INFO)!= SLAR_REQUEST_RECEIVED) // Loop till correct acknowledgment have been received
-		clear_twint();
-}
-
-/* Unknown state. */
-void i2c_read_slave(void)
-{
-	/* Clear TWI interrupt flag, Set acknowledgment, Enable TWI. */ 
-	TWCR= (1<<TWINT)|(1<<TWEA)|(1<<TWEN);
-	while (!(TWCR & (1<<TWINT)));	// Wait for TWINT flag
-	while((TWSR & NO_RELEVANT_STATE_INFO)!= SLAW_DATA_ACK_RECEIVED );		// Wait for acknowledgment
-	recv_data=TWDR;					// Get value from TWDR
-}
-
-/* Unknown state. */
-void i2c_match_read_slave(void) 
-{
-	/* Match the slave address and slave direction bit(read) */
-	while((TWSR & NO_RELEVANT_STATE_INFO)!= SLAW_REQUEST_RECEIVED)  // Loop till correct acknowledgment have been received
-		clear_twint();
-}
-
-
+/* Read data from bus. */
 void read ( void ) {
-	recv_data=TWDR;	// Load incoming data into recv_data.
+	uint8_t recv_data=TWDR;	// Load incoming data into recv_data.
 	
 	/* Select buffer */
-	if (buffer ) {
+	if ( buffer ) {
 		datap_buffer_ptr = &datap_buffer1;
 		buffer = 1;
-		} else {
+	} else {
 		datap_buffer_ptr = &datap_buffer2;
 		buffer = 0;
 	}
@@ -95,10 +59,10 @@ void read ( void ) {
 	if ( id ) {
 		datap_buffer_ptr->id = recv_data;
 		id = false;
-		} else if ( datah ) {
+	} else if ( datah ) {
 		datap_buffer_ptr->data = (recv_data<<8);
 		datah = false;
-		} else {
+	} else {
 		datap_buffer_ptr->data = datap_buffer_ptr->data | recv_data;
 		id = datah = true;
 		datap = datap_buffer_ptr; // Set data package.
@@ -114,6 +78,7 @@ ISR(TWI_vect){
 		/* ====== READ ====== */
 		case SLAW_REQUEST_RECEIVED:	// Request from master to write.
 			/* Incoming data */
+			id = datah = true;
 			clear_twint();	// ACK sent, clear interrupt flag.
 			break;
 			
@@ -124,7 +89,8 @@ ISR(TWI_vect){
 			break;
 			
 		case DATA_NACK_TRANSMITTED:
-			clear_twint();	// ACK sent, clear interrupt flag.
+			/* Something went wrong, transaction aborted. */
+			clear_twint();	// Stops transaction, clear interrupt flag.
 			break;
 		/* ================== */
 			
