@@ -45,7 +45,7 @@ static void rotateLeftOnce() {
 	uint16_t currentAngle = getCurrentAngle();
 	uint16_t endAngle = currentAngle + 256;
 	setRotateLeft();
-	setMotorSpeed(250, 250);
+	setMotorSpeed(350, 350);
 	while (1) {
 		currentAngle = getCurrentAngle();
 		if(currentAngle >= endAngle) {
@@ -62,7 +62,7 @@ static void rotateRightOnce() {
 	uint16_t currentAngle = getCurrentAngle();
 	uint16_t endAngle = currentAngle - 256;
 	setRotateRight();
-	setMotorSpeed(250, 250);
+	setMotorSpeed(350, 350);
 	while (1) {
 		currentAngle = getCurrentAngle();
 		if(currentAngle >= endAngle) {
