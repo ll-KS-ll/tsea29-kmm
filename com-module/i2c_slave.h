@@ -10,17 +10,29 @@
 * 
 */
 
-
+/* ====== ADDRESSES ====== */
 #define SENS_ADDRESS 0x10	// Address of sensor module. 
 #define COM_ADDRESS 0x20	// Establish connection with com-module.
 #define STY_ADDRESS 0x30	// Establish connection with styr-module.
-/* STATUS CODES */
+/* ======================= */
+
+/* ====== STATUS CODES ====== */
 #define NO_RELEVANT_STATE_INFO 0xF8	// No relevant state information available; TWINT = "0". Wait or proceed current transfer.
-#define SLAW_REQUEST_RECEIVED 0x60	// Write request to this slave is received. Answer with ACK/NACK.
-#define SLAW_DATA_RECEIVED 0x80		// Write data to this slave is received. Answer with ACK/NACK.
-#define SLAR_REQUEST_RECEIVED 0xA8	// Read request to this slave is received. Answer with ACK/NACK.
-#define SLAR_DATA_TRANSMITTED 0xC0	// Data in TWDR has been transmitted.
-#define STOP_COND_RECEIVED 0xA0		// A STOP condition or repeated START condition has been received.
+#define STOP_COND_RECEIVED 0xA0		// A STOP condition or repeated START condition has been received while still addressed as slave.
+
+#define SLAW_REQUEST_RECEIVED 0x60	// Own SLA+W has been received; ACK has been returned.
+#define DATA_ACK_RECEIVED 0x80		// Previously addressed with own SLA+W; data has been received; ACK has been returned
+#define DATA_NACK_RECEIVED 0x88		// Previously addressed with own SLA+W; data has been received; NACK has been returned
+
+#define GENERAL_CALL_RECEIVED 0x70	// General call address has been received; ACK has been returned.
+#define GENERAL_CALL_DATA_ACK 0x90	// Previously addressed with general call; data has been received; ACK has been returned.
+#define GENERAL_CALL_DATA_NACK 0x98	// Previously addressed with general call; data has been received; NACK has been returned.
+
+#define SLAR_REQUEST_RECEIVED 0xA8	// Own SLA+R has been received; ACK has been returned.
+#define DATA_ACK_TRANSMITTED 0xB8	// Data byte in TWDR has been transmitted; ACK has been received.
+#define DATA_NACK_TRANSMITTED 0xC0	// Data byte in TWDR has been transmitted; NACK has been received.
+#define LAST_DATA_ACK_TRANSMITTED 0xC8	// Last data byte in TWDR has been transmitted (TWEA = “0”); ACK has been received
+/* ========================== */
 
 
 /* Structure of a data package. */
@@ -32,11 +44,5 @@ typedef struct {
 /* Buffers */
 data_package* datap;	// Read data packages from the bus are stored here.
 uint8_t write_data;		// Data write buffer. Put data to write on the bus.
-uint8_t recv_data;		// Data receive buffer. Read partial data from the bus is stored here.
 
 void i2c_init_slave( uint8_t address );	// Initialize the I2C slave.
-void i2c_match_read_slave( void );		// Connect as reader. (Polling)
-void i2c_read_slave( void );			// Read byte of data from bus. (Polling)
-void i2c_match_write_slave( void );		// Connect as writer. (Polling)
-void i2c_write_slave( void );			// Write byte data to bus. (Polling)
-void i2c_read_package( void );			// Read an entire data package. (Polling)

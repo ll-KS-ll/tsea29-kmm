@@ -4,15 +4,16 @@
 * Created: 2015-11-10 16:02:48
 * Author : hakan
 */
-#define F_CPU 1000000UL // Set clock frequency to 1 MHz
+#define F_CPU 15000000UL // Set clock frequency to 15 MHz
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/atomic.h>
 #include <util/delay.h>
 #include <math.h>
-#include <i2c_master.h>	// Sensor module is a i2c master.
+#include <i2c_master.h>	// Sensor module is an i2c master.
 
+/*
 volatile uint8_t count;
 volatile int angular_rate;
 volatile unsigned long ms;
@@ -51,12 +52,17 @@ uint16_t adc_read(uint8_t ch){
 	
 	return (ADC);
 }
+*/
 
 int main(void)
 {
 	/* Initialize sensor module as I2C master */
 	i2c_init_master();
-
+	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
+	sei();
+	_delay_ms(2000); // Chilla lite
+	
+	/*
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
 	DDRD = 0xFF; //PORTD as OUTPUT
@@ -72,9 +78,11 @@ int main(void)
 	float d_angle = 0;
 	uint16_t data_out;
 	uint8_t distance;
-	
+	*/
+	uint16_t data = 0;
 	while(1)
 	{
+		/*
 		switch(ch) 
 		// case 0-3 distance sensors
 		// case 5 gyro
@@ -120,10 +128,13 @@ int main(void)
 			ch = 1;
 		}
 		
-		PORTB = data_out;	
-		data_package datap = {'0', data_out};
-		i2c_write_package(STY_ADDRESS, datap);	// Write an entire package to com-module.
-		_delay_ms(500);
+		PORTB = data_out;
+		*/
+		
+		data_package datap = {75, data};
+		i2c_write(GENERAL_CALL_ADDRESS, datap);	// Write an entire package to com-module.
+		data++;
+		//_delay_ms(2000);
 	}
 }
 
