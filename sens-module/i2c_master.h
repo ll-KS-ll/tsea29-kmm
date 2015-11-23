@@ -10,14 +10,16 @@
 #define RSTART_COND_TRANSMITTED	0x10	// A Repeated Start condition has been transmitted. 
 #define SLAW_ACK_RECEIVED 0x18			// SLA+W has been transmitted; ACK has been received.
 #define SLAR_ACK_RECEIVED 0x40			// SLA+R has been transmitted; ACK has been received.
+#define SLAR_NACK 0x48
 #define DATA_ACK_RECEIVED 0x28			// Data byte has been transmitted; ACK has been received. 
 #define DATA_NACK_RECEIVED 0x58			// Data byte has been transmitted; NOT ACK has been received.
 /* ERROR CODES */
 #define ERROR_START 0x1
 #define ERROR_REPAETED_START 0x2
-#define ERROR_ADDRESS 0x3
-#define ERROR_SEND_DATA 0x4
-#define ERROR_READ_DATA 0x5
+#define ERROR_ADDRESS_WRITE 0x3
+#define ERROR_ADDRESS_READ 0x4
+#define ERROR_SEND_DATA 0x5
+#define ERROR_READ_DATA 0x6
 
 
 /* Structure of a data package. */
@@ -27,7 +29,7 @@ typedef struct {
 } data_package;
 
 uint8_t error_status;	// Status code of I2C errors. 0 is no error.
-uint8_t recv_data;	// Received data from the bus is put here.
+uint8_t recv_data;		// Received data from the bus is put here.
 
 
 void i2c_init_master( void );							// Initialize processor as master on i2c_bus.

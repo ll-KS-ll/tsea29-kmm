@@ -19,9 +19,10 @@ void i2c_init_master( void )
 	PORTC = (1<<DDC0) | (1<<DDC1);
 	
 	/* Set register for clock generation */
-	TWBR = 0x4E;						// Bit rate = 0x4E(=78) and Prescale = 64 => SCL = 100kHz for f_cpu 1MHz ...but it's really 100Hz 
-	TWSR = (1<<TWPS1) | (1<<TWPS0);		// Setting prescalar bits (1,1) = 64
-	// SCL freq= F_CPU/(16+2(TWBR).4^TWPS)
+	TWBR = 0;							// Bit rate: 62.5 kHz for F_SCL=1 MhZ
+	TWSR = (0<<TWPS1) | (0<<TWPS0);		// Setting pre-scalar bits 00 = 4^0 = 0
+	// SCL freq= F_CPU/(16 + 2*(TWBR)*4^TWPS)
+	// 100 kHz = 16 MHz / (16 + 2 * 72 * 4^0)	TWBR=72, TWSR=0. 
 	
 	/* Enable TWI */
 	TWCR = (1<<TWEN);
@@ -70,8 +71,15 @@ void send_address( uint8_t address )
 	clear_twint();					// Clear interrupt flag.
 	while ( !(TWCR & (1<<TWINT)) );	// Wait till complete TWDR byte transmitted.
 	
-	/* W returns ACK but R returns NACK, hence removal of check for ACK. */
-	//while( (TWSR & NO_RELEVANT_STATE_INFO) != SLAW_ACK_RECEIVED );	// Check for the acknowledgment
+	if (address & 1) {	// Check for the acknowledgment
+		/* Read returns NACK. */
+		if ((TWSR & NO_RELEVANT_STATE_INFO) != SLAR_NACK)
+			error(ERROR_ADDRESS_READ);
+	} else {
+		/* Write returns ACK */
+		if ((TWSR & NO_RELEVANT_STATE_INFO) != SLAW_ACK_RECEIVED)
+			error(ERROR_ADDRESS_WRITE);	
+	}
 }
 
 /* Send a byte of data. */
@@ -119,7 +127,6 @@ void i2c_read_byte( uint8_t address )
 
 uint8_t i2c_write_package( uint8_t address, data_package package )
 {
-	/* Writes data package but without repeated start. */
 	error_status = 0;	// Clear Error status.
 	
 	start();									// Send start condition.
@@ -128,28 +135,21 @@ uint8_t i2c_write_package( uint8_t address, data_package package )
 	if ( error_status ) return error_status;	// Check if an error occurred.
 	send_data( package.id );					// Write data to slave.
 	if ( error_status ) return error_status;	// Check if an error occurred.
-	/* ======================= */
-	stop();
-	_delay_ms(10);
-	start();
+	
+	repeated_start();							// Send repeated start condition.
+	if ( error_status ) return error_status;	// Check if an error occurred.	
+	send_address ( address|I2C_WRITE );			// Write address and data direction bit(write) on SDA.
 	if ( error_status ) return error_status;	// Check if an error occurred.
-	send_address ( address|I2C_WRITE );
-	if ( error_status ) return error_status;	// Check if an error occurred.
-	//repeated_start();							// Send repeated start condition.
-	/* ======================= */
 	send_data( (package.data>>8) );				// Write data to slave.
 	if ( error_status ) return error_status;	// Check if an error occurred.
-	/* ======================= */
-	stop();
-	_delay_ms(10);
-	start();
+	
+	repeated_start();							// Send repeated start condition.
 	if ( error_status ) return error_status;	// Check if an error occurred.
-	send_address ( address|I2C_WRITE );
+	send_address ( address|I2C_WRITE );			// Write address and data direction bit(write) on SDA.
 	if ( error_status ) return error_status;	// Check if an error occurred.
-	//repeated_start();							// Send repeated start condition.
-	/* ======================= */
 	send_data( package.data );					// Write data to slave.
 	if ( error_status ) return error_status;	// Check if an error occurred.
+	
 	stop();										// Send stop condition.	
 	return 0;
 }

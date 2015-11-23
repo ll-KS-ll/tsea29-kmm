@@ -120,7 +120,7 @@ int main(void)
 			ch = 1;
 		}
 		
-		PORTB = data_out;
+		PORTB = data_out;	
 		data_package datap = {'0', data_out};
 		i2c_write_package(STY_ADDRESS, datap);	// Write an entire package to com-module.
 		_delay_ms(500);
