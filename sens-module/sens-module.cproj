@@ -45,10 +45,6 @@
     <com_atmel_avrdbg_tool_atmelice>
       <ToolOptions>
         <InterfaceProperties>
-<<<<<<< HEAD
-=======
-          <JtagDbgClock>3000000</JtagDbgClock>
->>>>>>> refs/remotes/origin/sens-module
           <JtagEnableExtResetOnStartSession>false</JtagEnableExtResetOnStartSession>
           <JtagInChain>true</JtagInChain>
           <JtagDevicesBefore>2</JtagDevicesBefore>
@@ -57,10 +53,7 @@
           <JtagInstrBitsAfter>0</JtagInstrBitsAfter>
           <JtagSelectedDeviceIndexInChain>
           </JtagSelectedDeviceIndexInChain>
-<<<<<<< HEAD
-          <JtagDbgClock>200000</JtagDbgClock>
-=======
->>>>>>> refs/remotes/origin/sens-module
+          <JtagDbgClock>3000000</JtagDbgClock>
           <JtagDaisyChainDevices>
           </JtagDaisyChainDevices>
         </InterfaceProperties>

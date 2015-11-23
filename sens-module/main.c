@@ -4,11 +4,8 @@
 * Created: 2015-11-10 16:02:48
 * Author : sara
 */
-<<<<<<< HEAD
+
 #define F_CPU 15000000UL // Set clock frequency to 15 MHz
-=======
-#define F_CPU 16000000UL // Set clock frequency to 1 MHz
->>>>>>> refs/remotes/origin/sens-module
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -17,7 +14,6 @@
 #include <math.h>
 #include <i2c_master.h>	// Sensor module is an i2c master.
 
-/*
 volatile uint8_t count;
 volatile int angular_rate;
 volatile unsigned long ms;
@@ -60,7 +56,6 @@ uint16_t adc_read(uint8_t ch)
 	
 	return (ADC);
 }
-*/
 
 /*
 turns off the lights on the line sensor
@@ -113,17 +108,12 @@ uint8_t turn_on_light(uint8_t mux)
 int main(void)
 {
 	/* Initialize sensor module as I2C master */
-<<<<<<< HEAD
 	i2c_init_master();
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
 	_delay_ms(2000); // Chilla lite
 	
-	/*
-=======
-	//i2c_init_master();
-
->>>>>>> refs/remotes/origin/sens-module
+	
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
 	DDRD = 0xFF; //PORTD as OUTPUT
@@ -135,20 +125,15 @@ int main(void)
 	float gyro_sensitivity = 0.00667;
 	float rotation_threshold = 5;
 	float gyro_rate;
-	int d_angle = 0;
+	volatile d_angle = 0;
 	uint16_t data_out;
-<<<<<<< HEAD
 	uint8_t distance;
-	*/
 	uint16_t data = 0;
-=======
 	uint8_t mux = 0x00;
 	long tick = 0;
-	
->>>>>>> refs/remotes/origin/sens-module
 	while(1)
 	{
-		/*
+		
 		switch(ch) 
 		{
 			case 1: // gyro
@@ -197,17 +182,15 @@ int main(void)
 		{
 			ch = 1;
 		}
-<<<<<<< HEAD
 		
 		PORTB = data_out;
 		*/
 		
-		data_package datap = {75, data};
-		i2c_write(GENERAL_CALL_ADDRESS, datap);	// Write an entire package to com-module.
+		data_package datap = {5, data_out};
+		i2c_write(STY_ADDRESS, datap);	// Write an entire package to com-module.
 		data++;
-		//_delay_ms(2000);
-=======
-		*/
+		////_delay_ms(2000);
+		
 		//PORTB = data_out;
 		if (tick == 5)
 		/*{
@@ -217,7 +200,6 @@ int main(void)
 		}*/
 			// Write an entire package to com-module.
 		tick++;
->>>>>>> refs/remotes/origin/sens-module
 	}
 }
 

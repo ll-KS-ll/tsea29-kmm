@@ -10,13 +10,13 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
-#include <i2c_slave.h> // Is slave module
-//#include "autonomous.h"
-//#include "boot.h"
-//#include "sensorValues.h"
+#include "i2c_slave.h" // Is slave module
+#include "autonomous.h"
+#include "boot.h"
+#include "sensorValues.h"
 
 // temporary, only for testing
-//#include "motorKernel.h"
+#include "motorKernel.h"
 
 int main(void)
 {
@@ -27,14 +27,14 @@ int main(void)
 	sei();
 	
 	/* Boot Claw-/Motor-kernel */
-	//boot();
+	boot();
 	
-	//_delay_ms(2000);
+	_delay_ms(2000);
 	
 	volatile angle = 0;
 	
-	//setRotateLeft();
-	//setMotorSpeed(400, 400);	
+	setRotateLeft();
+	setMotorSpeed(400, 400);	
 	/* Main loop */
 	// Testa att rotera
 	while (1)
@@ -42,30 +42,13 @@ int main(void)
 		/* The data package datap is automatically read when sens-module sends new data. */
 		
 		/* Example of how to get stuff from data packages. */
-		data_package tmp = *datap;
-<<<<<<< HEAD
-		uint8_t pid = tmp.id;
-		uint16_t pdata = tmp.data;
-		//
-		//angle = pdata;
-		//
-		//if(angle >= 0.5) {
-			//stop();
-			//break;
-		//}
-=======
-		volatile pid = tmp.id;
-		volatile pdata = tmp.data;
 		
-		angle = pdata;
+		angle = getCurrentAngle();
 		
-		/*
-		if(angle >= 0.5) {
+		if(angle >= 30) {
 			stop();
 			break;
 		}
-		*/
->>>>>>> refs/remotes/origin/i2c_bus
 		
 		_delay_ms(100);	// Chilla lite
 	}

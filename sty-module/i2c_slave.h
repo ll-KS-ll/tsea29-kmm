@@ -10,6 +10,7 @@
 * 
 */
 
+
 /* ====== ADDRESSES ====== */
 #define SENS_ADDRESS 0x10	// Address of sensor module. 
 #define COM_ADDRESS 0x20	// Establish connection with com-module.
