@@ -29,7 +29,7 @@ int main(void)
 	/* Boot Claw-/Motor-kernel */
 	boot();
 	
-	_delay_ms(2000);
+	//_delay_ms(2000);
 	
 	volatile angle = 0;
 	
@@ -45,13 +45,13 @@ int main(void)
 		data_package tmp = *datap;
 		uint8_t pid = tmp.id;
 		uint16_t pdata = tmp.data;
-		
-		angle = pdata;
-		
-		if(angle >= 0.5) {
-			stop();
-			break;
-		}
+		//
+		//angle = pdata;
+		//
+		//if(angle >= 0.5) {
+			//stop();
+			//break;
+		//}
 		
 		_delay_ms(500);	// Chilla lite
 	}
