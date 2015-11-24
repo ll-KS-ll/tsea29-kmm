@@ -22,7 +22,7 @@ void i2c_init_master( void )
 	
 	/* Set register for clock generation */
 	TWBR = 65;							// Bit rate: 100 kHz for F_SCL=14.745 MhZ
-	TWSR = (0<<TWPS1) | (0<<TWPS0);		// Setting pre-scalar bits 00 = 4^0 = 0
+	TWSR = (0<<TWPS1) | (0<<TWPS0);		// Setting prescalar bits 00 = 4^0 = 0
 	// SCL freq= F_CPU/(16 + 2*(TWBR)*4^TWPS)
 	
 	/* Enable TWI and Interrupts. */
