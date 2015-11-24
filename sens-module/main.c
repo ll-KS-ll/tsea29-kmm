@@ -187,7 +187,7 @@ int main(void)
 		*/
 		
 		data_package datap = {5, data_out};
-		i2c_write(STY_ADDRESS, datap);	// Write an entire package to com-module.
+		i2c_write(GENERAL_CALL_ADDRESS, datap);	// Write an entire package to com-module.
 		data++;
 		////_delay_ms(2000);
 		
