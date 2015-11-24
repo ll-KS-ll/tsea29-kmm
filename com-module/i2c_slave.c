@@ -44,7 +44,7 @@ void clear_twint( void )
 
 /* Read data from bus. */
 void read ( void ) {
-	uint8_t recv_data=TWDR;	// Load incoming data into recv_data.
+        uint16_t recv_data=TWDR;	// Load incoming data into recv_data.
 	
 	/* Select buffer */
 	if ( buffer ) {
