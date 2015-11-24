@@ -7,11 +7,12 @@
  *																		*
 /************************************************************************/
 
+
 #ifndef AUTONOMOUS_H_
 #define AUTONOMOUS_H_
 
 
-typedef enum { north, south, west, east} direction;
+typedef enum {north, south, west, east} direction;
 
 void exploreLabyrinth();
 

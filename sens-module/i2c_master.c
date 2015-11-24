@@ -116,11 +116,11 @@ ISR(TWI_vect){
 			
 		case DATA_ACK_TRANSMITTED:			// Data byte has been transmitted; ACK received.
 			if ( transaction_state == 1 ) {
-				TWDR = dp.data;		
+				TWDR = dp.data>>8;		
 				transaction_state++;
 				clear_twint();					// Clear interrupt flag.
 			} else if ( transaction_state == 2 ) {
-				TWDR = dp.data>>8;
+				TWDR = dp.data;
 				transaction_state++;
 				clear_twint();					// Clear interrupt flag.
 			} else {

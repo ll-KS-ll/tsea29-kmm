@@ -10,6 +10,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
+#include <stdbool.h>
 #include "i2c_slave.h" // Is slave module
 #include "autonomous.h"
 #include "boot.h"
@@ -17,6 +18,26 @@
 
 // temporary, only for testing
 #include "motorKernel.h"
+
+/* Test method used to now crash into wall */
+
+void dontCrash()
+{
+	unsigned int frontDis = 0;
+	static bool stopped = false;
+	frontDis = getFrontDistance();
+	
+	if(frontDis >= 500 && !stopped) {
+		stopped = true;
+		stop();
+	} else if (frontDis <= 600 && frontDis >= 200 && stopped){
+		driveReverse(DEFAULT_SPEED - 100, DEFAULT_SPEED- 100);
+	} else if (frontDis <= 500) {
+		driveForward(DEFAULT_SPEED- 100, DEFAULT_SPEED- 100);
+		stopped = false;
+	}
+	
+}
 
 int main(void)
 {
@@ -29,28 +50,16 @@ int main(void)
 	/* Boot Claw-/Motor-kernel */
 	boot();
 	
-	_delay_ms(2000);
+	_delay_ms(1000);
 	
-	volatile angle = 0;
-	
-	setRotateLeft();
-	setMotorSpeed(400, 400);	
+
+	exploreLabyrinth();
 	/* Main loop */
-	// Testa att rotera
-	while (1)
-	{
-		/* The data package datap is automatically read when sens-module sends new data. */
-		
-		/* Example of how to get stuff from data packages. */
-		
-		angle = getCurrentAngle();
-		
-		if(angle >= 30) {
-			stop();
-			break;
-		}
-		
-		_delay_ms(100);	// Chilla lite
-	}
+	//while (1)
+	//{
+		//
+		//dontCrash();
+//
+	//}
 }
 

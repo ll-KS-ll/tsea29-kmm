@@ -117,7 +117,7 @@ int main(void)
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
 	DDRD = 0xFF; //PORTD as OUTPUT
-	int ch = 1; //ch = 2 = line sensor
+	int ch = 4; //ch = 2 = line sensor
 	adc_init();
 	
 	float gyro_voltage = 5;
@@ -126,11 +126,13 @@ int main(void)
 	float rotation_threshold = 5;
 	float gyro_rate;
 	volatile d_angle = 0;
-	uint16_t data_out;
+	volatile data_out;
 	uint8_t distance;
 	uint16_t data = 0;
 	uint8_t mux = 0x00;
 	long tick = 0;
+	
+	int dist;
 	while(1)
 	{
 		
@@ -166,7 +168,7 @@ int main(void)
 				break;
 			
 			case 5:
-				data_out = adc_read(ch); //IR-sensor fram
+				data_out = adc_read(ch); //IR-sensor fram;
 				break;
 			
 			case 6:
@@ -177,29 +179,31 @@ int main(void)
 				data_out = adc_read(ch); //IR-sensor h.fram
 				break;
 		}
-		/*ch++;
-		if (ch == 3)
+		
+		
+		//PORTB = data_out;
+		
+		data_package datap = {ch, data_out};
+		i2c_write(STY_ADDRESS, datap);	// Write an entire package to com-module.
+		
+		ch++;
+		if (ch == 8)
 		{
-			ch = 1;
+			ch = 3;
 		}
 		
-		PORTB = data_out;
-		*/
-		
-		data_package datap = {5, data_out};
-		i2c_write(STY_ADDRESS, datap);	// Write an entire package to com-module.
-		data++;
+		//data++;
 		////_delay_ms(2000);
 		
 		//PORTB = data_out;
-		if (tick == 5)
+		//if (tick == 5)
 		/*{
 			data_package datap = {'0', data_out};
 			i2c_write_package(STY_ADDRESS, datap);
 			tick = 0;
 		}*/
 			// Write an entire package to com-module.
-		tick++;
+		//tick++;
 	}
 }
 
