@@ -114,31 +114,31 @@ int main(void)
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
 	DDRD = 0xFF; //PORTD as OUTPUT
-	uint8_t ch = 1; //ch = 1 = angular rate sensor
+	uint8_t ch = 3; //ch = 1 = angular rate sensor
 	adc_init();
 	
 	float gyro_voltage = 5;
 	float gyro_zero_voltage = adc_read(ch);
-	float gyro_sensitivity = 0.00667;
+	float gyro_sensitivity = 26.67;
 	float rotation_threshold = 5;
 	float gyro_rate;
 	int d_angle = 0;
-	uint16_t data_out = 0;
+	uint8_t data_out = 0;
 	uint8_t mux = 0;
 	long tick = 0;
 	
+	_delay_ms(1000);
 	while(1)
 	{
 		switch(ch) 
 		{
 			case 1: // gyro
-				gyro_rate = (adc_read(ch) - gyro_zero_voltage) * gyro_voltage / 1024;
+				gyro_rate = ((adc_read(ch) - gyro_zero_voltage) * gyro_voltage / 1024) * 1000;
 				gyro_rate /= gyro_sensitivity;
 				if(gyro_rate >= rotation_threshold || gyro_rate <= -rotation_threshold)
 				{
-					d_angle += gyro_rate/10;
+					d_angle += gyro_rate;
 				}
-				d_angle;
 				data_out = d_angle;
 				PORTB = data_out;
 				break;
@@ -156,30 +156,35 @@ int main(void)
 				
 			case 3:
 				data_out = adc_read(ch); //IR-sensor front left
+				PORTB = data_out;
 				break;
 			
 			case 4:
 				data_out = adc_read(ch); //IR-sensor back left
+				PORTB = data_out;
 				break;
 			
 			case 5:
 				data_out = adc_read(ch); //IR-sensor front
+				PORTB = data_out;
 				break;
 			
 			case 6:
 				data_out = adc_read(ch); //IR-sensor back right
+				PORTB = data_out;
 				break;
 			
 			case 7:
 				data_out = adc_read(ch); //IR-sensor front right
+				PORTB = data_out;
 				break;
 		}
 		//PORTB = data_out;
-		/*ch++;
+		ch++;
 		if (ch == 8)
 		{
-			ch = 1;
-		}*/
+			ch = 3;
+		}
 		
 		/*if (tick == 5)
 		{
