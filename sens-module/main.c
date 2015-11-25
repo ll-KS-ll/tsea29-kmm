@@ -115,11 +115,10 @@ int main(void)
 	sei();
 	_delay_ms(2000); // Chilla lite
 	
-	
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
 	DDRD = 0xFF; //PORTD as OUTPUT
-	uint8_t ch = 3; //ch = 1 = angular rate sensor
+	PORTB = 0xff; // turns on lights on line sensor
 	adc_init();
 	
 	float gyro_voltage = 5;
@@ -129,16 +128,12 @@ int main(void)
 	float gyro_rate;
 	int d_angle = 0;
 	uint16_t data_out = 0;
-	long tick = 0;
-	_delay_ms(1000);
-	uint8_t distance;
-	uint16_t data = 0;
+	uint8_t ch = 2; //ch = 1 = angular rate sensor
 	uint8_t mux = 0x00;
-	int dist;
 	
+	_delay_ms(1000);
 	while(1)
 	{
-		
 		switch(ch) 
 		{
 			case 1: // gyro
@@ -149,15 +144,12 @@ int main(void)
 					d_angle += gyro_rate;
 				}
 				data_out = d_angle;
-				PORTB = data_out;
 				break;
-			case 2: // line sensor, not tested
-				turn_on_light(1);
-				//PORTD = mux;
-				//data_out = adc_read(ch);
-				//turn_off_light();
-				//mux++;
-				if (mux == 8)
+			case 2: // line sensor
+				PORTD = mux;
+				data_out = adc_read(ch);
+				mux++;
+				if (mux == 7)
 				{
 					mux = 0;
 				}
@@ -165,12 +157,10 @@ int main(void)
 				
 			case 3:
 				data_out = adc_read(ch); //IR-sensor front left
-				PORTB = data_out;
 				break;
 			
 			case 4:
 				data_out = adc_read(ch); //IR-sensor back left
-				PORTB = data_out;
 				break;
 			
 			case 5:
@@ -188,13 +178,11 @@ int main(void)
 		data_package datap = {ch, data_out};
 		i2c_write(GENERAL_CALL_ADDRESS, datap);	// Write an entire package to com-module.
 		
-		ch++;
+		//ch++;
 		if (ch == 8)
 		{
 			ch = 3;
-		}
-		
-		tick++;
+		}		
 	}
 }
 
