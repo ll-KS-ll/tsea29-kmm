@@ -129,7 +129,7 @@ int main(void)
 	volatile data_out;
 	uint8_t distance;
 	uint16_t data = 0;
-	uint8_t mux = 0x00;
+	uint8_t mux = 0b00000011;
 	long tick = 0;
 	
 	int dist;
@@ -148,11 +148,12 @@ int main(void)
 				data_out = d_angle;
 				break;
 			case 2: // line sensor, not tested
-				PORTB = turn_on_light(mux);
+				//PORTB = turn_on_light(mux);
+				PORTB = 0xFF;
 				PORTD = mux;
 				data_out = adc_read(ch);
-				turn_off_light();
-				mux++;
+				//turn_off_light();
+				//mux++;
 				if (mux == 7)
 				{
 					mux = 0;
