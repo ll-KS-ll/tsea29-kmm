@@ -46,6 +46,7 @@ ui_*.h
 Makefile*
 *-build-*
 *.autosave
+Guntech-PC-Software
 
 # Debug files
 *.dSYM/
