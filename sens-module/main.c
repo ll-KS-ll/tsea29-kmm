@@ -20,10 +20,12 @@ volatile float sec;
 
 void adc_init()
 {
+	cli();
 	ADMUX = (1<<REFS0); // AREF = AVcc
 	// ADC Enable and prescale of 64
 	// 16000000/64 = 250kHz
 	ADCSRA = (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(0<<ADPS0);
+	sei();
 }
 
 uint16_t adc_read(uint8_t ch)
@@ -114,7 +116,11 @@ int main(void)
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
 	DDRD = 0xFF; //PORTD as OUTPUT
+<<<<<<< HEAD
 	uint8_t ch = 3; //ch = 1 = angular rate sensor
+=======
+	int ch = 1; //ch = 2 = line sensor
+>>>>>>> origin/sens-module
 	adc_init();
 	
 	float gyro_voltage = 5;
