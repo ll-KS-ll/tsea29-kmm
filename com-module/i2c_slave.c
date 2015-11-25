@@ -91,6 +91,7 @@ ISR(TWI_vect){
 			
 		/* ====== GENERAL CALL ====== */
 		case GENERAL_CALL_RECEIVED:
+			id = datah = true;
 			clear_twint();
 			break;	
 			

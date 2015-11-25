@@ -14,6 +14,13 @@
 #include <avr/interrupt.h>
 #include <stdbool.h>
 
+bool rw_mode;				// Boolean to keep track of what mode the master is currently operating in.
+uint8_t adr;				// Address of slave to write/read to/from.
+data_package dp;			// Data package to write.
+bool bus_busy;				// Boolean for when bus is busy doing a transaction.
+uint8_t transaction_state;	// State variables, keeping track of where in the transaction we are.
+uint16_t recv_data;			// Received data.
+
 void i2c_init_master( void )
 {
 	/* Set SDA, SCL as input and activate pull-up */
@@ -35,14 +42,6 @@ void clear_twint( void )
 	TWCR = (1<<TWEN) | (1<<TWIE) | (1<<TWINT);	// Keep i2c enabled. Clear interrupt flag. 
 }
 
-bool rw_mode;				// Boolean to keep track of what mode the master is currently operating in.
-uint8_t adr;				// Address of slave to write/read to/from.
-data_package dp;			// Data package to write.
-bool bus_busy;				// Boolean for when bus is busy doing a transaction.
-uint8_t transaction_state;	// State variables, keeping track of where in the transaction we are.
-uint16_t recv_data;			// Received data.
-
-
 /* Send START condition. */
 void start ( void )
 {
@@ -60,29 +59,23 @@ void stop( void )
 void write_package( void ) 
 {
 	if ( transaction_state == 1 ) {
-		TWDR = dp.data>>8;
+		TWDR = dp.data>>8;		// Send hdata.
 		transaction_state++;
 		clear_twint();			// Clear interrupt flag.
 	} else if ( transaction_state == 2 ) {
-		TWDR = dp.data;
+		TWDR = dp.data;			// Send ldata.
 		transaction_state++;
 		clear_twint();			// Clear interrupt flag.
 	} else {
-		stop();
+		stop();	// Data package sent, end transmission.
 	}
 }
 
 /* Write only id and change to SLA+R. Used in read mode. */
-void write_id( void )
+void switch_read_mode( void )
 {
-	if ( transaction_state == 0 ) {
-		TWDR = dp.id;			// Write id.
-		transaction_state++;
-		clear_twint();	
-	} else {
-		adr = adr + I2C_READ;	// Change to SLA+R.
-		start();				// Send RESTART.
-	}
+	adr = adr + I2C_READ;	// Change to SLA+R.
+	start();				// Send RESTART.
 }
 
 /* Write data package datap to the bus. */
@@ -129,26 +122,24 @@ ISR(TWI_vect){
 
 		/* ====== WRITE ====== */
 		case SLAW_ACK_TRANSMITTED:			// SLA+W has been transmitted; ACK received.
-			TWDR = dp.id;
+			TWDR = dp.id;					// Write id to slave.
 			transaction_state++;	
 			clear_twint();					// Clear interrupt flag.
 			break;
 			
 		case SLAW_NACK_TRANSMITTED:			// SLA+W has been transmitted; NACK received.
-			/* Slave didn't respond correctly. Drop the package and stop the transaction. */
-			stop();
+			stop();	// Slave didn't respond correctly. Drop the package and stop the transaction.
 			break;	
 			
 		case DATA_ACK_TRANSMITTED:			// Data byte has been transmitted; ACK received.
 			if(rw_mode == I2C_WRITE)
-				write_package();	// Write mode.
+				write_package();	// Write mode. Write data.
 			else
-				write_id();			// Read mode.
+				switch_read_mode();	// Id written, change to read mode to receive data.
 			break;
 			
 		case DATA_NACK_TRANSMITTED:			// Data byte has been transmitted; NACK received.
-			/* Slave didn't respond correctly. Abort. */
-			stop();
+			stop(); // Slave didn't respond correctly. Abort. 
 			break;
 		/* ==================== */
 		
@@ -158,18 +149,18 @@ ISR(TWI_vect){
 			break;
 		
 		case SLAR_NACK_RECEIVED:	// SLA+R has been transmitted; NACK received.
-			stop();
+			stop();		// Something went wrong, slave didn't responed. Abort.
 			break;
 		
-		case DATA_ACK_RECEIVED:				// Data byte has been received, ACK returned. 
-			recv_data = TWDR;
-			TWCR = (1<<TWEN) | (1<<TWIE) | (1<<TWINT) ;	// Data byte has been received, ACK returned.
+		case DATA_ACK_RECEIVED:	// Data byte has been received, ACK returned. 
+			recv_data = TWDR;	// Hdata received. 
+			clear_twint();	// Data byte has been received, NACK returned.
 			break;
 			
-		case DATA_NACK_RECEIVED:				// Data byte has been received; NACK received.
-			dp.data = (recv_data<<8) + TWDR;
-			recv_datap = dp;
-			stop();
+		case DATA_NACK_RECEIVED:	// Data byte has been received; NACK received.
+			dp.data = (recv_data<<8) + TWDR;	// Ldata received.
+			recv_datap = dp;	// Complete package read.
+			stop();				// End transmission.
 			break;		
 		/* ================== */
 	}

@@ -1,6 +1,5 @@
 /*
-* I2C Master. Soon to be interrupt driven implementation of an i2c master.
-*
+* I2C Master. Interrupt based implementation of an i2c master.
 *
 */
 
@@ -29,14 +28,6 @@
 #define DATA_NACK_RECEIVED 0x58			// Data byte has been received; NACK has been received.
 /* =========================== */
 
-/* ERROR CODES */
-#define ERROR_START 0x1
-#define ERROR_REPEATED_START 0x2
-#define ERROR_ADDRESS_WRITE 0x3
-#define ERROR_ADDRESS_READ 0x4
-#define ERROR_SEND_DATA 0x5
-#define ERROR_READ_DATA 0x6
-
 
 /* Structure of a data package. */
 typedef struct {
@@ -44,20 +35,9 @@ typedef struct {
 	uint16_t data;
 } data_package;
 
-data_package recv_datap;
-/* OLD */
-//uint8_t error_status;	// Status code of I2C errors. 0 is no error.
-uint16_t recv_data;		// Received data from the bus is put here.
+data_package recv_datap;	// Received data packages from slaves can be put here.
 
 
 void i2c_init_master( void );							// Initialize processor as master on i2c_bus.
-void i2c_write(uint8_t address, data_package datap);
-void i2c_read(uint8_t address, uint8_t id);
-
-
-/* Old stuff */
-/*
-void i2c_write_byte( uint8_t address, uint8_t byte );	// Write a byte to slave with specified address.
-void i2c_read_byte( uint8_t address );					// Read a byte from slave with specified address. 
-uint8_t i2c_write_package( uint8_t address, data_package package);	// Transmit a data package to slave with specified address. Returns error status code.
-*/
+void i2c_write(uint8_t address, data_package datap);	// Write a data package to slave with specified address. If bus is busy, package is dropped.
+void i2c_read(uint8_t address, uint8_t id);				// Read data from data package with specified id from a slave with specified address. Read data can be access from recv_datap. If bus is busy, package is dropped. 

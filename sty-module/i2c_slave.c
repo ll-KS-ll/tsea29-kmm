@@ -79,8 +79,8 @@ ISR(TWI_vect){
 		
 		/* ====== READ ====== */
 		case SLAW_REQUEST_RECEIVED:	// Request from master to write.
-			id = datah = true;
-			clear_twint();	// ACK sent, clear interrupt flag.
+			id = datah = true;	// Reset control variables.
+			clear_twint();		// ACK sent, clear interrupt flag.
 			break;
 			
 		case DATA_ACK_RECEIVED: // Data from master is received.
@@ -95,6 +95,7 @@ ISR(TWI_vect){
 			
 		/* ====== GENERAL CALL ====== */
 		case GENERAL_CALL_RECEIVED:
+			id = datah = true;		// Reset control variables.
 			clear_twint();
 			break;	
 			
