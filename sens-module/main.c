@@ -117,7 +117,7 @@ int main(void)
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
 	DDRD = 0xFF; //PORTD as OUTPUT
-	int ch = 4; //ch = 2 = line sensor
+	int ch = 3; //ch = 2 = line sensor
 	adc_init();
 	
 	float gyro_voltage = 5;
