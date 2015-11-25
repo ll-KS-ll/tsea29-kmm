@@ -28,7 +28,7 @@ int main(void)
 	/* Main loop */
 	while ( 1 ) 
     {
-		_delay_ms(1500);
+		_delay_ms(100);
 		
 		data_package tmp = *datap; // Store entire package in case a new is read.
 		bt_transmit( '<' );
