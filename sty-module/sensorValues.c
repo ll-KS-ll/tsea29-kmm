@@ -23,25 +23,32 @@ static uint16_t sensorBar[] = {0, 0, 0, 0, 0, 0, 0, 0};
 void updateRegisters(uint8_t id, uint16_t data) {
 	
 	switch (id) {
+		
 		case 1:
-		break;
+			break;
+		
 		case 2:
-		break;
+			break;
+		
 		case 3:
-		frontLeftDistance = data;
-		break;
+			frontLeftDistance = data;
+			break;
+		
 		case 4:
-		backLeftDistance = data;
-		break;
+			backLeftDistance = data;
+			break;
+		
 		case 5:
-		frontDistance = data;
-		break;
+			frontDistance = data;
+			break;
+		
 		case 6:
-		backRightDistance = data;
-		break;
+			backRightDistance = data;
+			break;
+		
 		case 7:
-		frontRightDistance = data;
-		break;
+			frontRightDistance = data;
+			break;
 	}
 }
 

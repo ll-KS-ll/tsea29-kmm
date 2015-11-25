@@ -2,12 +2,13 @@
  * slave.c
  * Program for Slave Mode
  * Created: 2015-11-05 14:47:54
- *  Author: Viktor & Victor
+ * Author: Viktor & Victor
  */ 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <i2c_slave.h>
 #include <stdbool.h>
+#include <i2c_slave.h>
+
 
 /* Variables to track progress of package */
 bool id, datah;
@@ -29,11 +30,9 @@ void i2c_init_slave( uint8_t address )
 	DDRC = (0<<DDC0) | (0<<DDC1);
 	PORTC = (1<<DDC0) | (1<<DDC1);
 	
-	id = true;
-	datah = true;
+	id = datah = true;
 	datap = &datap_buffer1;
 	buffer = 0;
-	
 }
 
 /* Clear the i2c interrupt flag. */
@@ -42,9 +41,9 @@ void clear_twint( void )
 	TWCR = (1<<TWEA) | (1<<TWEN) | (1<<TWIE) | (1<<TWINT);	// Activate ACK as response. Keep i2c enabled. Keep interrupts enabled. Clear interrupt flag.
 }
 
-/* Read data from bus. */
+/* Read data */
 void read ( void ) {
-	uint8_t recv_data=TWDR;	// Load incoming data into recv_data.
+	uint16_t recv_data = TWDR;	// Load incoming data into recv_data.
 	
 	/* Select buffer */
 	if ( buffer ) {
@@ -69,7 +68,6 @@ void read ( void ) {
 	}
 }
 
-
 /* Interrupt handler for I2C interrupts. */
 ISR(TWI_vect){
 	uint8_t status = (TWSR & NO_RELEVANT_STATE_INFO);	// Get status code of incoming I2C interrupt.
@@ -77,30 +75,27 @@ ISR(TWI_vect){
 		
 		/* ====== READ ====== */
 		case SLAW_REQUEST_RECEIVED:	// Request from master to write.
-			/* Incoming data */
 			id = datah = true;
 			clear_twint();	// ACK sent, clear interrupt flag.
 			break;
 			
-		case DATA_ACK_RECEIVED: // Data from master is received.
-			/* Read data */
+		case DATA_ACK_RECEIVED:	// Data from master is received.
 			read();
 			clear_twint();	// ACK sent, clear interrupt flag.
 			break;
 			
-		case DATA_NACK_TRANSMITTED:
-			/* Something went wrong, transaction aborted. */
+		case DATA_NACK_RECEIVED:	// Something went wrong, transaction aborted.
 			clear_twint();	// Stops transaction, clear interrupt flag.
 			break;
 		/* ================== */
 			
 		/* ====== GENERAL CALL ====== */
 		case GENERAL_CALL_RECEIVED:
+			id = datah = true;
 			clear_twint();
 			break;	
 			
-		case GENERAL_CALL_DATA_ACK:
-			/* Read data */
+		case GENERAL_CALL_DATA_ACK:	// Read data
 			read();
 			clear_twint();	// ACK sent, clear interrupt flag.
 			break;
@@ -112,25 +107,28 @@ ISR(TWI_vect){
 		
 		/* ====== WRITE ====== */
 		case SLAR_REQUEST_RECEIVED:	// Request from master to read.
-			/* Load data to write */
-			TWDR = write_data;							// Load outgoing data with write_data.
-			TWCR = (1<<TWEN) | (1<<TWIE) | (1<<TWINT);	// Keep i2c enabled. Keep interrupts enabled. Clear interrupt flag. NACK.
+			id = datah = true;		// Reset control variables.
+			TWDR = write_data>>8;	// Transmit hdata.
+			clear_twint();			// Clear interrupt flag.
 			break;	
 			
 		case DATA_ACK_TRANSMITTED:	// Data to master has been transmitted.
-			/* Data written */ 
-			clear_twint();	// NACK sent, clear interrupt flag.
+			TWDR = write_data;		// Transmit ldata.
+			TWCR = (1<<TWEN) | (1<<TWIE) | (1<<TWINT);	// Last data. Expect NACK as response. Keep i2c and interrupts enabled. Clear interrupt flag.
 			break;
 		
-		case STOP_COND_RECEIVED: // Stop or Repeated Start condition has come.
-			/* Stop */
-			clear_twint();	// ACK sent, clear interrupt flag.
+		case DATA_NACK_TRANSMITTED:
+			clear_twint();	// Something went wrong. Enter not addressed mode.
+			break;
+		
+		case LAST_DATA_ACK_TRANSMITTED:
+			clear_twint();	// Something went wrong. Enter not addressed mode.
 			break;
 		/* =================== */
 		
-		/*
-		default:
-			clear_twint(); // Just respond like everything is okey even though it's probably not! #YOLO	
-		*/
+		case STOP_COND_RECEIVED: // Stop or Repeated Start condition has come.
+			clear_twint();	// ACK sent, clear interrupt flag.
+			break;
+
 	}
 }

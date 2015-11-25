@@ -117,7 +117,7 @@ int main(void)
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
 	DDRD = 0xFF; //PORTD as OUTPUT
-	int ch = 4; //ch = 2 = line sensor
+	uint8_t ch = 4; //ch = 2 = line sensor
 	adc_init();
 	
 	float gyro_voltage = 5;
@@ -126,7 +126,7 @@ int main(void)
 	float rotation_threshold = 5;
 	float gyro_rate;
 	volatile d_angle = 0;
-	volatile data_out;
+	uint16_t data_out;
 	uint8_t distance;
 	uint16_t data = 0;
 	uint8_t mux = 0x00;
@@ -180,11 +180,9 @@ int main(void)
 				break;
 		}
 		
-		
 		//PORTB = data_out;
-		
 		data_package datap = {ch, data_out};
-		i2c_write(STY_ADDRESS, datap);	// Write an entire package to com-module.
+		i2c_write(GENERAL_CALL_ADDRESS, datap);	// Write an entire package to com-module.
 		
 		ch++;
 		if (ch == 8)
@@ -193,7 +191,7 @@ int main(void)
 		}
 		
 		//data++;
-		////_delay_ms(2000);
+		//_delay_ms(2000);
 		
 		//PORTB = data_out;
 		//if (tick == 5)

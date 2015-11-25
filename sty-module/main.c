@@ -41,25 +41,18 @@ void dontCrash()
 
 int main(void)
 {
-	
 	/* Initialize com-module as a slave on I2C-bus with the address of com-module. */
 	i2c_init_slave( STY_ADDRESS );
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
 	
-	/* Boot Claw-/Motor-kernel */
-	boot();
+	_delay_ms(1000);	// Chilla lite.
 	
-	_delay_ms(1000);
-	
-
-	exploreLabyrinth();
+	//exploreLabyrinth();
 	/* Main loop */
-	//while (1)
-	//{
-		//
-		//dontCrash();
-//
-	//}
+	while (1)
+	{
+		dontCrash();
+	}
 }
 
