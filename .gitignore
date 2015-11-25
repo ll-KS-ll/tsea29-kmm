@@ -28,6 +28,25 @@
 *.x86_64
 *.hex
 
+# C++ objects and libs
+*.slo
+*.lai
+
+# QT
+/.qmake.cache
+/.qmake.stash
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+*.moc
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+Makefile*
+*-build-*
+*.autosave
+
 # Debug files
 *.dSYM/
 Debug/
