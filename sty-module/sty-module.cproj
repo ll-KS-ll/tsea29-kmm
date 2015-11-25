@@ -40,7 +40,7 @@
       </framework-data>
     </AsfFrameworkConfig>
     <avrtool>com.atmel.avrdbg.tool.atmelice</avrtool>
-    <avrtoolserialnumber>J41800005500</avrtoolserialnumber>
+    <avrtoolserialnumber>J41800004432</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x1E9705</avrdeviceexpectedsignature>
     <com_atmel_avrdbg_tool_atmelice>
       <ToolOptions>
@@ -49,9 +49,9 @@
           <JtagEnableExtResetOnStartSession>false</JtagEnableExtResetOnStartSession>
           <JtagInChain>true</JtagInChain>
           <JtagDevicesBefore>0</JtagDevicesBefore>
-          <JtagDevicesAfter>1</JtagDevicesAfter>
+          <JtagDevicesAfter>2</JtagDevicesAfter>
           <JtagInstrBitsBefore>0</JtagInstrBitsBefore>
-          <JtagInstrBitsAfter>4</JtagInstrBitsAfter>
+          <JtagInstrBitsAfter>8</JtagInstrBitsAfter>
           <JtagSelectedDeviceIndexInChain>
           </JtagSelectedDeviceIndexInChain>
           <JtagDaisyChainDevices>
@@ -60,7 +60,7 @@
         <InterfaceName>JTAG</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.atmelice</ToolType>
-      <ToolNumber>J41800005500</ToolNumber>
+      <ToolNumber>J41800004432</ToolNumber>
       <ToolName>Atmel-ICE</ToolName>
     </com_atmel_avrdbg_tool_atmelice>
     <avrtoolinterface>JTAG</avrtoolinterface>
@@ -138,13 +138,49 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="autonomous.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="autonomous.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="boot.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="boot.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="clawKernel.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="clawKernel.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="i2c_slave.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="i2c_slave.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="labyrinthMap.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="labyrinthMap.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensorValues.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensorValues.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="motorKernel.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="motorKernel.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>

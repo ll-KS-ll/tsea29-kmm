@@ -7,9 +7,9 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <i2c_slave.h>
+#include <stdbool.h>
 
 /* Variables to track progress of package */
-typedef enum { false, true } bool;
 bool id, datah;
 /* Variables for simple two state buffer for reading. */
 uint8_t buffer;
@@ -114,7 +114,6 @@ ISR(TWI_vect){
 				id = datah = true;
 				datap = datap_buffer_ptr; // Set data package.
 			}
-			
 			clear_twint();	// ACK sent, clear interrupt flag.
 			break;
 			
@@ -129,7 +128,7 @@ ISR(TWI_vect){
 			clear_twint();	// NACK sent, clear interrupt flag.
 			break;
 		
-		case STOP_COND_RECEIVED: // Stop condition has come.
+		case STOP_COND_RECEIVED: // Stop or Repeated Start condition has come.
 			/* Stop */
 			clear_twint();	// ACK sent, clear interrupt flag.
 			break;
