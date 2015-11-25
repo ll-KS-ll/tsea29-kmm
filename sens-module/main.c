@@ -4,14 +4,15 @@
 * Created: 2015-11-10 16:02:48
 * Author : sara
 */
-#define F_CPU 16000000UL // Set clock frequency to 1 MHz
+
+#define F_CPU 15000000UL // Set clock frequency to 15 MHz
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/atomic.h>
 #include <util/delay.h>
 #include <math.h>
-#include <i2c_master.h>	// Sensor module is a i2c master.
+#include <i2c_master.h>	// Sensor module is an i2c master.
 
 volatile uint8_t count;
 volatile int angular_rate;
@@ -109,8 +110,12 @@ void turn_on_light(uint8_t mux)
 int main(void)
 {
 	/* Initialize sensor module as I2C master */
-	//i2c_init_master();
-
+	i2c_init_master();
+	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
+	sei();
+	_delay_ms(2000); // Chilla lite
+	
+	
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
 	DDRD = 0xFF; //PORTD as OUTPUT
@@ -124,12 +129,16 @@ int main(void)
 	float gyro_rate;
 	int d_angle = 0;
 	uint16_t data_out = 0;
-	uint8_t mux = 0;
 	long tick = 0;
-	
 	_delay_ms(1000);
+	uint8_t distance;
+	uint16_t data = 0;
+	uint8_t mux = 0x00;
+	int dist;
+	
 	while(1)
 	{
+		
 		switch(ch) 
 		{
 			case 1: // gyro
@@ -166,41 +175,26 @@ int main(void)
 			
 			case 5:
 				data_out = adc_read(ch); //IR-sensor front
-				PORTB = data_out;
 				break;
 			
 			case 6:
 				data_out = adc_read(ch); //IR-sensor back right
-				PORTB = data_out;
 				break;
 			
 			case 7:
 				data_out = adc_read(ch); //IR-sensor front right
-				PORTB = data_out;
 				break;
 		}
-		//PORTB = data_out;
+		data_package datap = {ch, data_out};
+		i2c_write(GENERAL_CALL_ADDRESS, datap);	// Write an entire package to com-module.
+		
 		ch++;
 		if (ch == 8)
 		{
 			ch = 3;
 		}
 		
-<<<<<<< HEAD
-		/*if (tick == 5)
-		{
-			//data_package datap = {'0', data_out};
-			//i2c_write_package(STY_ADDRESS, datap);
-			tick = 0;
-		}
-			// Write an entire package to com-module.
-		tick++;*/
-=======
-		PORTB = data_out;	
-		data_package datap = {'0', data_out};
-		i2c_write_package(STY_ADDRESS, datap);	// Write an entire package to com-module.
-		_delay_ms(500);
->>>>>>> refs/remotes/origin/master
+		tick++;
 	}
 }
 

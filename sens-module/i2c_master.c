@@ -11,6 +11,15 @@
 #include <avr/io.h>
 #include <i2c_master.h>
 #include <util/delay.h>
+#include <avr/interrupt.h>
+#include <stdbool.h>
+
+bool rw_mode;				// Boolean to keep track of what mode the master is currently operating in.
+uint8_t adr;				// Address of slave to write/read to/from.
+data_package dp;			// Data package to write.
+bool bus_busy;				// Boolean for when bus is busy doing a transaction.
+uint8_t transaction_state;	// State variables, keeping track of where in the transaction we are.
+uint16_t recv_data;			// Received data.
 
 void i2c_init_master( void )
 {
@@ -19,137 +28,141 @@ void i2c_init_master( void )
 	PORTC = (1<<DDC0) | (1<<DDC1);
 	
 	/* Set register for clock generation */
-	TWBR = 0;							// Bit rate: 62.5 kHz for F_SCL=1 MhZ
-	TWSR = (0<<TWPS1) | (0<<TWPS0);		// Setting pre-scalar bits 00 = 4^0 = 0
+	TWBR = 65;							// Bit rate: 100 kHz for F_SCL=14.745 MhZ
+	TWSR = (0<<TWPS1) | (0<<TWPS0);		// Setting prescalar bits 00 = 4^0 = 0
 	// SCL freq= F_CPU/(16 + 2*(TWBR)*4^TWPS)
-	// 100 kHz = 16 MHz / (16 + 2 * 72 * 4^0)	TWBR=72, TWSR=0. 
 	
-	/* Enable TWI */
-	TWCR = (1<<TWEN);
-	
-	recv_data = 0;
-	error_status = 0;
-}
-
-void error( uint8_t status )
-{
-	error_status = status;
-	/* Reset I2C Unit. */
-	TWCR = (1<<TWEN) | (1<<TWINT) | (1<<TWSTO);
-	TWCR = 0; 
-	TWCR = (1<<TWEN);
+	/* Enable TWI and Interrupts. */
+	TWCR = (1<<TWEN) | (1<<TWIE);
 }
 
 /* Clear the i2c interrupt flag. */
 void clear_twint( void )
 {
-	TWCR = (1<<TWEN) | (1<<TWINT);	// Keep i2c enabled. Clear interrupt flag. 
+	TWCR = (1<<TWEN) | (1<<TWIE) | (1<<TWINT);	// Keep i2c enabled. Clear interrupt flag. 
 }
 
 /* Send START condition. */
-void start( void )
+void start ( void )
 {
-	TWCR = (1<<TWEN) | (1<<TWSTA) | (1<<TWINT); // Keep i2c enabled. Activate START condition. Clear interrupt flag. 
-	while( !(TWCR & (1<<TWINT)) );				// Wait till start condition is transmitted
-	if( (TWSR & NO_RELEVANT_STATE_INFO) != START_COND_TRANSMITTED )	// Check for correct status.
-		error(ERROR_START);	// Notify an error occurred. 
-}
-
-/* Send repeated START condition. */
-void repeated_start( void )
-{
-	TWCR = (1<<TWEN) | (1<<TWSTA) | (1<<TWINT); // Keep i2c enabled. Activate START condition. Clear interrupt flag.
-	while( !(TWCR & (1<<TWINT)) );  // Wait till restart condition is transmitted.
-	if( (TWSR & NO_RELEVANT_STATE_INFO) != RSTART_COND_TRANSMITTED ) // Check for the acknowledgment
-		error(ERROR_REPAETED_START);	// Notify an error occurred. 
-}
-
-/* Send slave address to connect with. (SLA+R/W). */
-void send_address( uint8_t address )
-{
-	TWDR = address;					// Load address and write instruction to send.
-	clear_twint();					// Clear interrupt flag.
-	while ( !(TWCR & (1<<TWINT)) );	// Wait till complete TWDR byte transmitted.
-	
-	if (address & 1) {	// Check for the acknowledgment
-		/* Read returns NACK. */
-		if ((TWSR & NO_RELEVANT_STATE_INFO) != SLAR_NACK)
-			error(ERROR_ADDRESS_READ);
-	} else {
-		/* Write returns ACK */
-		if ((TWSR & NO_RELEVANT_STATE_INFO) != SLAW_ACK_RECEIVED)
-			error(ERROR_ADDRESS_WRITE);	
-	}
-}
-
-/* Send a byte of data. */
-void send_data( uint8_t data )
-{
-	TWDR = data;					// Put data in TWDR
-	clear_twint();					// Clear interrupt flag.
-	while ( !(TWCR & (1<<TWINT)) );	// Wait till complete TWDR byte transmitted.
-	if ( (TWSR & NO_RELEVANT_STATE_INFO) != DATA_ACK_RECEIVED ) // Check for the acknowledgment
-		error(ERROR_SEND_DATA);	// Notify an error occurred. 
-}
-
-/* Read a byte of data. */
-void read_data( void )
-{
-	clear_twint();					// Clear interrupt flag.
-	while ( !(TWCR & (1<<TWINT)) ); // Wait till complete TWDR byte transmitted.
-	if ( (TWSR & NO_RELEVANT_STATE_INFO) != DATA_NACK_RECEIVED ) // Check for the acknowledgment. 
-		error(ERROR_READ_DATA);	// Notify an error occurred. 
-	recv_data = TWDR;				// Load incoming data to recv_data.
+	TWCR = (1<<TWEN) | (1<<TWIE) | (1<<TWSTA) | (1<<TWINT); // Keep i2c enabled. Activate START condition. Clear interrupt flag.
 }
 
 /* Send STOP condition. */
-void stop( void )
+void stop( void ) 
 {
-	TWCR = (1<<TWEN) | (1<<TWSTO) | (1<<TWINT); // Keep i2c enabled. Activate STOP condition. Clear interrupt flag.
-	while( !(TWCR & (1<<TWSTO)) );				// Wait till stop condition is transmitted.
+	TWCR = (1<<TWEN) | (1<<TWIE) | (1<<TWSTO) | (1<<TWINT);	// Keep i2c enabled, keep interrupt enabled, send stop, clear interrupt flag;
+	bus_busy = false;
 }
 
-void i2c_write_byte( uint8_t address, uint8_t byte )
+/* Write an entire package. Used in write mode. */
+void write_package( void ) 
 {
-	start();							// Send start condition.
-	send_address ( address|I2C_WRITE );	// Write address and data direction bit(write) on SDA.
-	send_data( byte );					// Write data to slave.
-	stop();								// Send stop condition.
+	if ( transaction_state == 1 ) {
+		TWDR = dp.data>>8;		// Send hdata.
+		transaction_state++;
+		clear_twint();			// Clear interrupt flag.
+	} else if ( transaction_state == 2 ) {
+		TWDR = dp.data;			// Send ldata.
+		transaction_state++;
+		clear_twint();			// Clear interrupt flag.
+	} else {
+		stop();	// Data package sent, end transmission.
+	}
 }
 
-void i2c_read_byte( uint8_t address )
+/* Write only id and change to SLA+R. Used in read mode. */
+void switch_read_mode( void )
 {
-	start();							// Send start condition.
-	send_address ( address|I2C_READ );	// Write address and data direction bit(write) on SDA.
-	read_data();						// Read data from bus to recv_data. 
-	stop();								// Send stop condition.
+	adr = adr + I2C_READ;	// Change to SLA+R.
+	start();				// Send RESTART.
 }
 
-uint8_t i2c_write_package( uint8_t address, data_package package )
+/* Write data package datap to the bus. */
+void i2c_write(uint8_t address, data_package datap)
 {
-	error_status = 0;	// Clear Error status.
-	
-	start();									// Send start condition.
-	if ( error_status ) return error_status;	// Check if an error occurred.
-	send_address ( address|I2C_WRITE );			// Write address and data direction bit(write) on SDA.
-	if ( error_status ) return error_status;	// Check if an error occurred.
-	send_data( package.id );					// Write data to slave.
-	if ( error_status ) return error_status;	// Check if an error occurred.
-	
-	repeated_start();							// Send repeated start condition.
-	if ( error_status ) return error_status;	// Check if an error occurred.	
-	send_address ( address|I2C_WRITE );			// Write address and data direction bit(write) on SDA.
-	if ( error_status ) return error_status;	// Check if an error occurred.
-	send_data( (package.data>>8) );				// Write data to slave.
-	if ( error_status ) return error_status;	// Check if an error occurred.
-	
-	repeated_start();							// Send repeated start condition.
-	if ( error_status ) return error_status;	// Check if an error occurred.
-	send_address ( address|I2C_WRITE );			// Write address and data direction bit(write) on SDA.
-	if ( error_status ) return error_status;	// Check if an error occurred.
-	send_data( package.data );					// Write data to slave.
-	if ( error_status ) return error_status;	// Check if an error occurred.
-	
-	stop();										// Send stop condition.	
-	return 0;
+	// TODO: Add a timeout to transactions, in case the bus is frozen.
+	if ( bus_busy ) // Don't start a new write if already writing.
+		return;
+	bus_busy = true;
+	rw_mode = I2C_WRITE;
+	transaction_state = 0;
+	adr = address + I2C_WRITE;
+	dp = datap;
+	start();	// Send START condition to begin transaction.
 }
+
+/* Read desired data package of chosen id and save it in dp. */
+void i2c_read(uint8_t address, uint8_t id)
+{
+	if ( bus_busy ) // Don't start a new write if already writing.
+		return;
+	bus_busy = true;
+	rw_mode = I2C_READ;
+	transaction_state = 0;
+	adr = address + I2C_WRITE;
+	dp.id = id;
+	start();	// Send START condition to begin transaction.
+}
+
+/* Interrupt handler for I2C interrupts. */
+ISR(TWI_vect){
+	uint8_t status = (TWSR & NO_RELEVANT_STATE_INFO);	// Get status code of incoming I2C interrupt.
+	switch ( status ) {
+
+		case START_COND_TRANSMITTED:		// START condition has been transmitted.
+			TWDR = adr;						// Load address and write instruction to send.
+			clear_twint();					// Clear interrupt flag.
+			break;
+		
+		case RSTART_COND_TRANSMITTED:		// Repeated START condition has been transmitted.
+			TWDR = adr;						// Load address and write instruction to send.
+			clear_twint();					// Clear interrupt flag.
+			break;
+
+		/* ====== WRITE ====== */
+		case SLAW_ACK_TRANSMITTED:			// SLA+W has been transmitted; ACK received.
+			TWDR = dp.id;					// Write id to slave.
+			transaction_state++;	
+			clear_twint();					// Clear interrupt flag.
+			break;
+			
+		case SLAW_NACK_TRANSMITTED:			// SLA+W has been transmitted; NACK received.
+			stop();	// Slave didn't respond correctly. Drop the package and stop the transaction.
+			break;	
+			
+		case DATA_ACK_TRANSMITTED:			// Data byte has been transmitted; ACK received.
+			if(rw_mode == I2C_WRITE)
+				write_package();	// Write mode. Write data.
+			else
+				switch_read_mode();	// Id written, change to read mode to receive data.
+			break;
+			
+		case DATA_NACK_TRANSMITTED:			// Data byte has been transmitted; NACK received.
+			stop(); // Slave didn't respond correctly. Abort. 
+			break;
+		/* ==================== */
+		
+		/* ====== READ ====== */
+		case SLAR_ACK_TRANSMITTED:	// SLA+R has been transmitted; ACK received.
+			TWCR = (1<<TWEN) | (1<<TWIE) | (1<<TWINT) | (1<<TWEA);			// Data byte will be received and ACK will be returned.
+			break;
+		
+		case SLAR_NACK_RECEIVED:	// SLA+R has been transmitted; NACK received.
+			stop();		// Something went wrong, slave didn't responed. Abort.
+			break;
+		
+		case DATA_ACK_RECEIVED:	// Data byte has been received, ACK returned. 
+			recv_data = TWDR;	// Hdata received. 
+			clear_twint();	// Data byte has been received, NACK returned.
+			break;
+			
+		case DATA_NACK_RECEIVED:	// Data byte has been received; NACK received.
+			dp.data = (recv_data<<8) + TWDR;	// Ldata received.
+			recv_datap = dp;	// Complete package read.
+			stop();				// End transmission.
+			break;		
+		/* ================== */
+	}
+}
+			

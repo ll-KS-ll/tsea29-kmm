@@ -16,7 +16,8 @@
 	Port 6 = DirLeft, Port 5 = PWMLeft
 	Port 3 = DirRight, Port 4 = PWMRight
 */
-
+static int currentLeftSpeed;
+static int currentRightSpeed;
 static bool booted = false;
 
 void initMotor() {
@@ -43,34 +44,47 @@ void initMotor() {
 	}
 }
 
+void adjustRight() {
+	currentLeftSpeed += 2;
+	currentRightSpeed -= 2;
+	setMotorSpeed(currentLeftSpeed, currentRightSpeed);
+}
+
+void adjustLeft() {
+	currentLeftSpeed -= 2;
+	currentRightSpeed += 2;
+	setMotorSpeed(currentLeftSpeed, currentRightSpeed);
+}
+
 void setMotorSpeed(int leftSpeed, int rightSpeed) {
 	cli();
 	OCR1A = leftSpeed;
 	OCR1B = rightSpeed;
+	currentLeftSpeed = leftSpeed;
+	currentRightSpeed = rightSpeed;
 	sei();
 }
 
-void setForward() {
-	PORTD = (1<<3)|(0<<6);
-}
-
-void setReverse() {
+void driveForward(int leftSpeed, int rightSpeed) {
 	PORTD = (0<<3)|(1<<6);
+	setMotorSpeed(leftSpeed, rightSpeed);
 }
 
-void setRotateLeft() {
+void driveReverse(int leftSpeed, int rightSpeed) {
+	PORTD = (1<<3)|(0<<6);
+	setMotorSpeed(leftSpeed, rightSpeed);
+}
+
+void driveRotateLeft(int leftSpeed, int rightSpeed) {
 	PORTD = (1<<3)|(1<<6);
+	setMotorSpeed(leftSpeed, rightSpeed);
 }
 
-void setRotateRight() {
+void driveRotateRight(int leftSpeed, int rightSpeed) {
 	PORTD = (0<<3)|(0<<6);
+	setMotorSpeed(leftSpeed, rightSpeed);
 }
 
 void stop() {
 	setMotorSpeed(0, 0);
-}
-
-void driveForward() {
-	setForward();
-	setMotorSpeed(250, 250);
 }
