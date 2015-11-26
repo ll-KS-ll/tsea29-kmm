@@ -116,7 +116,7 @@ int main(void)
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
 	DDRD = 0xFF; //PORTD as OUTPUT
-	PORTB = 0xff; // turns on lights on line sensor
+	PORTB = 0xFF; // turns on lights on line sensor
 	adc_init();
 	
 	uint8_t ch = 1; //ch = 1 = angular rate sensor
@@ -143,6 +143,7 @@ int main(void)
 				}
 				data_out = d_angle;
 				break;
+			
 			case 2: // line sensor
 				PORTD = mux;
 				data_out = adc_read(ch);

@@ -11,14 +11,16 @@
 #include <avr/interrupt.h>
 #include <stdbool.h>
 #include "motorKernel.h"
+#include "variables.h"
 
 /*
 	Port 6 = DirLeft, Port 5 = PWMLeft
 	Port 3 = DirRight, Port 4 = PWMRight
 */
-static int currentLeftSpeed;
-static int currentRightSpeed;
-static bool booted = false;
+
+bool booted = false;
+static int currentLeftSpeed = DEFAULT_SPEED;
+static int currentRightSpeed = DEFAULT_SPEED;
 
 void initMotor() {
 	/* Only initialize motor once */
@@ -44,16 +46,26 @@ void initMotor() {
 	}
 }
 
+void goForwardWithCurrentSpeed() {
+	driveForward(currentLeftSpeed, currentRightSpeed);
+}
+
 void adjustRight() {
-	currentLeftSpeed += 2;
-	currentRightSpeed -= 2;
-	setMotorSpeed(currentLeftSpeed, currentRightSpeed);
+	if (currentLeftSpeed < MAX_SPEED && currentLeftSpeed > MIN_SPEED)
+	{
+		currentLeftSpeed += 2;
+		currentRightSpeed -= 2;
+		setMotorSpeed(currentLeftSpeed, currentRightSpeed);
+	}
 }
 
 void adjustLeft() {
-	currentLeftSpeed -= 2;
-	currentRightSpeed += 2;
-	setMotorSpeed(currentLeftSpeed, currentRightSpeed);
+	if (currentLeftSpeed < MAX_SPEED && currentLeftSpeed > MIN_SPEED)
+	{
+		currentLeftSpeed -= 2;
+		currentRightSpeed += 2;
+		setMotorSpeed(currentLeftSpeed, currentRightSpeed);
+	}
 }
 
 void setMotorSpeed(int leftSpeed, int rightSpeed) {
@@ -87,4 +99,6 @@ void driveRotateRight(int leftSpeed, int rightSpeed) {
 
 void stop() {
 	setMotorSpeed(0, 0);
+	currentLeftSpeed = DEFAULT_SPEED;
+	currentRightSpeed = DEFAULT_SPEED;
 }

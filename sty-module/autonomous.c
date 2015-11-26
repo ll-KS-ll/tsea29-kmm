@@ -7,17 +7,17 @@
  *																		*
 /************************************************************************/
 
+#define F_CPU 15000000UL
 #include <stdbool.h>
 #include <util/delay.h>
 #include "motorKernel.h"
+#include "autonomous.h"
 #include "sensorValues.h"
 #include "variables.h"
-#include "autonomous.h"
 
 #define kp 1
 #define kd 1
 
-static bool exploring = false;
 static bool drivingForward = false;
 
 direction currentDirection = north;
@@ -32,31 +32,27 @@ direction currentDirection = north;
 
 /* Not using map atm */
 void exploreLabyrinth() {
-	exploring = true;
 	/*
 	Write main loop for exploring labyrinth.
 	*/
-	while(exploring) {
-		if(getFrontDistance() <= MIN_DISTANCE_TO_FRONT_WALL) {
-			if(!drivingForward) {
-				driveForward(DEFAULT_SPEED, DEFAULT_SPEED);
-				drivingForward = true;
-			} else {
-				if(pdRegulator() > 0) {
-					adjustSpeed(-2, 2);
-				} else if(pdRegulator() < 0) {
-					adjustSpeed(2, -2);
-				}
-			}
-		} else if(getFrontLeftDistance() >= 200) { // temp code for turning, without gyro cant use other code
-			drivingForward = false;
-			driveRotateLeft(DEFAULT_SPEED, DEFAULT_SPEED);
-			_delay_ms(1000);
+	exploring: while(1) {
+		drivingForward: while(getFrontDistance() <= MIN_DISTANCE_TO_FRONT_WALL) {
+			goStraight();
 		}
+		stop();
 	}
+	
 	
 }
 
+void goStraight() {
+	if(pdRegulator() > 0) {
+		adjustLeft();
+	} else if (pdRegulator() < 0) {
+		adjustRight();
+	}
+	goForwardWithCurrentSpeed();
+}
 
 /* Private function used for rotating 90 degrees left */
 /* Unknown in-data from gyro */
@@ -161,13 +157,16 @@ int16_t pdRegulator(){
 	static int16_t preE;
 	
 	/* Choose to regulate depending on which side of robot is closest to the walls */
-	if(getFrontLeftDistance() + getBackLeftDistance() <= getFrontRightDistance() + getBackRightDistance()) {
-		e = getFrontLeftDistance() - getBackLeftDistance();
+	if(getFrontLeftDistance() + getBackLeftDistance() >= getFrontRightDistance() + getBackRightDistance()) {
+		e = getBackLeftDistance() - getFrontLeftDistance();
 		} else {
 		e = getFrontRightDistance() - getBackRightDistance();
 	}
 	
-	u = kd * e + kp * (e-preE);
+	u = kd * e; // Regulate only so we drive perpendicular to the walls
+	/* TO BE IMPLEMENTED */
+	// Regulate so we also drive in the middle between the walls on either side
+	// + kp * (e-preE);
 	
 	preE = e;
 	

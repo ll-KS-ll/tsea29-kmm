@@ -7,6 +7,7 @@
  *																		*
 /************************************************************************/
 
+#include "boot.h"
 #include "motorKernel.h"
 #include "clawKernel.h"
 

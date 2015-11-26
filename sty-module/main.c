@@ -12,32 +12,29 @@
 #include <avr/interrupt.h>
 #include <stdbool.h>
 #include "i2c_slave.h" // Is slave module
-#include "autonomous.h"
 #include "boot.h"
-#include "sensorValues.h"
+#include "autonomous.h"
 
-// temporary, only for testing
-#include "motorKernel.h"
 
 /* Test method used to now crash into wall */
+bool stopped = false;
 
-void dontCrash()
-{
-	unsigned int frontDis = 0;
-	static bool stopped = false;
-	frontDis = getFrontDistance();
-	
-	if(frontDis >= 500 && !stopped) {
-		stopped = true;
-		stop();
-	} else if (frontDis <= 600 && frontDis >= 200 && stopped){
-		driveReverse(DEFAULT_SPEED - 100, DEFAULT_SPEED- 100);
-	} else if (frontDis <= 500) {
-		driveForward(DEFAULT_SPEED- 100, DEFAULT_SPEED- 100);
-		stopped = false;
-	}
-	
-}
+//void dontCrash()
+//{
+	//unsigned int frontDis = 0;
+	//frontDis = getFrontDistance();
+	//
+	//if(frontDis >= MIN_DISTANCE_TO_FRONT_WALL && !stopped) {
+		//stopped = true;
+		//stop();
+	//} else if (frontDis <= 600 && frontDis >= 200 && stopped){
+		//driveReverse(DEFAULT_SPEED, DEFAULT_SPEED);
+	//} else if (frontDis <= 500) {
+		//driveForward(DEFAULT_SPEED, DEFAULT_SPEED);
+		//stopped = false;
+	//}
+	//
+//}
 
 int main(void)
 {
@@ -47,20 +44,16 @@ int main(void)
 	sei();
 	
 	_delay_ms(1000);	// Chilla lite.
+
+	exploreLabyrinth();
 	
-	//exploreLabyrinth();
 	/* Main loop */
-	
-	uint16_t angle = 0;
-	while (1)
-	{
-		//angle = getCurrentAngle();
-		//if (angle < 200)
-		//{
-		//	driveRotateLeft(DEFAULT_SPEED, DEFAULT_SPEED);
-		//}
-		//else stop();
-		dontCrash();
-	}
+	//while (1)
+	//{
+		//
+		//
+		//dontCrash();
+//
+	//}
 }
 
