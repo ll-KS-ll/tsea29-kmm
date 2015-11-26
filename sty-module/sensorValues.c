@@ -11,7 +11,7 @@
 #include "sensorValues.h"
 
 // Init all values to zero
-static int angle = 0;
+static uint16_t angle = 0;
 static uint16_t frontDistance = 0;
 static uint16_t frontLeftDistance = 0;
 static uint16_t backLeftDistance = 0;
@@ -25,6 +25,7 @@ void updateRegisters(uint8_t id, uint16_t data) {
 	switch (id) {
 		
 		case 1:
+			angle = data;
 			break;
 		
 		case 2:

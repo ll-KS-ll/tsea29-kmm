@@ -50,8 +50,16 @@ int main(void)
 	
 	//exploreLabyrinth();
 	/* Main loop */
+	
+	uint16_t angle = 0;
 	while (1)
 	{
+		//angle = getCurrentAngle();
+		//if (angle < 200)
+		//{
+		//	driveRotateLeft(DEFAULT_SPEED, DEFAULT_SPEED);
+		//}
+		//else stop();
 		dontCrash();
 	}
 }

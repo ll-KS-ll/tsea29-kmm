@@ -41,16 +41,14 @@ uint16_t adc_read(uint8_t ch)
 	
 	// start single convertion
 	// write ’1? to ADSC
+	cli();
 	ADCSRA |= (1<<ADSC);
 	
 	// wait for conversion to complete
 	// ADSC becomes ’0? again
 	// till then, run loop continuously
-	// interrupt forbidden??
-	//cli();
 	while(ADCSRA & (1<<ADSC));
-	//sei();
-	//SREG=cSREG; <---disable interrupt
+	sei();
 	
 	return (ADC);
 }
@@ -121,14 +119,14 @@ int main(void)
 	PORTB = 0xff; // turns on lights on line sensor
 	adc_init();
 	
+	uint8_t ch = 1; //ch = 1 = angular rate sensor
 	float gyro_voltage = 5;
-	float gyro_zero_voltage = adc_read(ch);
+	float gyro_zero_voltage = adc_read(1);
 	float gyro_sensitivity = 26.67;
 	float rotation_threshold = 5;
 	float gyro_rate;
 	int d_angle = 0;
 	uint16_t data_out = 0;
-	uint8_t ch = 2; //ch = 1 = angular rate sensor
 	uint8_t mux = 0x00;
 	
 	_delay_ms(1000);
@@ -178,10 +176,10 @@ int main(void)
 		data_package datap = {ch, data_out};
 		i2c_write(GENERAL_CALL_ADDRESS, datap);	// Write an entire package to com-module.
 		
-		//ch++;
+		ch++;
 		if (ch == 8)
 		{
-			ch = 3;
+			ch = 1;
 		}		
 	}
 }
