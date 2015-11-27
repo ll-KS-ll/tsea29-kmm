@@ -12,12 +12,14 @@
 #include <avr/interrupt.h>
 #include <stdbool.h>
 #include "i2c_slave.h" // Is slave module
-#include "boot.h"
 #include "autonomous.h"
+#include "boot.h"
+#include "sensorValues.h"
 
+// temporary, only for testing
+#include "motorKernel.h"
 
 /* Test method used to now crash into wall */
-bool stopped = false;
 
 //void dontCrash()
 //{
@@ -35,6 +37,7 @@ bool stopped = false;
 	//}
 	//
 //}
+
 int main(void)
 {
 	/* Initialize com-module as a slave on I2C-bus with the address of com-module. */
@@ -47,7 +50,6 @@ int main(void)
 	
 	_delay_ms(2000);
 	
-
 	exploreLabyrinth();
 	
 	//int test = 0;

@@ -46,7 +46,7 @@
       <ToolOptions>
         <InterfaceProperties>
           <JtagDbgClock>3000000</JtagDbgClock>
-          <JtagEnableExtResetOnStartSession>false</JtagEnableExtResetOnStartSession>
+          <JtagEnableExtResetOnStartSession>true</JtagEnableExtResetOnStartSession>
           <JtagInChain>true</JtagInChain>
           <JtagDevicesBefore>0</JtagDevicesBefore>
           <JtagDevicesAfter>2</JtagDevicesAfter>
