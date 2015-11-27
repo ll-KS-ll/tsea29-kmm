@@ -65,7 +65,7 @@ void turn_off_light(void)
 turns on one light on line sensor depending on which channel
 is chosen from the mux
 */
-void turn_on_light(uint8_t mux) 
+uint8_t turn_on_light(uint8_t mux) 
 {
 	uint8_t output = 0x00;
 	switch(mux)
@@ -97,12 +97,8 @@ void turn_on_light(uint8_t mux)
 		case 6:
 		output = 0b01000000;
 		break;
-		
-		case 7:
-		output = 0b10000000;
-		break;
 	}
-	PORTB = output;
+	return output;
 }
 
 int main(void)
@@ -116,19 +112,18 @@ int main(void)
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
 	DDRD = 0xFF; //PORTD as OUTPUT
-	PORTB = 0xff; // turns on lights on line sensor
+	//PORTB = 0xFF; // turns on lights on line sensor
 	adc_init();
 	
-	uint8_t ch = 1; //ch = 1 = angular rate sensor
+	volatile uint8_t ch = 2; //ch = 2 = line sensor
 	float gyro_voltage = 5;
 	float gyro_zero_voltage = adc_read(1);
 	float gyro_sensitivity = 26.67;
 	float rotation_threshold = 5;
 	float gyro_rate;
 	int d_angle = 0;
-	uint16_t data_out = 0;
-	uint8_t mux = 0x00;
-	
+	volatile uint16_t data_out = 0;
+	uint8_t mux = 0b00000011;
 	_delay_ms(1000);
 	while(1)
 	{
@@ -144,13 +139,13 @@ int main(void)
 				data_out = d_angle;
 				break;
 			case 2: // line sensor
+				PORTB = turn_on_light(mux);
 				PORTD = mux;
+				_delay_ms(300);
 				data_out = adc_read(ch);
+				//turn_off_light();
 				mux++;
-				if (mux == 7)
-				{
-					mux = 0;
-				}
+				if (mux == 7) mux = 0;
 				break;
 				
 			case 3:
@@ -176,11 +171,8 @@ int main(void)
 		data_package datap = {ch, data_out};
 		i2c_write(GENERAL_CALL_ADDRESS, datap);	// Write an entire package to com-module.
 		
-		ch++;
-		if (ch == 8)
-		{
-			ch = 1;
-		}		
+		//ch++;
+		if (ch == 8) ch = 1;
 	}
 }
 

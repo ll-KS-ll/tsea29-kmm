@@ -60,7 +60,7 @@ int main(void)
 		//	driveRotateLeft(DEFAULT_SPEED, DEFAULT_SPEED);
 		//}
 		//else stop();
-		dontCrash();
+		//dontCrash();
 	}
 }
 
