@@ -37,7 +37,6 @@ bool stopped = false;
 //}
 int main(void)
 {
-	
 	/* Initialize com-module as a slave on I2C-bus with the address of com-module. */
 	i2c_init_slave( STY_ADDRESS );
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
@@ -51,8 +50,6 @@ int main(void)
 
 	exploreLabyrinth();
 	
-	
-	
 	//int test = 0;
 	/* Main loop */
 	while (1)
@@ -60,7 +57,6 @@ int main(void)
 		
 		//test = getBackLeftDistance();	
 		//dontCrash();
-
 	}
 }
 

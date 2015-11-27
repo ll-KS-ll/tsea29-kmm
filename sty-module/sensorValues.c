@@ -24,35 +24,42 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 	int data = dataIn;
 	int temp = 0;
 	switch (id) {
+		
 		case 1:
-		break;
+			break;
+		
 		case 2:
-		break;
+			break;
+		
 		case 3:
-		if(data > 700) data = 700;
-		temp = (700 - data) / 10;
-		frontLeftDistance = temp;
-		break;
+			if(data > 700) data = 700;
+			temp = (700 - data) / 10;
+			frontLeftDistance = temp;
+			break;
+		
 		case 4:
-		if(data > 700) data = 700;
-		temp = (700 - data) / 10;
-		backLeftDistance = temp;
-		break;
+			if(data > 700) data = 700;
+			temp = (700 - data) / 10;
+			backLeftDistance = temp;
+			break;
+		
 		case 5:
-		if(data > 700) data = 700;
-		temp = (700 - data) / 10;
-		frontDistance = temp;
-		break;
+			if(data > 700) data = 700;
+			temp = (700 - data) / 10;
+			frontDistance = temp;
+			break;
+		
 		case 6:
-		if(data > 700) data = 700;
-		temp = (700 - data) / 10;
-		backRightDistance = temp;
-		break;
+			if(data > 700) data = 700;
+			temp = (700 - data) / 10;
+			backRightDistance = temp;
+			break;
+		
 		case 7:
-		if(data > 700) data = 700;
-		temp = (700 - data) / 10;
-		frontRightDistance = temp;
-		break;
+			if(data > 700) data = 700;
+			temp = (700 - data) / 10;
+			frontRightDistance = temp;
+			break;
 	}
 }
 
