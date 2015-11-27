@@ -36,8 +36,9 @@ void exploreLabyrinth() {
 	Write main loop for exploring labyrinth.
 	*/
 	exploring: while(1) {
-		drivingForward: while(getFrontDistance() <= MIN_DISTANCE_TO_FRONT_WALL) {
+		drivingForward: while(getFrontDistance() >= MIN_DISTANCE_TO_FRONT_WALL) {
 			goStraight();
+			//driveForward(50, 50);
 		}
 		stop();
 	}
@@ -46,12 +47,37 @@ void exploreLabyrinth() {
 }
 
 void goStraight() {
-	if(pdRegulator() > 0) {
-		adjustLeft();
-	} else if (pdRegulator() < 0) {
-		adjustRight();
+	int regulate = pdRegulator();
+	driveForward(50, 50);
+	_delay_ms(100);
+	adjust(regulate);
+	_delay_ms(100);
+}
+
+/* Using PD-regulator to make robot drive in middle of corridor */
+/*
+	u[n] = Kp * e[n] + Kd * (e[n]-e[n-1])
+	u[n] -> how much to turn. u[n] < 0 turn right, u[n] > 0 turn left, u[n] = 0 go straight
+	Kp	 -> constant
+	e[n] ->	how wrong our direction is
+	Kd	 -> constant
+*/
+int pdRegulator(){
+	int u = 0;
+	int e = 0;
+	int t = 0;		
+
+	e = (getFrontRightDistance() + getBackRightDistance()) - (getFrontLeftDistance() + getBackLeftDistance());
+
+	if(e < 0) {
+		t = getFrontLeftDistance() - getBackLeftDistance();
+	} else {
+		t = getBackRightDistance - getFrontRightDistance();
 	}
-	goForwardWithCurrentSpeed();
+	
+	u = kp * e + kd * t; 
+	
+	return u;
 }
 
 /* Private function used for rotating 90 degrees left */
@@ -144,32 +170,5 @@ static void moveOneNode(){
 	
 }
 
-/* Using PD-regulator to make robot drive in middle of corridor */
-/*
-	u[n] = Kp * e[n] + Kd * (e[n]-e[n-1])
-	u[n] -> how much to turn. u[n] < 0 turn right, u[n] > 0 turn left, u[n] = 0 go straight
-	Kp	 -> constant
-	e[n] ->	how wrong our direction is
-	Kd	 -> constant
-*/
-int16_t pdRegulator(){
-	int16_t u, e;
-	static int16_t preE;
-	
-	/* Choose to regulate depending on which side of robot is closest to the walls */
-	if(getFrontLeftDistance() + getBackLeftDistance() >= getFrontRightDistance() + getBackRightDistance()) {
-		e = getBackLeftDistance() - getFrontLeftDistance();
-		} else {
-		e = getFrontRightDistance() - getBackRightDistance();
-	}
-	
-	u = kd * e; // Regulate only so we drive perpendicular to the walls
-	/* TO BE IMPLEMENTED */
-	// Regulate so we also drive in the middle between the walls on either side
-	// + kp * (e-preE);
-	
-	preE = e;
-	
-	return u;
-}
+
 

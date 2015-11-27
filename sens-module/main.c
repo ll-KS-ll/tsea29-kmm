@@ -65,7 +65,7 @@ int main(void)
 
 	adc_init();
 	
-	volatile uint8_t ch = 2; //ch = 2 = line sensor
+	uint8_t ch = 3; //ch = 2 = line sensor
 	float gyro_voltage = 5;
 	float gyro_zero_voltage = adc_read(1);
 	float gyro_sensitivity = 26.67;
