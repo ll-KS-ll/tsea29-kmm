@@ -35,10 +35,6 @@ uint16_t adc_read(uint8_t ch)
 	ch &= 0b00000111;  // AND operation with 7
 	ADMUX = (ADMUX & 0xF8)|ch; // clears the bottom 3 bits before ORing
 	
-	//char cSREG; <-- disable interrupt
-	//cSREG=SREG;
-	
-	
 	// start single convertion
 	// write ’1? to ADSC
 	cli();
@@ -53,53 +49,6 @@ uint16_t adc_read(uint8_t ch)
 	return (ADC);
 }
 
-/*
-turns off the lights on the line sensor
-*/
-void turn_off_light(void)
-{
-	PORTB = 0x00;
-}
-
-/*
-turns on one light on line sensor depending on which channel
-is chosen from the mux
-*/
-uint8_t turn_on_light(uint8_t mux) 
-{
-	uint8_t output = 0x00;
-	switch(mux)
-	{
-		case 0:
-		output = 0b00000001;
-		break;
-		
-		case 1:
-		output = 0b00000010;
-		break;
-		
-		case 2:
-		output = 0b00000100;
-		break;
-		
-		case 3:
-		output = 0b00001000;
-		break;
-		
-		case 4:
-		output = 0b00010000;
-		break;
-		
-		case 5:
-		output = 0b00100000;
-		break;
-		
-		case 6:
-		output = 0b01000000;
-		break;
-	}
-	return output;
-}
 
 int main(void)
 {
@@ -107,12 +56,13 @@ int main(void)
 	i2c_init_master();
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
-	_delay_ms(2000); // Chilla lite
+	//_delay_ms(2000); // Chilla lite
 	
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
 	DDRD = 0xFF; //PORTD as OUTPUT
-	//PORTB = 0xFF; // turns on lights on line sensor
+	PORTB = 0xFF; // turns on lights on line sensor
+
 	adc_init();
 	
 	volatile uint8_t ch = 2; //ch = 2 = line sensor
@@ -122,9 +72,11 @@ int main(void)
 	float rotation_threshold = 5;
 	float gyro_rate;
 	int d_angle = 0;
-	volatile uint16_t data_out = 0;
 	uint8_t mux = 0b00000011;
-	_delay_ms(1000);
+	uint16_t data_out = 0;	
+	
+	_delay_ms(2000);
+	
 	while(1)
 	{
 		switch(ch) 
@@ -132,18 +84,18 @@ int main(void)
 			case 1: // gyro
 				gyro_rate = ((adc_read(ch) - gyro_zero_voltage) * gyro_voltage / 1024) * 1000;
 				gyro_rate /= gyro_sensitivity;
+				//gyro_rate *= 100;
 				if(gyro_rate >= rotation_threshold || gyro_rate <= -rotation_threshold)
 				{
 					d_angle += gyro_rate;
 				}
 				data_out = d_angle;
+				//_delay_ms(100);
 				break;
+			
 			case 2: // line sensor
-				PORTB = turn_on_light(mux);
 				PORTD = mux;
-				_delay_ms(300);
 				data_out = adc_read(ch);
-				//turn_off_light();
 				mux++;
 				if (mux == 7) mux = 0;
 				break;
@@ -163,16 +115,12 @@ int main(void)
 			case 6:
 				data_out = adc_read(ch); //IR-sensor back right
 				break;
-			
-			case 7:
-				data_out = adc_read(ch); //IR-sensor front right
-				break;
 		}
 		data_package datap = {ch, data_out};
 		i2c_write(GENERAL_CALL_ADDRESS, datap);	// Write an entire package to com-module.
 		
-		//ch++;
-		if (ch == 8) ch = 1;
+		ch++;
+		if (ch == 8) ch = 2;
 	}
 }
 
