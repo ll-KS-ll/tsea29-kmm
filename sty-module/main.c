@@ -14,6 +14,8 @@
 #include "i2c_slave.h" // Is slave module
 #include "boot.h"
 #include "autonomous.h"
+#include "variables.h"
+#include "sensorValues.h"
 
 
 /* Test method used to now crash into wall */
@@ -42,18 +44,26 @@ int main(void)
 	i2c_init_slave( STY_ADDRESS );
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
-	
-	_delay_ms(1000);	// Chilla lite.
+	boot();
+	_delay_ms(4000);	// Chilla lite.
 
-	exploreLabyrinth();
+	//exploreLabyrinth();
 	
+	uint16_t angle = 0;
 	/* Main loop */
-	//while (1)
-	//{
-		//
-		//
+	while (1)
+	{
+		angle = getCurrentAngle();
+		//angle /= 1000;
+		if (angle < 180)
+		{
+			driveRotateLeft(DEFAULT_SPEED, DEFAULT_SPEED);
+		}
+		else stop();
+		
+		
 		//dontCrash();
-//
-	//}
+
+	}
 }
 
