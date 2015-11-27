@@ -36,8 +36,9 @@ void exploreLabyrinth() {
 	Write main loop for exploring labyrinth.
 	*/
 	exploring: while(1) {
-		drivingForward: while(getFrontDistance() <= MIN_DISTANCE_TO_FRONT_WALL) {
+		drivingForward: while(getFrontDistance() >= MIN_DISTANCE_TO_FRONT_WALL) {
 			goStraight();
+			//driveForward(50, 50);
 		}
 		stop();
 	}
@@ -47,10 +48,10 @@ void exploreLabyrinth() {
 
 void goStraight() {
 	int regulate = pdRegulator();
-	adjust(regulate);
-	_delay_ms(500);
 	driveForward(50, 50);
-	_delay_ms(500);
+	_delay_ms(100);
+	adjust(regulate);
+	_delay_ms(100);
 }
 
 /* Using PD-regulator to make robot drive in middle of corridor */

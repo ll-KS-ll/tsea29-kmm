@@ -57,9 +57,18 @@ MEN SKA ALLTID VARA 700 NÄR MAN ADDERAR DE TVÅ
 */
 
 void adjust(int u) {
-	curPwrLeft = 50 + u/2;
-	curPwrRight = 50 - u/2;
-	setMotorSpeed(curPwrLeft, curPwrRight);
+	int temp = 0;
+	if(u > 100) {
+		curPwrLeft = 0;
+		curPwrRight = 100;
+	}else if(u < 100) {
+		curPwrLeft = 100;
+		curPwrRight = 0;
+	} else {
+		curPwrLeft = 50 - u/2;
+		curPwrRight = 50 + u/2;
+	}
+	driveForward(curPwrLeft, curPwrRight);
 }
 
 void setMotorSpeed(int powerLeft, int powerRight) {
