@@ -16,7 +16,7 @@
 #include "variables.h"
 
 #define kp 1
-#define kd 1
+#define kd 3
 
 static bool drivingForward = false;
 
@@ -48,8 +48,8 @@ void exploreLabyrinth() {
 
 void goStraight() {
 	int regulate = pdRegulator();
-	driveForward(50, 50);
-	_delay_ms(100);
+	//driveForward(50, 50);
+	//_delay_ms(50);
 	adjust(regulate);
 	_delay_ms(100);
 }
@@ -66,15 +66,18 @@ int pdRegulator(){
 	int u = 0;
 	int e = 0;
 	int t = 0;		
-
-	e = (getFrontRightDistance() + getBackRightDistance()) - (getFrontLeftDistance() + getBackLeftDistance());
-
-	if(e < 0) {
-		t = getFrontLeftDistance() - getBackLeftDistance();
-	} else {
-		t = getBackRightDistance - getFrontRightDistance();
-	}
 	
+	int fl = getFrontLeftDistance();
+	int fr = getFrontRightDistance();
+	int bl = getBackLeftDistance();
+	int br = getBackRightDistance();
+	
+	e = ((fl + bl) - (fr + br)) / 2;
+
+	t = ((fl - bl) + (br - fr)) / 2;
+	
+	//u = kp * e; 
+	//u = kd * t;
 	u = kp * e + kd * t; 
 	
 	return u;

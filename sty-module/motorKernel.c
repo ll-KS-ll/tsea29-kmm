@@ -56,17 +56,24 @@ MEN SKA ALLTID VARA 700 NÄR MAN ADDERAR DE TVÅ
 
 */
 
+// Skriv om, mycket skärp-kod
 void adjust(int u) {
 	int temp = 0;
 	if(u > 100) {
-		curPwrLeft = 0;
-		curPwrRight = 100;
-	}else if(u < 100) {
-		curPwrLeft = 100;
-		curPwrRight = 0;
+		curPwrLeft = 10;
+		curPwrRight = 90;
+	}else if(u < -100) {
+		curPwrLeft = 90;
+		curPwrRight = 10;
 	} else {
-		curPwrLeft = 50 - u/2;
-		curPwrRight = 50 + u/2;
+		int nPwrL = 50 - u;
+		int nPwrR = 50 + u;
+		if(nPwrL > 100) nPwrL = 90;
+		if(nPwrL < 0) nPwrL = 10;
+		if(nPwrR > 100) nPwrR = 90;
+		if(nPwrR < 0 ) nPwrR = 10;
+		curPwrLeft = nPwrL;
+		curPwrRight = nPwrR;
 	}
 	driveForward(curPwrLeft, curPwrRight);
 }
