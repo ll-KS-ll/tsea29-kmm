@@ -7,17 +7,17 @@
  *																		*
 /************************************************************************/
 
+#define F_CPU 15000000UL
 #include <stdbool.h>
 #include <util/delay.h>
 #include "motorKernel.h"
+#include "autonomous.h"
 #include "sensorValues.h"
 #include "variables.h"
-#include "autonomous.h"
 
 #define kp 1
 #define kd 1
 
-static bool exploring = false;
 static bool drivingForward = false;
 
 direction currentDirection = north;
@@ -32,31 +32,53 @@ direction currentDirection = north;
 
 /* Not using map atm */
 void exploreLabyrinth() {
-	exploring = true;
 	/*
 	Write main loop for exploring labyrinth.
 	*/
-	while(exploring) {
-		if(getFrontDistance() <= MIN_DISTANCE_TO_FRONT_WALL) {
-			if(!drivingForward) {
-				driveForward(DEFAULT_SPEED, DEFAULT_SPEED);
-				drivingForward = true;
-			} else {
-				if(pdRegulator() > 0) {
-					adjustSpeed(-2, 2);
-				} else if(pdRegulator() < 0) {
-					adjustSpeed(2, -2);
-				}
-			}
-		} else if(getFrontLeftDistance() >= 200) { // temp code for turning, without gyro cant use other code
-			drivingForward = false;
-			driveRotateLeft(DEFAULT_SPEED, DEFAULT_SPEED);
-			_delay_ms(1000);
+	exploring: while(1) {
+		drivingForward: while(getFrontDistance() >= MIN_DISTANCE_TO_FRONT_WALL) {
+			goStraight();
+			//driveForward(50, 50);
 		}
+		stop();
 	}
+	
 	
 }
 
+void goStraight() {
+	int regulate = pdRegulator();
+	driveForward(50, 50);
+	_delay_ms(100);
+	adjust(regulate);
+	_delay_ms(100);
+}
+
+/* Using PD-regulator to make robot drive in middle of corridor */
+/*
+	u[n] = Kp * e[n] + Kd * (e[n]-e[n-1])
+	u[n] -> how much to turn. u[n] < 0 turn right, u[n] > 0 turn left, u[n] = 0 go straight
+	Kp	 -> constant
+	e[n] ->	how wrong our direction is
+	Kd	 -> constant
+*/
+int pdRegulator(){
+	int u = 0;
+	int e = 0;
+	int t = 0;		
+
+	e = (getFrontRightDistance() + getBackRightDistance()) - (getFrontLeftDistance() + getBackLeftDistance());
+
+	if(e < 0) {
+		t = getFrontLeftDistance() - getBackLeftDistance();
+	} else {
+		t = getBackRightDistance - getFrontRightDistance();
+	}
+	
+	u = kp * e + kd * t; 
+	
+	return u;
+}
 
 /* Private function used for rotating 90 degrees left */
 /* Unknown in-data from gyro */
@@ -148,29 +170,5 @@ static void moveOneNode(){
 	
 }
 
-/* Using PD-regulator to make robot drive in middle of corridor */
-/*
-	u[n] = Kp * e[n] + Kd * (e[n]-e[n-1])
-	u[n] -> how much to turn. u[n] < 0 turn right, u[n] > 0 turn left, u[n] = 0 go straight
-	Kp	 -> constant
-	e[n] ->	how wrong our direction is
-	Kd	 -> constant
-*/
-int16_t pdRegulator(){
-	int16_t u, e;
-	static int16_t preE;
-	
-	/* Choose to regulate depending on which side of robot is closest to the walls */
-	if(getFrontLeftDistance() + getBackLeftDistance() <= getFrontRightDistance() + getBackRightDistance()) {
-		e = getFrontLeftDistance() - getBackLeftDistance();
-		} else {
-		e = getFrontRightDistance() - getBackRightDistance();
-	}
-	
-	u = kd * e + kp * (e-preE);
-	
-	preE = e;
-	
-	return u;
-}
+
 

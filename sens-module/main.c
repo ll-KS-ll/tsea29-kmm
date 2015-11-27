@@ -117,7 +117,8 @@ int main(void)
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
 	DDRD = 0xFF; //PORTD as OUTPUT
-	uint8_t ch = 4; //ch = 2 = line sensor
+
+	uint8_t ch = 3; //ch = 2 = line sensor
 	adc_init();
 	
 	float gyro_voltage = 5;
@@ -129,8 +130,9 @@ int main(void)
 	uint16_t data_out;
 	uint8_t distance;
 	uint16_t data = 0;
-	uint8_t mux = 0x00;
+	uint8_t mux = 0b00000011;
 	long tick = 0;
+	volatile fl, fr, bl, br;
 	
 	int dist;
 	while(1)
@@ -148,11 +150,12 @@ int main(void)
 				data_out = d_angle;
 				break;
 			case 2: // line sensor, not tested
-				PORTB = turn_on_light(mux);
+				//PORTB = turn_on_light(mux);
+				PORTB = 0xFF;
 				PORTD = mux;
 				data_out = adc_read(ch);
-				turn_off_light();
-				mux++;
+				//turn_off_light();
+				//mux++;
 				if (mux == 7)
 				{
 					mux = 0;

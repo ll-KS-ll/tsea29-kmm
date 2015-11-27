@@ -12,33 +12,29 @@
 #include <avr/interrupt.h>
 #include <stdbool.h>
 #include "i2c_slave.h" // Is slave module
-#include "autonomous.h"
 #include "boot.h"
-#include "sensorValues.h"
+#include "autonomous.h"
 
-// temporary, only for testing
-#include "motorKernel.h"
 
 /* Test method used to now crash into wall */
+bool stopped = false;
 
-void dontCrash()
-{
-	unsigned int frontDis = 0;
-	static bool stopped = false;
-	frontDis = getFrontDistance();
-	
-	if(frontDis >= 500 && !stopped) {
-		stopped = true;
-		stop();
-	} else if (frontDis <= 600 && frontDis >= 200 && stopped){
-		driveReverse(DEFAULT_SPEED - 100, DEFAULT_SPEED- 100);
-	} else if (frontDis <= 500) {
-		driveForward(DEFAULT_SPEED- 100, DEFAULT_SPEED- 100);
-		stopped = false;
-	}
-	
-}
-
+//void dontCrash()
+//{
+	//unsigned int frontDis = 0;
+	//frontDis = getFrontDistance();
+	//
+	//if(frontDis >= MIN_DISTANCE_TO_FRONT_WALL && !stopped) {
+		//stopped = true;
+		//stop();
+	//} else if (frontDis <= 600 && frontDis >= 200 && stopped){
+		//driveReverse(DEFAULT_SPEED, DEFAULT_SPEED);
+	//} else if (frontDis <= 500) {
+		//driveForward(DEFAULT_SPEED, DEFAULT_SPEED);
+		//stopped = false;
+	//}
+	//
+//}
 int main(void)
 {
 	/* Initialize com-module as a slave on I2C-bus with the address of com-module. */
@@ -46,13 +42,21 @@ int main(void)
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
 	
-	_delay_ms(1000);	// Chilla lite.
+	/* Boot Claw-/Motor-kernel */
+	boot();
 	
-	//exploreLabyrinth();
+	_delay_ms(2000);
+	
+
+	exploreLabyrinth();
+	
+	//int test = 0;
 	/* Main loop */
 	while (1)
 	{
-		dontCrash();
+		
+		//test = getBackLeftDistance();	
+		//dontCrash();
 	}
 }
 
