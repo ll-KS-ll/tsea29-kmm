@@ -12,6 +12,7 @@
 
 // Init all values to zero
 static uint16_t angle = 0;
+static uint16_t lineSensor = 0;
 static uint16_t frontDistance = 0;
 static uint16_t frontLeftDistance = 0;
 static uint16_t backLeftDistance = 0;
@@ -30,6 +31,7 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 			break;
 		
 		case 2:
+			lineSensor = data;
 			break;
 		
 		case 3:
@@ -66,6 +68,10 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 
 uint16_t getCurrentAngle() {
 	return angle;
+}
+
+uint16_t getLineSensor() {
+	return lineSensor;
 }
 
 uint16_t getFrontDistance() {

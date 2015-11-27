@@ -16,6 +16,7 @@
 void updateRegisters(uint8_t id, uint16_t data);
 
 uint16_t getCurrentAngle();
+uint16_t getLineSensor();
 uint16_t getFrontDistance();
 uint16_t getFrontLeftDistance();
 uint16_t getFrontRightDistance();

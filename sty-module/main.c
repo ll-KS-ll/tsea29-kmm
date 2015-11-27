@@ -50,13 +50,14 @@ int main(void)
 	
 	_delay_ms(2000);
 	
-	exploreLabyrinth();
-	
+	//exploreLabyrinth();
+	driveForward(50,50);
 	//int test = 0;
 	/* Main loop */
 	while (1)
 	{
 		
+		if(getLineSensor() > 400) stop();
 		//test = getBackLeftDistance();	
 		//dontCrash();
 	}
