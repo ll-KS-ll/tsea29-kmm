@@ -35,7 +35,6 @@ bool stopped = false;
 	//}
 	//
 //}
-
 int main(void)
 {
 	
@@ -47,18 +46,21 @@ int main(void)
 	/* Boot Claw-/Motor-kernel */
 	boot();
 	
-	_delay_ms(1000);
+	_delay_ms(2000);
 	
 
 	exploreLabyrinth();
 	
+	
+	
+	//int test = 0;
 	/* Main loop */
-	//while (1)
-	//{
-		//
-		//
+	while (1)
+	{
+		
+		//test = getBackLeftDistance();	
 		//dontCrash();
-//
-	//}
+
+	}
 }
 

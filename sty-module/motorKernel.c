@@ -19,8 +19,8 @@
 */
 
 bool booted = false;
-static int currentLeftSpeed = DEFAULT_SPEED;
-static int currentRightSpeed = DEFAULT_SPEED;
+static int curPwrLeft = 0;
+static int curPwrRight = 0;
 
 void initMotor() {
 	/* Only initialize motor once */
@@ -46,59 +46,53 @@ void initMotor() {
 	}
 }
 
-void goForwardWithCurrentSpeed() {
-	driveForward(currentLeftSpeed, currentRightSpeed);
+/*
+
+GÖR SÅ ATT ISTÄLLET FÖR ATT ÄNDRA HASTIGHETEN SÅ ÄNDRAS FARTEN
+TILL EN PROCENT AV EN TOTAL HASTIGHET. HJULEN FÅR TILLSAMMANS ALDRIG GÅ ÖVER 700
+MEN SKA ALLTID VARA 700 NÄR MAN ADDERAR DE TVÅ
+
+
+
+*/
+
+void adjust(int u) {
+	curPwrLeft = 50 + u/2;
+	curPwrRight = 50 - u/2;
+	setMotorSpeed(curPwrLeft, curPwrRight);
 }
 
-void adjustRight() {
-	if (currentLeftSpeed < MAX_SPEED && currentLeftSpeed > MIN_SPEED)
-	{
-		currentLeftSpeed += 2;
-		currentRightSpeed -= 2;
-		setMotorSpeed(currentLeftSpeed, currentRightSpeed);
-	}
-}
-
-void adjustLeft() {
-	if (currentLeftSpeed < MAX_SPEED && currentLeftSpeed > MIN_SPEED)
-	{
-		currentLeftSpeed -= 2;
-		currentRightSpeed += 2;
-		setMotorSpeed(currentLeftSpeed, currentRightSpeed);
-	}
-}
-
-void setMotorSpeed(int leftSpeed, int rightSpeed) {
+void setMotorSpeed(int powerLeft, int powerRight) {
 	cli();
-	OCR1A = leftSpeed;
-	OCR1B = rightSpeed;
-	currentLeftSpeed = leftSpeed;
-	currentRightSpeed = rightSpeed;
+	curPwrLeft = (TOTAL_POWER / 100) * powerLeft;
+	curPwrRight = (TOTAL_POWER / 100) * powerRight;
+	OCR1A = curPwrRight;
+	OCR1B = curPwrLeft;
 	sei();
 }
 
-void driveForward(int leftSpeed, int rightSpeed) {
+void driveForward(int powerLeft, int powerRight) {
 	PORTD = (0<<3)|(1<<6);
-	setMotorSpeed(leftSpeed, rightSpeed);
+	setMotorSpeed(powerLeft, powerRight);
 }
 
-void driveReverse(int leftSpeed, int rightSpeed) {
+void driveReverse(int powerLeft, int powerRight) {
 	PORTD = (1<<3)|(0<<6);
-	setMotorSpeed(leftSpeed, rightSpeed);
+	setMotorSpeed(powerLeft, powerRight);
 }
 
-void driveRotateLeft(int leftSpeed, int rightSpeed) {
+void driveRotateLeft(int powerLeft, int powerRight) {
 	PORTD = (1<<3)|(1<<6);
-	setMotorSpeed(leftSpeed, rightSpeed);
+	setMotorSpeed(powerLeft, powerRight);
 }
 
-void driveRotateRight(int leftSpeed, int rightSpeed) {
+void driveRotateRight(int powerLeft, int powerRight) {
 	PORTD = (0<<3)|(0<<6);
-	setMotorSpeed(leftSpeed, rightSpeed);
+	setMotorSpeed(powerLeft, powerRight);
 }
 
 void stop() {
+	curPwrLeft = 0;
+	curPwrRight = 0;
 	setMotorSpeed(0, 0);
-	currentLeftSpeed = DEFAULT_SPEED;
-	currentRightSpeed = DEFAULT_SPEED;
 }

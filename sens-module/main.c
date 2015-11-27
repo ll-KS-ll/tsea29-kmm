@@ -131,6 +131,7 @@ int main(void)
 	uint16_t data = 0;
 	uint8_t mux = 0b00000011;
 	long tick = 0;
+	volatile fl, fr, bl, br;
 	
 	int dist;
 	while(1)
