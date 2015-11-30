@@ -52,13 +52,11 @@ int main(void)
 	
 	exploreLabyrinth();
 	
-	//int test = 0;
 	/* Main loop */
 	while (1)
 	{
 		
-		//test = getBackLeftDistance();	
-		//dontCrash();
+	
 	}
 }
 

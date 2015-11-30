@@ -18,7 +18,7 @@
 	Port 3 = DirRight, Port 4 = PWMRight
 */
 
-bool booted = false;
+static bool booted = false;
 static int curPwrLeft = 0;
 static int curPwrRight = 0;
 
@@ -46,35 +46,32 @@ void initMotor() {
 	}
 }
 
-/*
 
-GÖR SÅ ATT ISTÄLLET FÖR ATT ÄNDRA HASTIGHETEN SÅ ÄNDRAS FARTEN
-TILL EN PROCENT AV EN TOTAL HASTIGHET. HJULEN FÅR TILLSAMMANS ALDRIG GÅ ÖVER 700
-MEN SKA ALLTID VARA 700 NÄR MAN ADDERAR DE TVÅ
-
-
-
-*/
-
-// Skriv om, mycket skärp-kod
 void adjust(int u) {
-	int temp = 0;
+	/* Calculate new Power for motors */
+	int nPwrL, nPwrR;
 	if(u > 100) {
-		curPwrLeft = 10;
-		curPwrRight = 90;
+		nPwrL = 10;
+		nPwrR = 90;
 	}else if(u < -100) {
-		curPwrLeft = 90;
-		curPwrRight = 10;
+		nPwrL = 90;
+		nPwrR = 10;
 	} else {
-		int nPwrL = 50 - u;
-		int nPwrR = 50 + u;
-		if(nPwrL > 100) nPwrL = 90;
-		if(nPwrL < 0) nPwrL = 10;
-		if(nPwrR > 100) nPwrR = 90;
-		if(nPwrR < 0 ) nPwrR = 10;
-		curPwrLeft = nPwrL;
-		curPwrRight = nPwrR;
+		nPwrL = 50 - u;
+		nPwrR = 50 + u;
 	}
+	
+	// if they try to use more then 100% power,
+	// make them use less.
+	if(nPwrL > 100) nPwrL = 90;
+	if(nPwrL < 0) nPwrL = 10;
+	if(nPwrR > 100) nPwrR = 90;
+	if(nPwrR < 0) nPwrR = 10;
+	
+	// set new power as current power
+	curPwrLeft = nPwrL;
+	curPwrRight = nPwrR;
+
 	driveForward(curPwrLeft, curPwrRight);
 }
 
@@ -82,6 +79,9 @@ void setMotorSpeed(int powerLeft, int powerRight) {
 	cli();
 	curPwrLeft = (TOTAL_POWER / 100) * powerLeft;
 	curPwrRight = (TOTAL_POWER / 100) * powerRight;
+	// Make sure the pwm signal to the motors doesnt go above 1000
+	if(curPwrLeft > 1000) curPwrLeft = 1000;
+	if(curPwrRight > 1000) curPwrRight = 1000;
 	OCR1A = curPwrRight;
 	OCR1B = curPwrLeft;
 	sei();
