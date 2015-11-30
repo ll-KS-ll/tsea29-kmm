@@ -38,6 +38,33 @@
 	//
 //}
 
+void follow_marking_tape(uint16_t *sensorBar){
+	int numerator=0;
+	int denominator=0;
+	int fault=0;
+	sensorBar = getSensorBar();
+	for(int i=0; i<7; i++){
+		if(i==1){
+			numerator+=120;
+			denominator+=30;
+		}
+		else{	
+		numerator+=(*(sensorBar+i)*(i+1));
+		denominator+=*(sensorBar+i);
+		}
+	}
+	fault = 4.5-(numerator/denominator);
+	if(fault<0){
+		driveRotateLeft(20,40);
+	}
+	else if(fault>0){
+		driveRotateRight(40,20);
+	}
+	else if(fault==0){
+		driveForward(30,30);
+	}
+}
+
 int main(void)
 {
 	/* Initialize com-module as a slave on I2C-bus with the address of com-module. */
@@ -49,17 +76,27 @@ int main(void)
 	boot();
 	
 	_delay_ms(2000);
-	
+	uint16_t *sensorBar; 
+	char i=0;
 	//exploreLabyrinth();
 	driveForward(50,50);
 	//int test = 0;
 	/* Main loop */
 	while (1)
 	{
-		
-		if(getLineSensor() > 400) stop();
+		if(i==8){i=0;}
+		sensorBar = getSensorBar();
+		if(*(sensorBar+i) > 400) {
+			stop();
+			driveForward(50,50);
+			stop();
+			while(1){
+				follow_marking_tape(sensorBar);
+			}
+		}
 		//test = getBackLeftDistance();	
-		//dontCrash();
+		//dontCrash();*/
+		i++;
 	}
 }
 

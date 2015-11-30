@@ -12,13 +12,13 @@
 
 // Init all values to zero
 static uint16_t angle = 0;
-static uint16_t lineSensor = 0;
+static uint8_t chanel_out = 8;
 static uint16_t frontDistance = 0;
 static uint16_t frontLeftDistance = 0;
 static uint16_t backLeftDistance = 0;
 static uint16_t frontRightDistance = 0;
 static uint16_t backRightDistance = 0;
-static uint16_t sensorBar[] = {0, 0, 0, 0, 0, 0, 0, 0};
+static uint16_t sensorBar[] = {0, 0, 0, 0, 0, 0, 0};
 
 // Convert values so they are between 70 - 0, larger number equals closer.
 void updateRegisters(uint8_t id, uint16_t dataIn) {
@@ -31,7 +31,9 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 			break;
 		
 		case 2:
-			lineSensor = data;
+			if(chanel_out == 0) {chanel_out = 8;}
+			chanel_out--;
+			sensorBar[chanel_out] = data;
 			break;
 		
 		case 3:
@@ -70,8 +72,8 @@ uint16_t getCurrentAngle() {
 	return angle;
 }
 
-uint16_t getLineSensor() {
-	return lineSensor;
+uint16_t *getSensorBar() {
+	return sensorBar;
 }
 
 uint16_t getFrontDistance() {

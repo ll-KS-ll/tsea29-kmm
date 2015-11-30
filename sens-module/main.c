@@ -70,7 +70,7 @@ void enable_current_linesensor(uint8_t mux){
 			PORTB = 0b00000100;
 			break;
 		case 5:
-			//PORTB = 0b00000000; //this sensor doesn't work => disable
+			PORTB = 0b00000010; //this sensor doesn't work
 			break;
 		case 6:
 			PORTB = 0b00000001;
@@ -122,7 +122,7 @@ int main(void)
 				break;
 			
 			case 2: // line sensor
-				if(mux == 6){
+				if(mux == 6){		//this is just because this line sensor doesn't work
 					data_out = 0;
 				}
 				else{
