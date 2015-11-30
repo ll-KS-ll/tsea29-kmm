@@ -13,11 +13,6 @@
 #include "motorKernel.h"
 #include "variables.h"
 
-/*
-	Port 6 = DirLeft, Port 5 = PWMLeft
-	Port 3 = DirRight, Port 4 = PWMRight
-*/
-
 static bool booted = false;
 static int curPwrLeft = 0;
 static int curPwrRight = 0;
