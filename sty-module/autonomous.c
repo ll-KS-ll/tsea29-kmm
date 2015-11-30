@@ -33,12 +33,16 @@ void exploreLabyrinth() {
 	/*
 	Write main loop for exploring labyrinth.
 	*/
-	int i = 0;
 	exploring: while(1) {
 		drivingForward: while(getFrontDistance() >= MIN_DISTANCE_TO_FRONT_WALL) {
+			//if(getFrontLeftDistance() >= 55 || getFrontRightDistance() >= 55) driveForward(50, 50);
 			goStraight();
-			i++;
 		}
+		//if(getFrontLeftDistance() >= 55) {
+			//rotateLeft();
+		//} else if(getFrontRightDistance() >= 55) {
+			//rotateRight();
+		//}
 		stop();
 	}
 }

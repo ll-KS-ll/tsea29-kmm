@@ -18,48 +18,6 @@
 #include "variables.h"
 
 // temporary, only for testing
-#include "motorKernel.h"
-
-/* Test method used to now crash into wall */
-
-//void dontCrash()
-//{
-	//unsigned int frontDis = 0;
-	//frontDis = getFrontDistance();
-	//
-	//if(frontDis >= MIN_DISTANCE_TO_FRONT_WALL && !stopped) {
-		//stopped = true;
-		//stop();
-	//} else if (frontDis <= 600 && frontDis >= 200 && stopped){
-		//driveReverse(DEFAULT_SPEED, DEFAULT_SPEED);
-	//} else if (frontDis <= 500) {
-		//driveForward(DEFAULT_SPEED, DEFAULT_SPEED);
-		//stopped = false;
-	//}
-	//
-//}
-
-void rotate_90_right()
-{
-	int angle_value = getCurrentAngle();
-	while (angle_value > 1000)
-	{
-		driveRotateRight(50, 50);
-		angle_value = getCurrentAngle();
-	}
-	stop();
-}
-
-void rotate_90_left(void)
-{
-	int angle_value = getCurrentAngle();
-	while (angle_value < 2700)
-	{
-		driveRotateLeft(50, 50);
-		angle_value = getCurrentAngle();
-	}
-	stop();
-}
 
 int main(void)
 {
@@ -71,19 +29,28 @@ int main(void)
 	/* Boot Claw-/Motor-kernel */
 	boot();
 	
-	_delay_ms(4000);
+	_delay_ms(2000);
 	
-	rotate_90_right();
-	//rotate_90_left();
+	//driveForward(50, 50);
 	//exploreLabyrinth();
 	
+	
+	volatile f = 0;
+	volatile fr = 0;
+	volatile fl = 0;
+	volatile br = 0;
+	volatile bl = 0;
 	/* Main loop */
-	/*while (1)
+	while (1)
 	{
-		rotate_90_left();
-		//rotate_90_right();
-		//test = getBackLeftDistance();	
-		//dontCrash();
-	}*/
+		
+		f = getFrontDistance();
+		fr = getFrontRightDistance();
+		fl = getFrontLeftDistance();
+		br = getBackRightDistance();
+		bl = getBackLeftDistance();
+		
+		
+	}
 }
 

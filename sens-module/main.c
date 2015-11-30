@@ -95,7 +95,7 @@ int main(void)
 	timer_init();
 	adc_init();
 	
-	uint8_t ch = 1; //ch = 2 = line sensor
+	int ch = 3; //ch = 2 = line sensor
 	float gyro_voltage = 5;
 	unsigned char gyro_zero_voltage = adc_read(1) >> 2;
 	float gyro_sensitivity = 26.67;
@@ -149,6 +149,9 @@ int main(void)
 			case 6:
 				data_out = adc_read(ch); //IR-sensor back right
 				break;
+			case 7:
+				data_out = adc_read(ch);  //IR-sensor back left
+				break;
 		}
 		data_package datap = {ch, data_out};
 		i2c_write(GENERAL_CALL_ADDRESS, datap);	// Write an entire package to com-module.
@@ -157,6 +160,6 @@ int main(void)
 			d_angle = 2000;
 		}*/
 		ch++;
-		if (ch == 7) ch = 1;
+		if (ch == 8) ch = 3;
 	}
 }

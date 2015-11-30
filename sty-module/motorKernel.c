@@ -44,24 +44,23 @@ void initMotor() {
 
 void adjust(int u) {
 	/* Calculate new Power for motors */
-	int nPwrL, nPwrR;
-	if(u > 100) {
+	int nPwrL = 0, nPwrR = 0;
+	if(u >= 100) {
 		nPwrL = 10;
 		nPwrR = 90;
-	}else if(u < -100) {
+	}else if(u <= -100) {
 		nPwrL = 90;
 		nPwrR = 10;
 	} else {
 		nPwrL = 50 - u;
 		nPwrR = 50 + u;
+		// if they try to use more then 100% power,
+		// make them use less.
+		if(nPwrL > 100) nPwrL = 90;
+		if(nPwrL < 0) nPwrL = 10;
+		if(nPwrR > 100) nPwrR = 90;
+		if(nPwrR < 0) nPwrR = 10;
 	}
-	
-	// if they try to use more then 100% power,
-	// make them use less.
-	if(nPwrL > 100) nPwrL = 90;
-	if(nPwrL < 0) nPwrL = 10;
-	if(nPwrR > 100) nPwrR = 90;
-	if(nPwrR < 0) nPwrR = 10;
 	
 	// set new power as current power
 	curPwrLeft = nPwrL;
@@ -106,4 +105,26 @@ void stop() {
 	curPwrLeft = 0;
 	curPwrRight = 0;
 	setMotorSpeed(0, 0);
+}
+
+void rotateLeft(void)
+{
+	int angle_value = getCurrentAngle();
+	while (angle_value < 2700)
+	{
+		driveRotateLeft(50, 50);
+		angle_value = getCurrentAngle();
+	}
+	stop();
+}
+
+void rotateRight()
+{
+	int angle_value = getCurrentAngle();
+	while (angle_value > 1000)
+	{
+		driveRotateRight(50, 50);
+		angle_value = getCurrentAngle();
+	}
+	stop();
 }
