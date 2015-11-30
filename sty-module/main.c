@@ -15,6 +15,7 @@
 #include "autonomous.h"
 #include "boot.h"
 #include "sensorValues.h"
+#include "variables.h"
 
 // temporary, only for testing
 #include "motorKernel.h"
@@ -38,6 +39,28 @@
 	//
 //}
 
+void rotate_90_right()
+{
+	int angle_value = getCurrentAngle();
+	while (angle_value > 1000)
+	{
+		driveRotateRight(50, 50);
+		angle_value = getCurrentAngle();
+	}
+	stop();
+}
+
+void rotate_90_left(void)
+{
+	int angle_value = getCurrentAngle();
+	while (angle_value < 2700)
+	{
+		driveRotateLeft(50, 50);
+		angle_value = getCurrentAngle();
+	}
+	stop();
+}
+
 int main(void)
 {
 	/* Initialize com-module as a slave on I2C-bus with the address of com-module. */
@@ -48,15 +71,19 @@ int main(void)
 	/* Boot Claw-/Motor-kernel */
 	boot();
 	
-	_delay_ms(2000);
+	_delay_ms(4000);
 	
-	exploreLabyrinth();
+	rotate_90_right();
+	//rotate_90_left();
+	//exploreLabyrinth();
 	
 	/* Main loop */
-	while (1)
+	/*while (1)
 	{
-		
-	
-	}
+		rotate_90_left();
+		//rotate_90_right();
+		//test = getBackLeftDistance();	
+		//dontCrash();
+	}*/
 }
 
