@@ -52,6 +52,14 @@ void goStraight() {
 	adjust(regulate);
 }
 
+/* Using PD-regulator to make robot drive in middle of corridor */
+/*
+	u[n] = Kp * e[n] + Kd * (e[n]-e[n-1])
+	u[n] -> how much to turn. u[n] < 0 turn right, u[n] > 0 turn left, u[n] = 0 go straight
+	Kp	 -> constant
+	e[n] ->	how wrong our direction is
+	Kd	 -> constant
+*/
 int pdRegulator(){
 	int u = 0;
 	int e = 0;
