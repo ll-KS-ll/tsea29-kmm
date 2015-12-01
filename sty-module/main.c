@@ -15,28 +15,9 @@
 #include "autonomous.h"
 #include "boot.h"
 #include "sensorValues.h"
+#include "variables.h"
 
 // temporary, only for testing
-#include "motorKernel.h"
-
-/* Test method used to now crash into wall */
-
-//void dontCrash()
-//{
-	//unsigned int frontDis = 0;
-	//frontDis = getFrontDistance();
-	//
-	//if(frontDis >= MIN_DISTANCE_TO_FRONT_WALL && !stopped) {
-		//stopped = true;
-		//stop();
-	//} else if (frontDis <= 600 && frontDis >= 200 && stopped){
-		//driveReverse(DEFAULT_SPEED, DEFAULT_SPEED);
-	//} else if (frontDis <= 500) {
-		//driveForward(DEFAULT_SPEED, DEFAULT_SPEED);
-		//stopped = false;
-	//}
-	//
-//}
 
 int main(void)
 {
@@ -50,15 +31,26 @@ int main(void)
 	
 	_delay_ms(2000);
 	
-	exploreLabyrinth();
+	//driveForward(50, 50);
+	//exploreLabyrinth();
 	
-	//int test = 0;
+	
+	volatile f = 0;
+	volatile fr = 0;
+	volatile fl = 0;
+	volatile br = 0;
+	volatile bl = 0;
 	/* Main loop */
 	while (1)
 	{
 		
-		//test = getBackLeftDistance();	
-		//dontCrash();
+		f = getFrontDistance();
+		fr = getFrontRightDistance();
+		fl = getFrontLeftDistance();
+		br = getBackRightDistance();
+		bl = getBackLeftDistance();
+		
+		
 	}
 }
 

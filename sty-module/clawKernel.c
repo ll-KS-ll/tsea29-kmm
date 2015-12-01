@@ -17,21 +17,34 @@ static bool booted = false;
 void initClaw() {
 	/* Only initialize claws once */
 	if(!booted) {		
-		/* Set Timer control register for Fast PWM 10-bit */
-		TCCR3A = (1<<COM3A1)|(1<<COM3B1)|(1<<WGM31)|(1<<WGM30);
-		TCCR3B = (1<<WGM32)|(1<<CS31);
+		cli();
+		
+		// Set compare output mode to non-inverted
+		TCCR3A |= (1<<COM3A1);
+		TCCR3A |= (1<<COM3B1);
+		// Set WGM for 10-bit Fast PWM
+		TCCR3A |= (1<<WGM30);
+		//TCCR3A |= (0<<WGM31);
+		TCCR3B |= (1<<WGM32);
+		// Set CS bits for 8 prescaler
+		TCCR3B |= (1<<CS30);
+		TCCR3B |= (1<<CS31);
 		
 		/* Set processor outputs for motor control */
 		DDRB = 0x40; // 0100 0000
 		
 		booted = true;
+		
+		sei();
 	}
+	openClaw();
 }
 
 void openClaw() {
-	OCR3A = 150;
+	OCR3A = 200;
 }
 
 void closeClaw(){
-	OCR3A = 113;
+	OCR3A = 150;
 }
+

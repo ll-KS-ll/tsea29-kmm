@@ -10,11 +10,11 @@
 #define VARIABLES_H_
 
 
-#define TOTAL_POWER 700
-#define MIN_DISTANCE_TO_FRONT_WALL 20
-#define SMALL_ADJUST 2
-#define BIG_ADJUST 4
+#define TOTAL_POWER 1000
+#define MIN_DISTANCE_TO_FRONT_WALL 27
 
+#define KP 2
+#define KD 8
 
 
 

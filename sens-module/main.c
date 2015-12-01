@@ -49,6 +49,36 @@ uint16_t adc_read(uint8_t ch)
 	return (ADC);
 }
 
+ISR(TIMER0_OVF_vect)
+{
+	// 14 745 000 Hz / 1000 = 14 745 Hz
+	// 14 745 / 8 / 256 = 7,1997070313
+	// TIMER0 will overflow ca 7 times per ms
+	count++;
+	if (count == 7)
+	{
+		ms++;
+		count = 0;
+	}
+}
+
+unsigned long millis()
+{
+	return ms;
+}
+
+void timer_init()
+{
+	TIMSK = (1<<TOIE0);
+	TCNT0 = 0x00;
+	TCCR0 = (1<<CS01);
+}
+
+void clear_ms_counter()
+{
+	ms = 0;
+}
+
 
 int main(void)
 {
@@ -61,36 +91,40 @@ int main(void)
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
 	DDRD = 0xFF; //PORTD as OUTPUT
-	PORTB = 0xFF; // turns on lights on line sensor
-
+	//PORTB = 0xFF; // turns on lights on line sensor
+	timer_init();
 	adc_init();
 	
-	uint8_t ch = 3; //ch = 2 = line sensor
+	int ch = 3; //ch = 2 = line sensor
 	float gyro_voltage = 5;
-	float gyro_zero_voltage = adc_read(1);
+	unsigned char gyro_zero_voltage = adc_read(1) >> 2;
 	float gyro_sensitivity = 26.67;
 	float rotation_threshold = 5;
+	unsigned char gyro_value;
 	float gyro_rate;
-	int d_angle = 0;
+	int d_angle_value = 2000;
+	float buffer = 0;
+	uint16_t data_test = 0;
 	uint8_t mux = 0b00000011;
-	uint16_t data_out = 0;	
+	uint16_t data_out = 0;
+	signed int offset = 2500;	
+	float temp = 0;
 	
-	_delay_ms(2000);
 	
 	while(1)
 	{
 		switch(ch) 
 		{
 			case 1: // gyro
-				gyro_rate = ((adc_read(ch) - gyro_zero_voltage) * gyro_voltage / 1024) * 1000;
-				gyro_rate /= gyro_sensitivity;
-				//gyro_rate *= 100;
-				if(gyro_rate >= rotation_threshold || gyro_rate <= -rotation_threshold)
+				gyro_value = adc_read(ch) >> 2;
+				gyro_rate = (gyro_value - 125);
+				buffer += gyro_rate / 100;
+				if (buffer >= 1 || buffer <= -1)
 				{
-					d_angle += gyro_rate;
+					d_angle_value += buffer;
+					buffer = 0;
 				}
-				data_out = d_angle;
-				//_delay_ms(100);
+				data_out = d_angle_value;
 				break;
 			
 			case 2: // line sensor
@@ -115,12 +149,17 @@ int main(void)
 			case 6:
 				data_out = adc_read(ch); //IR-sensor back right
 				break;
+			case 7:
+				data_out = adc_read(ch);  //IR-sensor back left
+				break;
 		}
 		data_package datap = {ch, data_out};
 		i2c_write(GENERAL_CALL_ADDRESS, datap);	// Write an entire package to com-module.
-		
+		/*if (ch == 1 && (data_out > 2700 || data_out < 1000))
+		{
+			d_angle = 2000;
+		}*/
 		ch++;
-		if (ch == 8) ch = 2;
+		if (ch == 8) ch = 3;
 	}
 }
-

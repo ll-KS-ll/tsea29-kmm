@@ -15,8 +15,6 @@
 #include "sensorValues.h"
 #include "variables.h"
 
-#define kp 1
-#define kd 3
 
 static bool drivingForward = false;
 
@@ -37,21 +35,21 @@ void exploreLabyrinth() {
 	*/
 	exploring: while(1) {
 		drivingForward: while(getFrontDistance() >= MIN_DISTANCE_TO_FRONT_WALL) {
+			//if(getFrontLeftDistance() >= 55 || getFrontRightDistance() >= 55) driveForward(50, 50);
 			goStraight();
-			//driveForward(50, 50);
 		}
+		//if(getFrontLeftDistance() >= 55) {
+			//rotateLeft();
+		//} else if(getFrontRightDistance() >= 55) {
+			//rotateRight();
+		//}
 		stop();
 	}
-	
-	
 }
 
 void goStraight() {
 	int regulate = pdRegulator();
-	//driveForward(50, 50);
-	//_delay_ms(50);
 	adjust(regulate);
-	_delay_ms(100);
 }
 
 /* Using PD-regulator to make robot drive in middle of corridor */
@@ -67,18 +65,21 @@ int pdRegulator(){
 	int e = 0;
 	int t = 0;		
 	
+	// get the distances
 	int fl = getFrontLeftDistance();
 	int fr = getFrontRightDistance();
 	int bl = getBackLeftDistance();
 	int br = getBackRightDistance();
 	
+	// e = how close to robot is to the walls.
 	e = ((fl + bl) - (fr + br)) / 2;
 
+	// t = How wrongly the robot is rotated
 	t = ((fl - bl) + (br - fr)) / 2;
-	
-	//u = kp * e; 
-	//u = kd * t;
-	u = kp * e + kd * t; 
+
+	/* KP and KD konstants say how much the robot will react 
+		being wrongly turned and positioned between the walls. */	
+	u = KP * e + KD * t; 
 	
 	return u;
 }
