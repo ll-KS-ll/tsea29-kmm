@@ -53,7 +53,7 @@
           <JtagInstrBitsAfter>0</JtagInstrBitsAfter>
           <JtagSelectedDeviceIndexInChain>
           </JtagSelectedDeviceIndexInChain>
-          <JtagDbgClock>1253400</JtagDbgClock>
+          <JtagDbgClock>3000000</JtagDbgClock>
           <JtagDaisyChainDevices>
           </JtagDaisyChainDevices>
         </InterfaceProperties>
@@ -64,7 +64,7 @@
       <ToolName>Atmel-ICE</ToolName>
     </com_atmel_avrdbg_tool_atmelice>
     <avrtoolinterface>JTAG</avrtoolinterface>
-    <avrtoolinterfaceclock>1253400</avrtoolinterfaceclock>
+    <avrtoolinterfaceclock>3000000</avrtoolinterfaceclock>
     <ExternalProgrammingToolCommandDisabledValue />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">

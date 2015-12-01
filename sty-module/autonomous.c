@@ -14,9 +14,8 @@
 #include "autonomous.h"
 #include "sensorValues.h"
 #include "variables.h"
+#include "gyroController.h"
 
-#define kp 1
-#define kd 1
 
 static bool drivingForward = false;
 
@@ -30,28 +29,63 @@ direction currentDirection = north;
 
 */
 
+void doA180() {
+	startGyroInterrupts();
+	float startAngle = getCurrentAngle();
+	while(true) {
+		driveRotateLeft(50, 50);
+		if(getCurrentAngle() >= startAngle + 70) {
+			stop();
+			stopGyroInterrupts();
+			return;
+		}
+		
+	}
+}
+
 /* Not using map atm */
 void exploreLabyrinth() {
 	/*
 	Write main loop for exploring labyrinth.
 	*/
-	exploring: while(1) {
-		drivingForward: while(getFrontDistance() >= MIN_DISTANCE_TO_FRONT_WALL) {
-			goStraight();
-			//driveForward(50, 50);
+	while(1) {
+		while(getFrontDistance() >= MIN_DISTANCE_TO_FRONT_WALL) {
+			pdRegulate();
 		}
 		stop();
+		doA180();
 	}
-	
-	
 }
 
-void goStraight() {
-	int regulate = pdRegulator();
-	driveForward(50, 50);
-	_delay_ms(100);
+void dRegulate(int u) {
+	int regulate = dRegulator();
 	adjust(regulate);
-	_delay_ms(100);
+}
+
+int dRegulator() {
+	int u = 0;
+	int e = 0;
+	int t = 0;		
+	
+	// get the distances
+	int fl = getFrontLeftDistance();
+	int fr = getFrontRightDistance();
+	int bl = getBackLeftDistance();
+	int br = getBackRightDistance();
+
+	// t = How wrongly the robot is rotated
+	t = ((fl - bl) + (br - fr)) / 2;
+
+	/* KP and KD konstants say how much the robot will react 
+		being wrongly turned and positioned between the walls. */	
+	u = KD * t; 
+	
+	return u;
+}
+
+void pdRegulate() {
+	int regulate = pdRegulator();
+	adjust(regulate);
 }
 
 /* Using PD-regulator to make robot drive in middle of corridor */
@@ -66,16 +100,22 @@ int pdRegulator(){
 	int u = 0;
 	int e = 0;
 	int t = 0;		
-
-	e = (getFrontRightDistance() + getBackRightDistance()) - (getFrontLeftDistance() + getBackLeftDistance());
-
-	if(e < 0) {
-		t = getFrontLeftDistance() - getBackLeftDistance();
-	} else {
-		t = getBackRightDistance - getFrontRightDistance();
-	}
 	
-	u = kp * e + kd * t; 
+	// get the distances
+	int fl = getFrontLeftDistance();
+	int fr = getFrontRightDistance();
+	int bl = getBackLeftDistance();
+	int br = getBackRightDistance();
+	
+	// e = how close to robot is to the walls.
+	e = ((fl + bl) - (fr + br)) / 2;
+
+	// t = How wrongly the robot is rotated
+	t = ((fl - bl) + (br - fr)) / 2;
+
+	/* KP and KD konstants say how much the robot will react 
+		being wrongly turned and positioned between the walls. */	
+	u = KP * e + KD * t; 
 	
 	return u;
 }
