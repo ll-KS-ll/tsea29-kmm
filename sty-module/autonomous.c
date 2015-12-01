@@ -14,6 +14,7 @@
 #include "autonomous.h"
 #include "sensorValues.h"
 #include "variables.h"
+#include "gyroController.h"
 
 
 static bool drivingForward = false;
@@ -28,26 +29,61 @@ direction currentDirection = north;
 
 */
 
+void doA180() {
+	startGyroInterrupts();
+	float startAngle = getCurrentAngle();
+	while(true) {
+		driveRotateLeft(50, 50);
+		if(getCurrentAngle() >= startAngle + 70) {
+			stop();
+			stopGyroInterrupts();
+			return;
+		}
+		
+	}
+}
+
 /* Not using map atm */
 void exploreLabyrinth() {
 	/*
 	Write main loop for exploring labyrinth.
 	*/
-	exploring: while(1) {
-		drivingForward: while(getFrontDistance() >= MIN_DISTANCE_TO_FRONT_WALL) {
-			//if(getFrontLeftDistance() >= 55 || getFrontRightDistance() >= 55) driveForward(50, 50);
-			goStraight();
+	while(1) {
+		while(getFrontDistance() >= MIN_DISTANCE_TO_FRONT_WALL) {
+			pdRegulate();
 		}
-		//if(getFrontLeftDistance() >= 55) {
-			//rotateLeft();
-		//} else if(getFrontRightDistance() >= 55) {
-			//rotateRight();
-		//}
 		stop();
+		doA180();
 	}
 }
 
-void goStraight() {
+void dRegulate(int u) {
+	int regulate = dRegulator();
+	adjust(regulate);
+}
+
+int dRegulator() {
+	int u = 0;
+	int e = 0;
+	int t = 0;		
+	
+	// get the distances
+	int fl = getFrontLeftDistance();
+	int fr = getFrontRightDistance();
+	int bl = getBackLeftDistance();
+	int br = getBackRightDistance();
+
+	// t = How wrongly the robot is rotated
+	t = ((fl - bl) + (br - fr)) / 2;
+
+	/* KP and KD konstants say how much the robot will react 
+		being wrongly turned and positioned between the walls. */	
+	u = KD * t; 
+	
+	return u;
+}
+
+void pdRegulate() {
 	int regulate = pdRegulator();
 	adjust(regulate);
 }

@@ -155,6 +155,12 @@
     <Compile Include="clawKernel.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="gyroController.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="gyroController.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="i2c_slave.c">
       <SubType>compile</SubType>
     </Compile>

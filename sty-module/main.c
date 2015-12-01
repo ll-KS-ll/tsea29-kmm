@@ -11,46 +11,36 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdbool.h>
+#include <stdbool.h>
 #include "i2c_slave.h" // Is slave module
 #include "autonomous.h"
 #include "boot.h"
 #include "sensorValues.h"
 #include "variables.h"
+#include "gyroController.h"
 
 // temporary, only for testing
+#include "motorKernel.h"
+
 
 int main(void)
 {
 	/* Initialize com-module as a slave on I2C-bus with the address of com-module. */
 	i2c_init_slave( STY_ADDRESS );
-	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
-	sei();
-	
+
 	/* Boot Claw-/Motor-kernel */
 	boot();
 	
-	_delay_ms(2000);
 	
-	//driveForward(50, 50);
-	//exploreLabyrinth();
+	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
+	sei();
+	
+	/* Chilla liiide */
+	_delay_ms(1000);
 	
 	
-	volatile f = 0;
-	volatile fr = 0;
-	volatile fl = 0;
-	volatile br = 0;
-	volatile bl = 0;
-	/* Main loop */
-	while (1)
-	{
-		
-		f = getFrontDistance();
-		fr = getFrontRightDistance();
-		fl = getFrontLeftDistance();
-		br = getBackRightDistance();
-		bl = getBackLeftDistance();
-		
-		
-	}
+	exploreLabyrinth();
+	
+	
 }
 

@@ -25,7 +25,6 @@ static int curPwrRight = 0;
 void initMotor() {
 	/* Only initialize motor once */
 	if(!booted) {
-		cli(); // disable global interrupts
 		
 		// Set compare output mode to non-inverted
 		TCCR1A |= (1<<COM1A1);
@@ -42,7 +41,6 @@ void initMotor() {
 		
 		booted = true; // Stop from booting again
 		
-		sei(); // enable global interrupts
 	}
 }
 
