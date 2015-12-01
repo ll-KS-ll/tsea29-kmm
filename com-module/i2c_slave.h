@@ -10,6 +10,7 @@
 * 
 */
 
+
 /* ====== ADDRESSES ====== */
 #define SENS_ADDRESS 0x10	// Address of sensor module. 
 #define COM_ADDRESS 0x20	// Establish connection with com-module.
@@ -43,6 +44,7 @@ typedef struct {
 
 /* Buffers */
 data_package* datap;	// Read data packages from the bus are stored here.
-uint8_t write_data;		// Data write buffer. Put data to write on the bus.
+uint16_t write_data;	// Data write buffer. Put data to write on the bus.
+
 
 void i2c_init_slave( uint8_t address );	// Initialize the I2C slave.

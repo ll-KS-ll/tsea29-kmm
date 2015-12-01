@@ -12,33 +12,15 @@
 #include <avr/interrupt.h>
 #include <stdbool.h>
 #include "i2c_slave.h" // Is slave module
-#include "boot.h"
 #include "autonomous.h"
+#include "boot.h"
+#include "sensorValues.h"
+#include "variables.h"
 
-
-/* Test method used to now crash into wall */
-bool stopped = false;
-
-//void dontCrash()
-//{
-	//unsigned int frontDis = 0;
-	//frontDis = getFrontDistance();
-	//
-	//if(frontDis >= MIN_DISTANCE_TO_FRONT_WALL && !stopped) {
-		//stopped = true;
-		//stop();
-	//} else if (frontDis <= 600 && frontDis >= 200 && stopped){
-		//driveReverse(DEFAULT_SPEED, DEFAULT_SPEED);
-	//} else if (frontDis <= 500) {
-		//driveForward(DEFAULT_SPEED, DEFAULT_SPEED);
-		//stopped = false;
-	//}
-	//
-//}
+// temporary, only for testing
 
 int main(void)
 {
-	
 	/* Initialize com-module as a slave on I2C-bus with the address of com-module. */
 	i2c_init_slave( STY_ADDRESS );
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
@@ -47,18 +29,28 @@ int main(void)
 	/* Boot Claw-/Motor-kernel */
 	boot();
 	
-	_delay_ms(1000);
+	_delay_ms(2000);
 	
-
-	exploreLabyrinth();
+	//driveForward(50, 50);
+	//exploreLabyrinth();
 	
+	
+	volatile f = 0;
+	volatile fr = 0;
+	volatile fl = 0;
+	volatile br = 0;
+	volatile bl = 0;
 	/* Main loop */
-	//while (1)
-	//{
-		//
-		//
-		//dontCrash();
-//
-	//}
+	while (1)
+	{
+		
+		f = getFrontDistance();
+		fr = getFrontRightDistance();
+		fl = getFrontLeftDistance();
+		br = getBackRightDistance();
+		bl = getBackLeftDistance();
+		
+		
+	}
 }
 

@@ -11,7 +11,7 @@
 #include "sensorValues.h"
 
 // Init all values to zero
-static int angle = 0;
+static uint16_t angle = 0;
 static uint16_t frontDistance = 0;
 static uint16_t frontLeftDistance = 0;
 static uint16_t backLeftDistance = 0;
@@ -19,29 +19,48 @@ static uint16_t frontRightDistance = 0;
 static uint16_t backRightDistance = 0;
 static uint16_t sensorBar[] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-
-void updateRegisters(uint8_t id, uint16_t data) {
-	
+// Convert values so they are between 70 - 0, larger number equals closer.
+void updateRegisters(uint8_t id, uint16_t dataIn) {
+	int data = dataIn;
+	int temp = 0;
 	switch (id) {
+		
 		case 1:
-		break;
+			angle = data;
+			break;
+		
 		case 2:
-		break;
+			break;
+		
 		case 3:
-		frontLeftDistance = data;
-		break;
+			if(data > 700) data = 700;
+			temp = (700 - data) / 10;
+			frontLeftDistance = temp;
+			break;
+		
 		case 4:
-		backLeftDistance = data;
-		break;
+			if(data > 700) data = 700;
+			temp = (700 - data) / 10;
+			backLeftDistance = temp;
+			break;
+		
 		case 5:
-		frontDistance = data;
-		break;
+			if(data > 700) data = 700;
+			temp = (700 - data) / 10;
+			frontDistance = temp;
+			break;
+		
 		case 6:
-		backRightDistance = data;
-		break;
+			if(data > 700) data = 700;
+			temp = (700 - data) / 10;
+			backRightDistance = temp;
+			break;
+		
 		case 7:
-		frontRightDistance = data;
-		break;
+			if(data > 700) data = 700;
+			temp = (700 - data) / 10;
+			frontRightDistance = temp;
+			break;
 	}
 }
 

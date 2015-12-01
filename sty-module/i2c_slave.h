@@ -44,14 +44,6 @@ typedef struct {
 
 /* Buffers */
 data_package* datap;	// Read data packages from the bus are stored here.
-uint8_t write_data;		// Data write buffer. Put data to write on the bus.
-uint8_t recv_data;		// Data receive buffer. Read partial data from the bus is stored here.
+uint16_t cur_steer_cmd;		// Data write buffer. Put data to write on the bus.
 
 void i2c_init_slave( uint8_t address );	// Initialize the I2C slave.
-/*
-void i2c_match_read_slave( void );		// Connect as reader. (Polling)
-void i2c_read_slave( void );			// Read byte of data from bus. (Polling)
-void i2c_match_write_slave( void );		// Connect as writer. (Polling)
-void i2c_write_slave( void );			// Write byte data to bus. (Polling)
-void i2c_read_package( void );			// Read an entire data package. (Polling)
-*/

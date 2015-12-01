@@ -10,11 +10,11 @@
 #define VARIABLES_H_
 
 
-#define DEFAULT_SPEED 300
-#define MAX_SPEED (DEFAULT_SPEED + 150)
-#define MIN_SPEED (DEFAULT_SPEED - 150)
-#define MIN_DISTANCE_TO_FRONT_WALL 500
+#define TOTAL_POWER 1000
+#define MIN_DISTANCE_TO_FRONT_WALL 27
 
+#define KP 2
+#define KD 8
 
 
 
