@@ -41,28 +41,25 @@
 void follow_marking_tape(uint16_t *sensorBar){
 	int numerator=0;
 	int denominator=0;
-	int fault=0;
+	float fault=0;
 	sensorBar = getSensorBar();
-	for(int i=0; i<7; i++){
-		if(i==1){
-			numerator+=120;
-			denominator+=30;
-		}
-		else{	
+	for(int i=0; i<7; i++){	
 		numerator+=(*(sensorBar+i)*(i+1));
 		denominator+=*(sensorBar+i);
-		}
 	}
-	fault = 4.5-(numerator/denominator);
-	if(fault<0){
-		driveRotateLeft(20,40);
+	fault = 4-(numerator/denominator);
+	if(fault<-0.1){
+		driveRotateLeft(50,50);
 	}
-	else if(fault>0){
-		driveRotateRight(40,20);
+	else if(fault>0.1){
+		driveRotateRight(50,50);
 	}
-	else if(fault==0){
-		driveForward(30,30);
+	else if(fault<=0.1 && fault >=-0.1){
+		driveForward(20,20);
 	}
+	
+	/*if (fault < 0) driveForward(30, 30 + (fault * 50));
+	else driveForward(30 + (fault * 50), 30);*/
 }
 
 int main(void)
@@ -75,27 +72,19 @@ int main(void)
 	/* Boot Claw-/Motor-kernel */
 	boot();
 	
-	_delay_ms(2000);
+	_delay_ms(4000);
 	uint16_t *sensorBar; 
 	char i=0;
 	//exploreLabyrinth();
-	driveForward(50,50);
+	//driveForward(50,50);
 	//int test = 0;
 	/* Main loop */
 	while (1)
 	{
-		if(i==8){i=0;}
-		sensorBar = getSensorBar();
-		if(*(sensorBar+i) > 400) {
-			stop();
-			driveForward(50,50);
-			stop();
-			while(1){
-				follow_marking_tape(sensorBar);
-			}
-		}
+		follow_marking_tape(sensorBar);
+		_delay_ms(50);
 		//test = getBackLeftDistance();	
-		//dontCrash();*/
+		//dontCrash();
 		i++;
 	}
 }

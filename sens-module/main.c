@@ -70,7 +70,7 @@ void enable_current_linesensor(uint8_t mux){
 			PORTB = 0b00000100;
 			break;
 		case 5:
-			PORTB = 0b00000010; //this sensor doesn't work
+			PORTB = 0b00000010;
 			break;
 		case 6:
 			PORTB = 0b00000001;
@@ -88,7 +88,7 @@ int main(void)
 	
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
-	DDRD = 0xFF; //PORTD as OUTPUT
+	DDRD = 0xEF; //PORTD0-6 as OUTPUT, PORTD7 as INPUT
 	PORTB = 0b00000000; // turns on light on PB0, line sensor
 
 	adc_init();
@@ -102,7 +102,7 @@ int main(void)
 	int d_angle = 0;
 	volatile uint8_t mux = 0b00000000;
 	volatile uint16_t data_out = 0;	
-	char counter=0;
+	uint8_t id;
 	_delay_ms(2000);
 	
 	while(1)
@@ -122,14 +122,10 @@ int main(void)
 				break;
 			
 			case 2: // line sensor
-				if(mux == 6){		//this is just because this line sensor doesn't work
-					data_out = 0;
-				}
-				else{
 				enable_current_linesensor(mux);
 				PORTD = mux;
+				id = mux+10; //id = 10-16
 				data_out = adc_read(ch);
-				}
 				disable_line_sensor();
 				mux++;
 				if (mux == 7) mux = 0;
@@ -137,21 +133,25 @@ int main(void)
 				
 			case 3:
 				data_out = adc_read(ch); //IR-sensor front left
+				id = ch;
 				break;
 			
 			case 4:
 				data_out = adc_read(ch); //IR-sensor back left
+				id = ch;
 				break;
 			
 			case 5:
 				data_out = adc_read(ch); //IR-sensor front
+				id = ch;
 				break;
 			
 			case 6:
 				data_out = adc_read(ch); //IR-sensor back right
+				id = ch;
 				break;
 		}
-		data_package datap = {ch, data_out};
+		data_package datap = {id, data_out};
 		i2c_write(GENERAL_CALL_ADDRESS, datap);	// Write an entire package to com-module.
 		
 		//ch++;

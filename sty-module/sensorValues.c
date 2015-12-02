@@ -12,7 +12,6 @@
 
 // Init all values to zero
 static uint16_t angle = 0;
-static uint8_t chanel_out = 8;
 static uint16_t frontDistance = 0;
 static uint16_t frontLeftDistance = 0;
 static uint16_t backLeftDistance = 0;
@@ -29,13 +28,7 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 		case 1:
 			angle = data;
 			break;
-		
-		case 2:
-			if(chanel_out == 0) {chanel_out = 8;}
-			chanel_out--;
-			sensorBar[chanel_out] = data;
-			break;
-		
+			
 		case 3:
 			if(data > 700) data = 700;
 			temp = (700 - data) / 10;
@@ -64,6 +57,34 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 			if(data > 700) data = 700;
 			temp = (700 - data) / 10;
 			frontRightDistance = temp;
+			break;
+			
+		case 10:
+			sensorBar[0] = data;
+			break;
+			
+		case 11:
+			sensorBar[1] = data;
+			break;
+			
+		case 12:
+			sensorBar[2] = data;
+			break;
+			
+		case 13:
+			sensorBar[3] = data;
+			break;
+			
+		case 14:
+			sensorBar[4] = data;
+			break;
+			
+		case 15:
+			sensorBar[5] = data;
+			break;
+			
+		case 16:
+			sensorBar[6] = data;
 			break;
 	}
 }
