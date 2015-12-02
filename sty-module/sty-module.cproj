@@ -45,7 +45,7 @@
     <com_atmel_avrdbg_tool_atmelice>
       <ToolOptions>
         <InterfaceProperties>
-          <JtagDbgClock>3007421</JtagDbgClock>
+          <JtagDbgClock>3009067</JtagDbgClock>
           <JtagEnableExtResetOnStartSession>false</JtagEnableExtResetOnStartSession>
           <JtagInChain>true</JtagInChain>
           <JtagDevicesBefore>0</JtagDevicesBefore>
@@ -64,7 +64,7 @@
       <ToolName>Atmel-ICE</ToolName>
     </com_atmel_avrdbg_tool_atmelice>
     <avrtoolinterface>JTAG</avrtoolinterface>
-    <avrtoolinterfaceclock>3007421</avrtoolinterfaceclock>
+    <avrtoolinterfaceclock>3009067</avrtoolinterfaceclock>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
@@ -153,6 +153,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="clawKernel.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="gyroController.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="gyroController.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="i2c_slave.c">

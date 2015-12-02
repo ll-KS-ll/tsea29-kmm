@@ -18,14 +18,13 @@
 	Port 3 = DirRight, Port 4 = PWMRight
 */
 
-bool booted = false;
+static bool booted = false;
 static int curPwrLeft = 0;
 static int curPwrRight = 0;
 
 void initMotor() {
 	/* Only initialize motor once */
 	if(!booted) {
-		cli(); // disable global interrupts
 		
 		// Set compare output mode to non-inverted
 		TCCR1A |= (1<<COM1A1);
@@ -42,39 +41,34 @@ void initMotor() {
 		
 		booted = true; // Stop from booting again
 		
-		sei(); // enable global interrupts
 	}
 }
 
-/*
 
-GÖR SÅ ATT ISTÄLLET FÖR ATT ÄNDRA HASTIGHETEN SÅ ÄNDRAS FARTEN
-TILL EN PROCENT AV EN TOTAL HASTIGHET. HJULEN FÅR TILLSAMMANS ALDRIG GÅ ÖVER 700
-MEN SKA ALLTID VARA 700 NÄR MAN ADDERAR DE TVÅ
-
-
-
-*/
-
-// Skriv om, mycket skärp-kod
 void adjust(int u) {
-	int temp = 0;
-	if(u > 100) {
-		curPwrLeft = 10;
-		curPwrRight = 90;
-	}else if(u < -100) {
-		curPwrLeft = 90;
-		curPwrRight = 10;
+	/* Calculate new Power for motors */
+	int nPwrL = 0, nPwrR = 0;
+	if(u >= 100) {
+		nPwrL = 10;
+		nPwrR = 90;
+	}else if(u <= -100) {
+		nPwrL = 90;
+		nPwrR = 10;
 	} else {
-		int nPwrL = 50 - u;
-		int nPwrR = 50 + u;
+		nPwrL = 50 - u;
+		nPwrR = 50 + u;
+		// if they try to use more then 100% power,
+		// make them use less.
 		if(nPwrL > 100) nPwrL = 90;
 		if(nPwrL < 0) nPwrL = 10;
 		if(nPwrR > 100) nPwrR = 90;
-		if(nPwrR < 0 ) nPwrR = 10;
-		curPwrLeft = nPwrL;
-		curPwrRight = nPwrR;
+		if(nPwrR < 0) nPwrR = 10;
 	}
+	
+	// set new power as current power
+	curPwrLeft = nPwrL;
+	curPwrRight = nPwrR;
+
 	driveForward(curPwrLeft, curPwrRight);
 }
 
@@ -82,6 +76,9 @@ void setMotorSpeed(int powerLeft, int powerRight) {
 	cli();
 	curPwrLeft = (TOTAL_POWER / 100) * powerLeft;
 	curPwrRight = (TOTAL_POWER / 100) * powerRight;
+	// Make sure the pwm signal to the motors doesnt go above 1000
+	if(curPwrLeft > 1000) curPwrLeft = 1000;
+	if(curPwrRight > 1000) curPwrRight = 1000;
 	OCR1A = curPwrRight;
 	OCR1B = curPwrLeft;
 	sei();
@@ -111,4 +108,26 @@ void stop() {
 	curPwrLeft = 0;
 	curPwrRight = 0;
 	setMotorSpeed(0, 0);
+}
+
+void rotateLeft(void)
+{
+	int angle_value = getCurrentAngle();
+	while (angle_value < 2700)
+	{
+		driveRotateLeft(50, 50);
+		angle_value = getCurrentAngle();
+	}
+	stop();
+}
+
+void rotateRight()
+{
+	int angle_value = getCurrentAngle();
+	while (angle_value > 1000)
+	{
+		driveRotateRight(50, 50);
+		angle_value = getCurrentAngle();
+	}
+	stop();
 }

@@ -11,7 +11,10 @@
 #include "sensorValues.h"
 
 // Init all values to zero
-static uint16_t angle = 0;
+static float angle = 0;
+static unsigned char gyroValue = 0;
+static unsigned char offset = 128;
+static float gyroRate;
 static uint16_t frontDistance = 0;
 static uint16_t frontLeftDistance = 0;
 static uint16_t backLeftDistance = 0;
@@ -26,39 +29,31 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 	switch (id) {
 		
 		case 1:
-			angle = data;
+			gyroValue = data;
+			gyroRate = (gyroValue - offset);
+			angle += gyroRate / 100;
 			break;
 			
 		case 3:
-			if(data > 700) data = 700;
-			temp = (700 - data) / 10;
-			frontLeftDistance = temp;
+			frontLeftDistance = data;
 			break;
 		
 		case 4:
-			if(data > 700) data = 700;
-			temp = (700 - data) / 10;
-			backLeftDistance = temp;
+			backLeftDistance = data;
 			break;
 		
 		case 5:
-			if(data > 700) data = 700;
-			temp = (700 - data) / 10;
-			frontDistance = temp;
+			frontDistance = data;
 			break;
 		
 		case 6:
-			if(data > 700) data = 700;
-			temp = (700 - data) / 10;
-			backRightDistance = temp;
+			backRightDistance = data;
 			break;
 		
 		case 7:
-			if(data > 700) data = 700;
-			temp = (700 - data) / 10;
-			frontRightDistance = temp;
+			frontRightDistance = data;
 			break;
-			
+		/*ful-hack*/
 		case 10:
 			sensorBar[0] = data;
 			break;
