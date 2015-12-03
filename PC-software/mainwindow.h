@@ -4,6 +4,14 @@
 #include <QMainWindow>
 #include "bluetoothserver.h"
 
+/* === ID CODES === */
+#define IR_FRONT 5
+#define IR_LEFT_FRONT 3
+#define IR_LEFT_BACK 4
+#define IR_RIGTH_FRONT 7
+#define IR_RIGTH_BACK 6
+#define LINE_SENSOR 2
+
 namespace Ui {
 class MainWindow;
 }
@@ -15,17 +23,15 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void startBluetooth();
+    void startBluetooth();  // Connect to FireFly.
 
 public slots:
-    void statusUpdated(const QString &status);
-
-private slots:
-    void on_pushButton_clicked();
+    void statusUpdated(const QString &status);  // New Bluetooth status.
+    void updateData(const quint8 &id, const quint16 &data); // New data package recived.
 
 private:
     Ui::MainWindow *ui;
-    BluetoothServer *btServer;
+    BluetoothServer *btServer;  // Bluetooth server for connecting to FireFly.
 };
 
 #endif // MAINWINDOW_H

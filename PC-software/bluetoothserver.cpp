@@ -41,6 +41,7 @@ BluetoothServer::BluetoothServer(QObject *parent) : QObject(parent)
     const char dest[18] = FIREFLY_ADDRESS;
     str2ba( dest, &addr.rc_bdaddr);
 
+    // Add a socket notifer to our socket for incomming data.
     socketNotifier = new QSocketNotifier(s, QSocketNotifier::Read, this->parent());
     connect(socketNotifier, SIGNAL(activated(int)), this, SLOT(readyRead(int)));
 }
@@ -54,8 +55,10 @@ void BluetoothServer::start()
 
     if( status == 0 )
         emit statusUpdate(QString("<span style=\"color: green;\">Connected</span>"));
-    else
+    else {
+        close(s);
         emit statusUpdate(QString("<span style=\"color: red;\">Connect status " + QString::number(status) + "</span>"));
+    }
 }
 
 void BluetoothServer::stop()
@@ -65,7 +68,16 @@ void BluetoothServer::stop()
 
 void BluetoothServer::readyRead(int socket)
 {
-    QByteArray buf(1, '\0');
-    read(socket, buf.data(), 1);
-    emit statusUpdate(QString("<span style=\"color: cyan;\">" + buf + "</span>"));
+    char buf[3];    // Read 3 bytes. 1 byte id and 2 bytes data.
+    read(socket, buf, 3);   // Read from socket.
+
+    quint8 id = buf[0];     // First(0) byte is ID.
+    quint16 data = buf[2];  // Second(1) byte is hdata and third(2) is ldata
+
+    /* === Convert 2 chars to integer === *\
+    /* int result = high + (low >> (CHAR_BIT - 2)); */
+    //quint16 data = buf[1] + (buf[2] >> (CHAR_BIT - 2));   // Second(1) byte is hdata and thired(2) is ldata.
+
+    if( data != 0 ) // Filter invalid data.
+        emit updateData(id, data);
 }
