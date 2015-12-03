@@ -10,6 +10,8 @@
 
 #include <stdlib.h>     /* strtol */
 
+#include <QSocketNotifier>
+
 // === FireFly Information ===
 // Address: 00:06:66:03:71:B7
 // Name:    Firefly-71B7
@@ -34,9 +36,13 @@ public:
 signals:
     void statusUpdate(const QString &status);
 
+private slots:
+    void readyRead(int socket);
+
 private:
     int s;
     struct sockaddr_rc addr;
+    QSocketNotifier *socketNotifier;
 
 };
 

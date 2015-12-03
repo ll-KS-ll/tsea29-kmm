@@ -40,6 +40,9 @@ BluetoothServer::BluetoothServer(QObject *parent) : QObject(parent)
     addr.rc_channel = (uint8_t) 1;
     const char dest[18] = FIREFLY_ADDRESS;
     str2ba( dest, &addr.rc_bdaddr);
+
+    socketNotifier = new QSocketNotifier(s, QSocketNotifier::Read, this->parent());
+    connect(socketNotifier, SIGNAL(activated(int)), this, SLOT(readyRead(int)));
 }
 
 void BluetoothServer::start()
@@ -60,13 +63,9 @@ void BluetoothServer::stop()
     close(s);
 }
 
-/*
-void BluetoothServer::readSocket()
+void BluetoothServer::readyRead(int socket)
 {
-    while (socket->canReadLine()) {
-        QByteArray line = socket->readLine();
-        emit messageReceived(socket->peerName(),
-                             QString::fromUtf8(line.constData(), line.length()));
-    }
+    QByteArray buf(1, '\0');
+    read(socket, buf.data(), 1);
+    emit statusUpdate(QString("<span style=\"color: cyan;\">" + buf + "</span>"));
 }
-*/

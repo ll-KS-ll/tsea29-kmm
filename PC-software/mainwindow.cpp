@@ -14,6 +14,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    btServer->stop();
+    delete btServer;
     delete ui;
 }
 
