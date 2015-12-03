@@ -15,10 +15,13 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void startBluetooth();
 
 public slots:
     void statusUpdated(const QString &status);
-    void error(const QBluetoothDeviceDiscoveryAgent::Error &error);
+
+private slots:
+    void on_pushButton_clicked();
 
 private:
     Ui::MainWindow *ui;
