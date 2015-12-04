@@ -1,4 +1,4 @@
-/************************************************************************
+	/************************************************************************
  *																		*
  * Author: Güntech														*
  * Purpose: Kernel for the claw											*
@@ -37,9 +37,12 @@ void initClaw() {
 		
 		sei();
 	}
-	openClaw();
 }
 
+void stopClaw(){
+	TCCR3B |= (0<<CS30);
+	TCCR3B |= (0<<CS31);
+}
 void openClaw() {
 	OCR3A = 200;
 }
@@ -47,4 +50,3 @@ void openClaw() {
 void closeClaw(){
 	OCR3A = 150;
 }
-

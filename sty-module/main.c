@@ -11,13 +11,13 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdbool.h>
-#include <stdbool.h>
 #include "i2c_slave.h" // Is slave module
 #include "autonomous.h"
 #include "boot.h"
 #include "sensorValues.h"
 #include "variables.h"
 #include "gyroController.h"
+#include "clawKernel.h"
 
 // temporary, only for testing
 #include "motorKernel.h"
@@ -26,35 +26,48 @@
 
 
 void follow_marking_tape(){
-	volatile uint16_t value;
+	stop();
+	uint16_t sensor_value;
 	uint16_t *sensorBar;
 	int numerator;
 	int denominator;
+	bool arrived = false;
 	volatile float fault=0;
-	while(true){
+	while(!arrived){
+		arrived = true;
 		numerator = 0;
 		denominator = 0;
 		sensorBar = getSensorBar();
 		for(int i=0; i<7; i++){	
-			value = *(sensorBar+i);
-			value++;
-			numerator+=(*(sensorBar+i)*(i+1));
-			denominator+=*(sensorBar+i);
+			sensor_value = *(sensorBar+i);
+			if(sensor_value < 100 && arrived) arrived = false;
+			numerator+=sensor_value*(i+1);
+			denominator+=sensor_value;
 		}
-		fault = 4-(numerator/denominator);
-		if(fault<-0.1){
-			driveRotateLeft(50,50);
+		fault = (numerator/denominator);
+		if(fault<4){
+			driveRotateLeft(25,25);
 		}
-		else if(fault>0.1){
-			driveRotateRight(50,50);
+		else if(fault>4.2){
+			driveRotateRight(25,25);
 		}
-		else if(fault<=0.1 && fault >=-0.1){
-			driveForward(20,20);
+		else{
+			driveForward(15,15);
+			}
+		}
+	stop();
+}
+
+bool is_tape(){
+	uint16_t *sensorBar = getSensorBar();
+	uint16_t sensor_value;
+	for(int i=0; i<7; i++){
+		sensor_value = *(sensorBar + i);
+		if (sensor_value > 200){
+			return true;
 		}
 	}
-	
-	/*if (fault < 0) driveForward(30, 30 + (fault * 50));
-	else driveForward(30 + (fault * 50), 30);*/
+	return false;
 }
 
 int main(void)
@@ -67,16 +80,25 @@ int main(void)
 	
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
-		
-	/* Chilla liiide */
-	_delay_ms(1000); 
 	
-	//driveForward(50,50);
-	follow_marking_tape();
+	//initClaw();
+
 	/* Main loop */
 	while (1)
 	{
-		//exploreLabyrinth();
+		if(getStart() && getAutonom()){
+			openClaw();
+			_delay_ms(3000);
+			closeClaw();
+			_delay_ms(3000);
+		/*if(is_tape()){
+			follow_marking_tape();
+			break;
+		}*/
+		}
+		else{
+			stop();
+		}
 	}
 }
 

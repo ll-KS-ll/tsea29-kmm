@@ -15,6 +15,8 @@ static float angle = 0;
 static unsigned char gyroValue = 0;
 static unsigned char offset = 128;
 static float gyroRate;
+static bool start = false;
+static bool autonom = false;
 static uint16_t frontDistance = 0;
 static uint16_t frontLeftDistance = 0;
 static uint16_t backLeftDistance = 0;
@@ -26,12 +28,19 @@ static uint16_t sensorBar[] = {0, 0, 0, 0, 0, 0, 0};
 void updateRegisters(uint8_t id, uint16_t dataIn) {
 	int data = dataIn;
 	int temp = 0;
+	
 	switch (id) {
-		
+		case 0:
+			if(data && autonom)
+			{
+				 start = !start;
+			}
+			break;
 		case 1:
-			gyroValue = data;
-			gyroRate = (gyroValue - offset);
-			angle += gyroRate / 100;
+			if(data)
+			 {
+				 autonom = !autonom;
+			 }
 			break;
 			
 		case 3:
@@ -82,6 +91,13 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 			sensorBar[6] = data;
 			break;
 	}
+}
+bool getStart(){
+	return start;
+}
+
+bool getAutonom(){
+	return autonom;
 }
 
 uint16_t getCurrentAngle() {

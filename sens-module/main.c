@@ -23,9 +23,9 @@ float mathf;
 unsigned int math;
 float voltsperunit = 0.0049;
 
-int ch = 2; //ch = 2 = line sensor
+int ch = 0; //ch = 2 = line sensor
 uint16_t data_test = 0;
-uint8_t mux = 0b00000011;
+uint8_t mux = 0b00000000;
 uint8_t id;
  uint16_t data_out = 0;
 
@@ -109,13 +109,37 @@ unsigned int sideIrToCm(uint16_t data) {
 /* Timer interrupt:
 	256 - (14 745 000 / 1024(prescaler) / 500(frequency)) = 227
 	Set TCNT to 227 and it will overflow once every 2 ms. */
+bool start_button_down;
+bool auto_button_down;
+
+
 ISR(TIMER0_OVF_vect)
 {
 	TCCR0 = (0<<CS02)|(0<<CS00); // stop clock as to not generete new interrupt inside interrupt
 	uint8_t id;
+	
 	switch(ch)
 	{
-		case 1: // gyro
+		case 0://start button
+			data_out = 0;
+			if(adc_read(ch) > 1000){
+				start_button_down = true;				
+			} else if(start_button_down) {
+				start_button_down = false;
+				data_out=1;
+			}
+			id = ch;
+			break;
+		case 1: // autonom/remote
+				data_out = 0;
+				if(adc_read(ch) > 1000){
+					auto_button_down = true;
+					} 
+					else if(auto_button_down) {
+					auto_button_down = false;
+					data_out=1;
+				}
+				id = ch;
 			break;
 		case 2: // line sensor
 			//enable_current_linesensor(mux);
@@ -162,9 +186,8 @@ ISR(TIMER0_OVF_vect)
 	data_package datap = {id, data_out};
 		
 	i2c_write(STY_ADDRESS, datap);	// Write an entire package to com-module.
-	
 	ch++;
-	if (ch == 8) ch = 2;
+	if (ch == 8) ch = 0;
 	TCNT0 = 227;
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
@@ -182,7 +205,7 @@ int main(void)
 	
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
-	DDRD = 0xFF; //PORTD as OUTPUT
+	DDRD = 0xFF; //PORTD0-5 as OUTPUT, PORTD6-7 as INPUT
 	PORTB = 0b01111111;
 	
 	initTimerInteruppt();
