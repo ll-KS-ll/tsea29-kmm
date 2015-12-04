@@ -1,19 +1,13 @@
 /*
- *  DISCLAIMER: You need to already have paired with the FireFly module.
+ *  DISCLAIMER: You need to already have paired with the FireFly module and have a serial port to it.
  */
 
 #ifndef BLUETOOTHSERVER_H
 #define BLUETOOTHSERVER_H
 
 #include <QObject>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/rfcomm.h>
-
 #include <QSocketNotifier>
+#include <QSerialPort>
 
 // === FireFly Information ===
 // Address: 00:06:66:03:71:B7
@@ -28,20 +22,19 @@ class BluetoothServer : public QObject
     Q_OBJECT
 public:
     explicit BluetoothServer(QObject *parent = 0);
-    void start();   // Start Bluetooth server.
+    void start(const QString &serialPortName);   // Start Bluetooth server.
     void stop();    // Stop Bluetooth server.
 
 signals:
-    void statusUpdate(const QString &status);   // New status. Ex. connected.
+    void statusUpdate(const QString &status);               // New status. Ex. connected.
     void updateData(const quint8 &id, const quint16 &data); // New data package read.
 
 private slots:
-    void readyRead(int socket); // Incomming data.
+    void readyRead(); // Incomming data.
 
 private:
-    int s;  // Socket for connection.
-    struct sockaddr_rc addr;         // Socket address data of FireFly.
-    QSocketNotifier *socketNotifier; // Socket notifier to check for incomming data.
+    QSerialPort *spp;   // Serial Port for connectiong to FireFly.
+
 };
 
 #endif // BLUETOOTHSERVER_H

@@ -30,11 +30,13 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void startBluetooth();  // Connect to FireFly.
 
 public slots:
     void statusUpdated(const QString &status);  // New Bluetooth status.
     void updateData(const quint8 &id, const quint16 &data); // New data package recived.
+
+private slots:
+    void on_connect_clicked();  // Connect to FireFly
 
 private:
     Ui::MainWindow *ui;

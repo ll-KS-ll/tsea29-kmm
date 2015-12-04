@@ -72,8 +72,8 @@ void MainWindow::updateData(const quint8 &id, const quint16 &data)
     }
 }
 
-void MainWindow::startBluetooth()
+void MainWindow::on_connect_clicked()
 {
     statusUpdated(QString("Connecting..."));
-    btServer->start();
+    btServer->start(ui->serialPortName->text());
 }
