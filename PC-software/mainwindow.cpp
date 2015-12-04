@@ -44,8 +44,26 @@ void MainWindow::updateData(const quint8 &id, const quint16 &data)
         case IR_RIGTH_BACK:
             ui->irBackRight->setText(QString::number(6050 / data));
             break;
-        case LINE_SENSOR:
-            // TODO: Update line sensor gui element.
+        case LINE_SENSOR1:
+            ui->reflex1->setText(QString::number(data));
+            break;
+        case LINE_SENSOR2:
+            ui->reflex2->setText(QString::number(data));
+            break;
+        case LINE_SENSOR3:
+            ui->reflex3->setText(QString::number(data));
+            break;
+        case LINE_SENSOR4:
+            ui->reflex4->setText(QString::number(data));
+            break;
+        case LINE_SENSOR5:
+            ui->reflex5->setText(QString::number(data));
+            break;
+        case LINE_SENSOR6:
+            ui->reflex6->setText(QString::number(data));
+            break;
+        case LINE_SENSOR7:
+            ui->reflex7->setText(QString::number(data));
             break;
         default:
             ui->logTextBox->append(QString("<span style=\"color: orange;\">Unrecognized id: [" +

@@ -10,7 +10,14 @@
 #define IR_LEFT_BACK 4
 #define IR_RIGTH_FRONT 7
 #define IR_RIGTH_BACK 6
-#define LINE_SENSOR 2
+#define LINE_SENSOR1 10
+#define LINE_SENSOR2 11
+#define LINE_SENSOR3 12
+#define LINE_SENSOR4 13
+#define LINE_SENSOR5 14
+#define LINE_SENSOR6 15
+#define LINE_SENSOR7 16
+/* ================ */
 
 namespace Ui {
 class MainWindow;
