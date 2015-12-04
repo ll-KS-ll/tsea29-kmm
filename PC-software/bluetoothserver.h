@@ -6,7 +6,6 @@
 #define BLUETOOTHSERVER_H
 
 #include <QObject>
-#include <QSocketNotifier>
 #include <QSerialPort>
 
 // === FireFly Information ===
