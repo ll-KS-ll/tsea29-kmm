@@ -22,12 +22,13 @@ volatile float sec;
 float mathf;
 unsigned int math;
 float voltsperunit = 0.0049;
-
+static uint16_t calibrated_sensor_bar[] = {0, 0, 0, 0, 0, 0, 0};
+bool cal_sb = false;
 int ch = 0; //ch = 2 = line sensor
 uint16_t data_test = 0;
 uint8_t mux = 0b00000000;
 uint8_t id;
- uint16_t data_out = 0;
+uint16_t data_out = 0;
 
 void adc_init()
 {
@@ -57,6 +58,11 @@ uint16_t adc_read(uint8_t ch)
 	sei();
 	
 	return (ADC);
+}
+
+void calibrate_sensor_bar()
+{
+	cal_sb = true;
 }
 
 void disable_line_sensor(){
@@ -147,6 +153,23 @@ ISR(TIMER0_OVF_vect)
 			id = mux+10; //so there is no duplicate for id.
 			_delay_ms(10);
 			data_out = adc_read(ch);
+			
+			// if we want to calibrate the sensor bar <code>calibrate_sensor_bar</code> will be set to true
+			// and we will read all of the sensors one by one, saving their value in an array 
+			if (calibrate_sensor_bar) 
+			{
+				uint8_t mux_start_value = mux;
+				uint16_t temp_data = data_out;
+				while (true)
+				{
+					calibrated_sensor_bar[mux] = temp_data;
+					mux++;
+					if (mux == mux_start_value) cal_sb = false; break;
+					if (mux == 7) mux = 0;
+					PORTD = mux;
+					temp_data = adc_read(ch);  
+				}
+			}
 			//disable_line_sensor();
 			mux++;
 			if (mux == 7) mux = 0;
