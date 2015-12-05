@@ -82,15 +82,6 @@ int main(void)
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
 	
-	_delay_ms(3000);
-	openClaw();
-	_delay_ms(1000);
-	lowerClaw();
-	_delay_ms(1000);
-	closeClaw();
-	_delay_ms(1000);
-	raiseClaw();
-	
 	/* Main loop */
 	while (1)
 	{
