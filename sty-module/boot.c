@@ -14,6 +14,6 @@
 
 void boot() {
 	initMotor();
-	//initClaw();
+	initClaw();
 	initGyro();
 }

@@ -6,6 +6,7 @@
  * File type: Source													*
  *																		*
 /************************************************************************/
+/*
 
 #include "labyrinthMap.h"
 
@@ -32,7 +33,7 @@ dir targetPath;
 	[U]-[E] [U] [U]-[E]-[U] [ ] [ ]
 		 |		 |	 H
 	[ ] [E]-[E]-[E]-[S]-[U] [ ] [ ]
-*/
+
 //insert the first node to the map
 void initMap(){
 //head
@@ -162,4 +163,4 @@ void traverseGetOut()
 void updatePosition(dir p){
 	
 	
-}
+}*/

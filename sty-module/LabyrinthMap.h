@@ -14,7 +14,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "autonomus.h"
+#include "autonomous.h"
 #include "sensorValues.h"
 
 //enum
