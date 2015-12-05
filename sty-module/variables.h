@@ -11,11 +11,13 @@
 #define VARIABLES_H_
 
 
-#define TOTAL_POWER 1000
-#define MIN_DISTANCE_TO_FRONT_WALL 25
+#define TOTAL_POWER 1100
+#define FRONT_CLOSED 25
+#define FRONT_SPOTTED 70
+#define SIDE_OPEN 50
 
 #define KP 3
-#define KD 8
+#define KD 9
 
 #define GYRO 1
 

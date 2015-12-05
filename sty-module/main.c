@@ -6,7 +6,7 @@
  *																		*
 /************************************************************************/
 
-#define F_CPU 15000000UL
+#define F_CPU 14575000UL
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
@@ -28,7 +28,7 @@ int main(void)
 	/* Initialize com-module as a slave on I2C-bus with the address of com-module. */
 	i2c_init_slave( STY_ADDRESS );
 
-	/* Boot Claw-/Motor-kernel */
+	/* Boot Claw-/Motor-/Gyro-kernel */
 	boot();
 	
 	
@@ -38,6 +38,18 @@ int main(void)
 	/* Chilla liiide */
 	_delay_ms(1000);
 	
+	//while(true) {
+		//turnLeft();
+		//_delay_ms(2000);
+		//turnRight();
+		//_delay_ms(2000);
+	//}
+	//volatile int test;
+
+	//while(true) {
+		//startGyroInterrupts();
+		//test = getCurrentAngle();
+	//}
 	
 	exploreLabyrinth();
 	

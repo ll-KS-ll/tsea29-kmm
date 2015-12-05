@@ -22,6 +22,27 @@ static uint16_t frontRightDistance = 0;
 static uint16_t backRightDistance = 0;
 static uint16_t sensorBar[] = {0, 0, 0, 0, 0, 0, 0, 0};
 
+/* Variables used for converting frontDistance to cm */
+float mathf;
+float voltsPerUnit = 0.0049;
+
+unsigned int sideIrToCm(uint16_t data) {
+	unsigned int math = 0;
+	math = data;
+	math = (6050 / math);
+	
+	if(math >= 2) {
+		math -= 2; // fix linear error (-2)
+	}
+	if(math < 10) {
+		math = 10; // min limit at 10cm
+	}
+	if(math > 80) {
+		math = 80; // max limit at 80cm
+	}
+	return math;
+}
+
 // Convert values so they are between 70 - 0, larger number equals closer.
 void updateRegisters(uint8_t id, uint16_t dataIn) {
 	int data = dataIn;
@@ -38,23 +59,27 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 			break;
 		
 		case 3:
-			frontLeftDistance = data;
+			frontLeftDistance = sideIrToCm(data);
 			break;
 		
 		case 4:
-			backLeftDistance = data;
+			backLeftDistance = sideIrToCm(data);
 			break;
 		
 		case 5:
-			frontDistance = data;
+			mathf = (float)data * voltsPerUnit;
+			mathf = 60.495 * pow(mathf, -1.1904);
+			if(mathf < 20) mathf = 20;
+			if(mathf > 150) mathf = 150;
+			frontDistance = (unsigned int) mathf;
 			break;
 		
 		case 6:
-			backRightDistance = data;
+			backRightDistance = sideIrToCm(data);
 			break;
 		
 		case 7:
-			frontRightDistance = data;
+			frontRightDistance = sideIrToCm(data);
 			break;
 	}
 }

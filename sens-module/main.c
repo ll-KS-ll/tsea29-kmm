@@ -50,10 +50,6 @@ uint16_t adc_read(uint8_t ch)
 	return (ADC);
 }
 
-/* Variables used */
-float mathf;
-unsigned int math;
-float voltsperunit = 0.0049;
 
 int ch = 3; //ch = 2 = line sensor
 
@@ -61,33 +57,15 @@ uint16_t data_test = 0;
 uint8_t mux = 0b00000011;
 uint16_t data_out = 0;
 
-unsigned int sideIrToCm(uint16_t data) {
-	volatile unsigned int math = 0;
-	math = data;
-	math = (6050 / math);
-	
-	if(math >= 2) {
-		math -= 2; // fix linear error (-2)
-	}
-	if(math < 10) {
-		math = 10; // min limit at 10cm
-	}
-	if(math > 80) {
-		math = 80; // max limit at 80cm
-	}
-	return math;
-}
+
 
 /* Timer interrupt:
-	256 - (14 745 000 / 1024(prescaler) / 500(frequency)) = 227
+	256 - (14 745 000 / 1024(prescaler) / 1000(frequency)) = 227
 	Set TCNT to 227 and it will overflow once every 2 ms. */
 ISR(TIMER0_OVF_vect)
 {
-	TCCR0 = (0<<CS02)|(0<<CS00); // stop clock as to not generete new interrupt inside interrupt
 	switch(ch)
-	{
-		case 1: // gyro
-		
+	{	
 		case 2: // line sensor
 			PORTD = mux;
 			data_out = adc_read(ch);
@@ -96,47 +74,40 @@ ISR(TIMER0_OVF_vect)
 			break;
 			
 		case 3: // IR_sensor front left
-			data_out = sideIrToCm(adc_read(ch));
+			data_out = adc_read(ch);
 			break;
 		
 		case 4: // IR-sensor back left
-			data_out = sideIrToCm(adc_read(ch));
+			data_out = adc_read(ch);
 			break;
 		
 		case 5:
-			mathf = 0;
-			mathf = (float)adc_read(ch) * voltsperunit; //IR-sensor front
-			mathf = 60.495 * pow(mathf, -1.1904);
-			if(mathf >= 2) math += 2; // fix linear error (+2)
-			if(mathf < 20) math = 20; // min limit at 10cm
-			if(mathf > 150) math = 150; // max limit at 80cm
-			data_out = (unsigned int)mathf;
+			data_out = adc_read(ch); //IR-sensor front
 			break;
 		
 		case 6: // IR-sensor back right
-			data_out = sideIrToCm(adc_read(ch));
+			data_out = adc_read(ch);
 			break;
 		case 7: // IR-sensor front right
-			data_out = sideIrToCm(adc_read(ch));
+			data_out = adc_read(ch);
 			break;
 	}
 	
 	data_package datap = {ch, data_out};
 		
-	i2c_write(STY_ADDRESS, datap);	// Write an entire package to com-module.
+	i2c_write(GENERAL_CALL_ADDRESS, datap);	// Write an entire package to com-module.
 	
 	ch++;
 	if (ch == 8) {
-		ch = 3;
+		ch = 2;
 	}
-	TCNT0 = 227;
-	TCCR0 = (1<<CS02)|(1<<CS00);
+	TCNT0 = 241;
 }
 
 
 void initTimerInteruppt() {
 	TIMSK = (1<<TOIE0);
-	TCNT0 = 227;
+	TCNT0 = 241;
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
 
@@ -154,7 +125,6 @@ int main(void)
 	initTimerInteruppt();
 	adc_init();
 	
-	_delay_ms(500);
 	
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
