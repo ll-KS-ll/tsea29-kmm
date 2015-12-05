@@ -47,7 +47,7 @@ uint8_t adcReadGyro(uint8_t ch)
 	256 - (14 745 000 / 1024(prescaler) / 100(frequency)) = 144
 	Set TCNT to 144 and it will overflow once every 10 ms. */
 ISR(TIMER0_OVF_vect) {
-	updateRegisters(1, adcReadGyro(GYRO) - 2); // reduce by 2 because gyro noice
+	updateRegisters(17, adcReadGyro(GYRO) - 2); // reduce by 2 because gyro noice
 	TCNT0 = 144;
 }
 

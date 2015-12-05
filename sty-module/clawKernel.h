@@ -15,5 +15,7 @@
 void initClaw();
 void openClaw();
 void closeClaw();
+void lowerClaw();
+void raiseClaw();
 
 #endif /* CLAWKERNEL_H_ */
