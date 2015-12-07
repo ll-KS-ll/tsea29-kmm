@@ -23,10 +23,12 @@ public:
     explicit BluetoothServer(QObject *parent = 0);
     void start(const QString &serialPortName);   // Start Bluetooth server.
     void stop();    // Stop Bluetooth server.
+    void writeCommand(const quint8 &sty_cmd);
 
 signals:
     void statusUpdate(const QString &status);               // New status. Ex. connected.
     void updateData(const quint8 &id, const quint16 &data); // New data package read.
+    void sentCommand(const quint8 &cmd);                    // Sent steer command.
 
 private slots:
     void readyRead(); // Incomming data.

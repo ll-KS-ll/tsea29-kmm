@@ -9,6 +9,7 @@ BluetoothServer::BluetoothServer(QObject *parent) : QObject(parent)
 
 void BluetoothServer::start(const QString &serialPortName)
 {
+    spp->close();
     spp->setPortName(serialPortName);
     if (spp->open(QIODevice::ReadWrite))
         emit statusUpdate("<span style=\"color: green;\">Connected</span>");
@@ -34,9 +35,23 @@ void BluetoothServer::readyRead()
     /* Convert read bytes to unsigned integers. */
     quint8 id = barr.at(0);     // First(0) byte is ID.
     quint16 data = barr.at(2);  // Second(1) byte is hdata and third(2) is ldata
+
+    //emit statusUpdate(QString(QString::number(id) + " " + QString::number(data)));
     /* === Convert 2 chars to integer === *\
     /* int result = high + (low >> (CHAR_BIT - 2)); */
     //quint16 data = buf[1] + (buf[2] >> (CHAR_BIT - 2));   // Second(1) byte is hdata and thired(2) is ldata.
 
     emit updateData(id, data);
+}
+
+void BluetoothServer::writeCommand(const quint8 &sty_cmd)
+{
+    char data = sty_cmd;
+    int written = spp->write(&data);
+    spp->flush();
+
+    if (written = 1)
+        emit sentCommand(sty_cmd);
+    else
+        emit statusUpdate("<span style=\"color: red;\">Couldn't write command.</span>");
 }
