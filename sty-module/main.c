@@ -81,7 +81,7 @@ int main(void)
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
 	
-	//initClaw();
+	initClaw();
 
 	/* Main loop */
 	while (1)
