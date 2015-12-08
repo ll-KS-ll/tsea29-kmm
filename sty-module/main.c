@@ -33,7 +33,7 @@ void follow_marking_tape(){
 	int numerator;
 	int denominator;
 	bool arrived = false;
-	volatile float fault=0;
+	float fault=0;
 	while(!arrived){
 		arrived = true;
 		numerator = 0;
@@ -81,6 +81,10 @@ int main(void)
 	
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
+	
+	_delay_ms(1000);
+	
+	initMap();
 	
 	/* Main loop */
 	while (1)

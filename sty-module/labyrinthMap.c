@@ -7,48 +7,69 @@
  *																		*
  ************************************************************************/
 
+#define F_CPU 15000000UL
 #include "labyrinthMap.h"
-#include <iostream>
+#include "variables.h"
+#include "clawKernel.h"
+#include <util/delay.h>
+
+//var
+#define north 0
+#define east 1
+#define south 2
+#define west 3
+#define x_size 32
+#define y_size 32
+
+#define defaultNode {UNEXPLORED, {CLOSED, CLOSED, CLOSED, CLOSED}}
+
+static int xpos = 15;
+static int ypos = 31;
+static dir currentDirection = NORTH;
+static node labyrinth[x_size][y_size];		//increase size if necessary
+static bool visited[x_size][y_size];
 
 //insert the first node to the map
 void initMap(){
 //head
-    node n;
+    node n = defaultNode;
 //body
-    n.neighbours[north] = CLOSED;
-    n.neighbours[east] = CLOSED;
-    n.neighbours[south] = CLOSED;
-    n.neighbours[west] = CLOSED;
+    //n.neighbours[north] = CLOSED;
+    //n.neighbours[east] = CLOSED;
+    //n.neighbours[south] = CLOSED;
+    //n.neighbours[west] = CLOSED;
+	
     n.status = START;
+	
     labyrinth[xpos][ypos] = n;
     updateNewNeighbours();
     identifyNeighbours();	//get all neighbours
+	labyrinth[xpos][ypos].neighbours[south] = CLOSED;
 }
 
 
 void addNode(){
 //head
-    node currentNode;
-    currentNode = labyrinth[xpos][ypos];
+    node currentNode = labyrinth[xpos][ypos];
 //body
     if(currentNode.status == START){
+		return;
     }else if(currentNode.status == UNEXPLORED){
         currentNode.status = EXPLORED;
         labyrinth[xpos][ypos] = currentNode;
         updateNewNeighbours();
         identifyNeighbours();
     }
-    getCurrentNodeStatus(xpos, ypos);
 }
 
 //adds new nodes if the node is UNEXPLORED
 void updateNewNeighbours(){
-    node n;
-    n.status = UNEXPLORED;
-    n.neighbours[north] = CLOSED;
-    n.neighbours[east] = CLOSED;
-    n.neighbours[south] = CLOSED;
-    n.neighbours[west] = CLOSED;
+    node n = defaultNode;
+    //n.status = UNEXPLORED;
+    //n.neighbours[north] = CLOSED;
+    //n.neighbours[east] = CLOSED;
+    //n.neighbours[south] = CLOSED;
+    //n.neighbours[west] = CLOSED;
 
     //insert UNEXPLORED nodes around the current-node
     if(labyrinth[xpos][ypos-1].status == UNKNOWN){  //north
@@ -65,17 +86,11 @@ void updateNewNeighbours(){
 //find all possible neighbours for the current node
 void identifyNeighbours(){
 //head
-    uint16_t frontDistance;
-    uint16_t frontLeftDistance;
-    uint16_t backLeftDisantnce;
-    uint16_t frontRightDistance;
-    uint16_t backRightDistance;
     int front;
     int left;
     int right;
     int back;
-    node n;
-    n = labyrinth[xpos][ypos];
+    node n = labyrinth[xpos][ypos];
 //body
     switch(currentDirection){
         case NORTH:
@@ -111,21 +126,16 @@ void identifyNeighbours(){
     }
 
     //determine north and change variables accordingly
-    frontDistance = getFrontDistance();
-    frontLeftDistance = getFrontLeftDistance();
-    backLeftDisantnce = getBackLeftDistance();
-    frontRightDistance = getFrontRightDistance();
-    backRightDistance = getBackRightDistance();
-
-    //check the distance for each direction
-    if (frontDistance >= 50){
+    if (getFrontDistance() >= SIDE_OPEN){
         labyrinth[xpos][ypos].neighbours[front] = OPEN;
-    } if (frontRightDistance >= 40 || backRightDistance >= 40){
+    } 
+	if (getFrontRightDistance() >= SIDE_OPEN || getBackRightDistance() >= SIDE_OPEN){
         labyrinth[xpos][ypos].neighbours[right] = OPEN;
-    }   labyrinth[xpos][ypos].neighbours[back] = OPEN;
-    if (frontLeftDistance >= 40 || backLeftDisantnce >= 40){
+    }   
+    if (getFrontLeftDistance() >= SIDE_OPEN || getBackLeftDistance() >= SIDE_OPEN){
         labyrinth[xpos][ypos].neighbours[left] = OPEN;
     }
+    labyrinth[xpos][ypos].neighbours[back] = OPEN;
 
     return;
 }
@@ -133,19 +143,22 @@ void identifyNeighbours(){
 //traverse the map via the nodes to a target node
 path *nextTarget(){
 //head
-    path *root = (path *) malloc(sizeof(*root));
-    path *c = (path *) malloc(sizeof(*c));
+	path root = {DUNNO, NULL);
+		
+		
+    path *root = malloc(sizeof(path));
+	
+	assert(root != NULL);
+	
     found_way = false;
     root->p = DUNNO;
     resetVisited();
 
 //body
-    //addNode();
     root->next = traverseLabyrint(xpos, ypos, DUNNO);
     root = root->next;
-    c = root;
-    updatePosition(c);      //Unsure where to put updatePosition(); and addNode();
-    found_way = false;
+    updatePosition(root);      //Unsure where to put updatePosition(); and addNode();
+	
 
     return root;
 }
@@ -154,33 +167,38 @@ path *nextTarget(){
 path *traverseLabyrint(int x, int y, dir last){
 //head
     node currentNode = labyrinth[x][y];
-    struct path *way =  (path *) malloc(sizeof(*way));
+    path *way = malloc(sizeof(path));
 
 //body
     way->p = DUNNO;
     way->next = NULL;
+	
     if(visited[x][y]){
 		free(way);
-		return way;
+		return;
     }
+	
     visited[x][y] = true;
+	
     if (currentNode.status == UNEXPLORED){	//zero case
         found_way = true;
-        return way;
-    }else {
-        if (currentNode.neighbours[north] == OPEN && !found_way && last != SOUTH && y > 1){
+    } else {
+         if (currentNode.neighbours[north] == OPEN && !found_way && last != SOUTH && y > 1){
             way->p = NORTH;
             currentDirection = NORTH;
             way->next = traverseLabyrint(x,y-1,NORTH);
-        } if (currentNode.neighbours[east] == OPEN && !found_way && last != WEST && x < 31){
+        } 
+		if (currentNode.neighbours[east] == OPEN && !found_way && last != WEST && x < 31){
             way->p = EAST;
             currentDirection = EAST;
             way->next = traverseLabyrint(x+1,y,EAST);
-        } if (currentNode.neighbours[south] == OPEN && !found_way && last != NORTH && y < 31){
+        } 
+		if (currentNode.neighbours[south] == OPEN && !found_way && last != NORTH && y < 31){
             way->p = SOUTH;
             currentDirection = SOUTH;
             way->next = traverseLabyrint(x,y+1,SOUTH);
-        } if (currentNode.neighbours[west] == OPEN && !found_way && last != EAST && x > 1){
+        } 
+		if (currentNode.neighbours[west] == OPEN && !found_way && last != EAST && x > 1){
             way->p = WEST;
             currentDirection = WEST;
             way->next = traverseLabyrint(x-1,y,WEST);
@@ -223,15 +241,6 @@ void updatePosition(path *p){
         }
         p = p->next;
     }
-}
-/*
- *
- */
-void selectNewPosition(int x, int y){
-    xpos = x;
-    ypos = y;
-    getCurrentNodeStatus(xpos,ypos);
-
 }
 
 void resetVisited(){

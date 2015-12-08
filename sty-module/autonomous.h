@@ -11,10 +11,7 @@
 #ifndef AUTONOMOUS_H_
 #define AUTONOMOUS_H_
 
-
-typedef enum {north, south, west, east} direction;
-
 void exploreLabyrinth();
-void turnLeft();
-void turnRight();
+void initOneSquareTimer();
+
 #endif /* AUTONOMOUS_H_ */

@@ -111,6 +111,7 @@ ISR(TIMER0_OVF_vect)
 				start_button_down = false;
 				data_out=1;
 			}
+			id = ch;
 			break;
 		case 1: // autonom/remote
 			data_out = 0;
@@ -120,7 +121,8 @@ ISR(TIMER0_OVF_vect)
 			else if(auto_button_down) {
 				auto_button_down = false;
 				data_out=1;
-			}
+		}
+		id = ch;
 			break;
 		case 2: // line sensor
 			//enable_current_linesensor(mux);
@@ -135,22 +137,27 @@ ISR(TIMER0_OVF_vect)
 			
 		case 3: // IR_sensor front left
 			data_out = adc_read(ch);
+			id = ch;
 			break;
 		case 4: // IR-sensor back left
 			data_out = adc_read(ch);
+			id = ch;
 			break;
 		case 5: //IR-sensor front
-			data_out = adc_read(ch); 
+			data_out = adc_read(ch);
+			id = ch;
 			break;
 		case 6: // IR-sensor back right
 			data_out = adc_read(ch);
+			id = ch;
 			break;
 		case 7: // IR-sensor front right
 			data_out = adc_read(ch);
+			id = ch;
 			break;
 	}
 	
-	data_package datap = {ch, data_out};
+	data_package datap = {id, data_out};
 	i2c_write(GENERAL_CALL_ADDRESS, datap);	// Write an entire package to com-module.
 	
 	ch++;

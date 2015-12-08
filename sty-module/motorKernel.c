@@ -12,6 +12,7 @@
 #include <stdbool.h>
 #include "motorKernel.h"
 #include "variables.h"
+#include "gyroController.h"
 
 /*
 	Port 6 = DirLeft, Port 5 = PWMLeft
@@ -108,4 +109,34 @@ void stop() {
 	curPwrLeft = 0;
 	curPwrRight = 0;
 	setMotorSpeed(0, 0);
+}
+
+/* 90-degree left turn */
+void turnLeft() {
+	startGyroInterrupts();
+	float targetAngle = (int)getCurrentAngle() + 32;
+	while(true) {
+		driveRotateLeft(50, 50);
+		if((int)getCurrentAngle() >= targetAngle) {
+			stop();
+			stopGyroInterrupts();
+			return;
+		}
+		
+	}
+}
+
+/* 90-degree right turn */
+void turnRight() {
+	startGyroInterrupts();
+	int targetAngle = (int) getCurrentAngle() - 37;
+	while(true) {
+		driveRotateRight(50, 50);
+		if((int)getCurrentAngle() <= targetAngle) {
+			stop();
+			stopGyroInterrupts();
+			return;
+		}
+		
+	}
 }

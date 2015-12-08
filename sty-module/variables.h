@@ -15,7 +15,8 @@
 #define FRONT_CLOSED 27
 #define FRONT_SPOTTED 85
 #define SIDE_OPEN 45
-#define ONE_SQUARE 60
+#define ONE_SQUARE_DISTANCE 60
+#define ONE_SQUARE 145
 
 #define KP 3
 #define KD 9
