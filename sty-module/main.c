@@ -6,7 +6,7 @@
  *																		*
 /************************************************************************/
 
-#define F_CPU 15000000UL
+#define F_CPU 14575000UL
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
@@ -21,6 +21,7 @@
 
 // temporary, only for testing
 #include "motorKernel.h"
+#include "clawKernel.h"
 
 
 
@@ -75,7 +76,7 @@ int main(void)
 	/* Initialize com-module as a slave on I2C-bus with the address of com-module. */
 	i2c_init_slave( STY_ADDRESS );
 
-	/* Boot Claw-/Motor-kernel */
+	/* Boot Claw-/Motor-/Gyro-kernel */
 	boot();
 	
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
@@ -86,18 +87,18 @@ int main(void)
 	/* Main loop */
 	while (1)
 	{
-		if(getStart() && getAutonom()){
-			openClaw();
-			_delay_ms(3000);
-			closeClaw();
-			_delay_ms(3000);
-		/*if(is_tape()){
-			follow_marking_tape();
-			break;
-		}*/
-		}
-		else{
-			stop();
+		if(getAutonom()) {
+			if(getStart()) {
+				/* reset start so it only runs the labyrinth once */
+				updateRegisters(0, 1);
+				exploreLabyrinth();
+				
+			}
+		} else {
+			/* Do shit that the PC says to do */
+			if(getStart()) {
+				
+			}
 		}
 	}
 }

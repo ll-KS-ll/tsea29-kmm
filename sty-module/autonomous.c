@@ -16,9 +16,6 @@
 #include "variables.h"
 #include "gyroController.h"
 
-
-static bool drivingForward = false;
-
 direction currentDirection = north;
 
 /* INFO
@@ -29,74 +26,8 @@ direction currentDirection = north;
 
 */
 
-void doA180() {
-	startGyroInterrupts();
-	float startAngle = getCurrentAngle();
-	while(true) {
-		driveRotateLeft(50, 50);
-		if(getCurrentAngle() >= startAngle + 70) {
-			stop();
-			stopGyroInterrupts();
-			return;
-		}
-		
-	}
-}
-
-/* Not using map atm */
-void exploreLabyrinth() {
-	/*
-	Write main loop for exploring labyrinth.
-	*/
-	while(1) {
-		while(getFrontDistance() >= MIN_DISTANCE_TO_FRONT_WALL) {
-			pdRegulate();
-		}
-		stop();
-		doA180();
-	}
-}
-
-void dRegulate(int u) {
-	int regulate = dRegulator();
-	adjust(regulate);
-}
-
-int dRegulator() {
-	int u = 0;
-	int e = 0;
-	int t = 0;		
-	
-	// get the distances
-	int fl = getFrontLeftDistance();
-	int fr = getFrontRightDistance();
-	int bl = getBackLeftDistance();
-	int br = getBackRightDistance();
-
-	// t = How wrongly the robot is rotated
-	t = ((fl - bl) + (br - fr)) / 2;
-
-	/* KP and KD konstants say how much the robot will react 
-		being wrongly turned and positioned between the walls. */	
-	u = KD * t; 
-	
-	return u;
-}
-
-void pdRegulate() {
-	int regulate = pdRegulator();
-	adjust(regulate);
-}
-
 /* Using PD-regulator to make robot drive in middle of corridor */
-/*
-	u[n] = Kp * e[n] + Kd * (e[n]-e[n-1])
-	u[n] -> how much to turn. u[n] < 0 turn right, u[n] > 0 turn left, u[n] = 0 go straight
-	Kp	 -> constant
-	e[n] ->	how wrong our direction is
-	Kd	 -> constant
-*/
-int pdRegulator(){
+int pdReg(){
 	int u = 0;
 	int e = 0;
 	int t = 0;		
@@ -120,89 +51,153 @@ int pdRegulator(){
 	return u;
 }
 
-/* Private function used for rotating 90 degrees left */
-/* Unknown in-data from gyro */
-//static void rotateLeftOnce() {
-	//uint16_t currentAngle = getCurrentAngle();
-	//uint16_t endAngle = currentAngle + 256;
-	//driveRotateLeft();
-	//setMotorSpeed(350, 350);
-	//while (1) {
-		//currentAngle = getCurrentAngle();
-		//if(currentAngle >= endAngle) {
-			//stop();
-			//break;
-		//}
-		//_delay_ms(10);
-	//}
-//}
-//
-///* Private function used for rotating 90 degrees right */
-///* Unknown in-data from gyro */
-//static void rotateRightOnce() {
-	//uint16_t currentAngle = getCurrentAngle();
-	//uint16_t endAngle = currentAngle - 256;
-	//driveRotateRight();
-	//setMotorSpeed(350, 350);
-	//while (1) {
-		//currentAngle = getCurrentAngle();
-		//if(currentAngle >= endAngle) {
-			//stop();
-			//break;
-		//}
-		//_delay_ms(10);
-	//}
-//}
+int leftReg(){
+	int u = 0;
+	int t = 0;		
+	
+	// get the distances
+	int fl = getFrontLeftDistance();
+	int bl = getBackLeftDistance();
+	
+	if(bl < 15 && fl < 15) {
+		return -30;
+	}
+	// t = How wrongly the robot is rotated
+	t = (fl - bl) ;
 
-/* Private function used by algorithms to rotate robot on the spot to the desired direction */
-static void rotateOnSpot(direction targetDirection) {
-	if(currentDirection == targetDirection) {
-		return;
+	/* KP and KD konstants say how much the robot will react 
+		being wrongly turned and positioned between the walls. */	
+	u = 5 * t; 
+	
+	return u;
+}
+
+int rightReg(){
+	int u = 0;
+	int t = 0;		
+	
+	// get the distances
+	int fr = getFrontRightDistance();
+	int br = getBackRightDistance();
+
+	if(br < 15 && fr < 15) {
+		return 30;
 	}
-	switch(currentDirection) {
-		case north:
-			if (targetDirection == west) {
-				rotateLeftOnce();
-			} else if (targetDirection == south) {
-				rotateLeftOnce();
-				rotateLeftOnce();
-			} else {
-				rotateRightOnce();
-			}
-			break;
-		case west:
-			if (targetDirection == north) {
-				rotateRightOnce();
-			} else if (targetDirection == south) {
-				rotateLeftOnce();
-			} else {
-				rotateLeftOnce();
-				rotateLeftOnce();
-			}
-			break;
-		case south:
-			if (targetDirection == west) {
-				rotateRightOnce();
-			} else if (targetDirection == east) {
-				rotateLeftOnce();
-			} else {
-				rotateLeftOnce();
-				rotateLeftOnce();
-			}
-			break;
-		case east:
-			if(targetDirection == south) {
-				rotateRightOnce();
-			} else if (targetDirection == north) {
-				rotateLeftOnce();
-			} else {
-				rotateLeftOnce();
-				rotateLeftOnce();
-			}
-			break;
+	// t = How wrongly the robot is rotated
+	t = (br - fr);
+
+	/* KP and KD konstants say how much the robot will react 
+		being wrongly turned and positioned between the walls. */	
+	u = 5 * t; 
+	
+	return u;
+}
+
+void leftRegulator() {
+	int regulate = leftReg();
+	adjust(regulate);
+}
+
+void rightRegulator() {
+	int regulate = rightReg();
+	adjust(regulate);
+}
+
+void pdRegulator() {
+	int regulate = pdReg();
+	adjust(regulate);
+}
+
+void regulateRobot() {
+	if(getBackLeftDistance() <= SIDE_OPEN && getFrontLeftDistance() <= SIDE_OPEN && getBackRightDistance() <= SIDE_OPEN && getFrontRightDistance() <= SIDE_OPEN) {
+		pdRegulator();
+	} else if (getBackLeftDistance() <= SIDE_OPEN && getFrontLeftDistance() <= SIDE_OPEN) {
+		leftRegulator();
+	} else if (getBackRightDistance() <= SIDE_OPEN && getFrontRightDistance() <= SIDE_OPEN) {
+		rightRegulator();
+	} else {
+		driveForward(50, 50);
 	}
-	// Update current direction
-	currentDirection = targetDirection;
+}
+
+void turnLeft() {
+	startGyroInterrupts();
+	float targetAngle = (int)getCurrentAngle() + 32;
+	while(true) {
+		driveRotateLeft(50, 50);
+		if((int)getCurrentAngle() >= targetAngle) {
+			stop();
+			stopGyroInterrupts();
+			return;
+		}
+		
+	}
+}
+
+void turnRight() {
+	startGyroInterrupts();
+	int targetAngle = (int) getCurrentAngle() - 37;
+	while(true) {
+		driveRotateRight(50, 50);
+		if((int)getCurrentAngle() <= targetAngle) {
+			stop();
+			stopGyroInterrupts();
+			return;
+		}
+		
+	}
+}
+
+/* Not using map atm */
+void exploreLabyrinth() {
+	_delay_ms(1000);
+	/*
+	Write main loop for exploring labyrinth.
+	*/
+	driveUntilNextCrossingOrDeadEnd: while(true) {
+		/* What we want to do:
+			- Drive forward until 
+				- Wall is hit, if we can left or right, but not both, do that and keep driving.
+				- A passage to either left or right or both is found and we can drive forward, stop.
+				- A dead end is hit, stop(do a 180).
+		*/
+		if(getFrontDistance() >= ONE_SQUARE && (getBackLeftDistance() >= SIDE_OPEN || getBackRightDistance() >= SIDE_OPEN)) {
+			/* All crossings except T-crossing is found */
+			_delay_ms(100);
+			stop();
+			break;
+		} else if (getFrontDistance() <= FRONT_CLOSED && getFrontLeftDistance() >= SIDE_OPEN && getFrontRightDistance() >= SIDE_OPEN) {
+			/* T-crossing is found */
+			stop();
+			break;
+		} else if (getFrontDistance() <= FRONT_CLOSED && getFrontLeftDistance() <= SIDE_OPEN && getFrontRightDistance() <= SIDE_OPEN) {
+			/* A dead end is found, stop */
+			stop();
+			turnLeft();
+			turnLeft();
+			//break;
+		} else if (getFrontDistance() <= FRONT_CLOSED && getFrontLeftDistance() <= SIDE_OPEN && getFrontRightDistance() >= SIDE_OPEN) {
+			/* Right turn found, make a turn and if no wall wall is spotted in front, leftRegulate until wall on right is found */
+			turnRight();
+			_delay_ms(100);
+
+			while (getBackRightDistance() >= SIDE_OPEN && getBackLeftDistance() <= SIDE_OPEN) {
+					regulateRobot();
+			}
+		} else if (getFrontDistance() <= FRONT_CLOSED && getFrontRightDistance() <= SIDE_OPEN && getFrontLeftDistance() >= SIDE_OPEN) {
+		/* Left turn found, make a turn and if no wall wall is spotted in front, rightRegulate until wall on right is found */
+			turnLeft();
+			_delay_ms(100);
+			
+			while (getBackLeftDistance() >= SIDE_OPEN && getBackRightDistance() <= SIDE_OPEN) {
+				regulateRobot();
+			}
+			
+		} else {
+			regulateRobot();
+		}
+		
+	}
 }
 
 	//Move the equivalent of one node

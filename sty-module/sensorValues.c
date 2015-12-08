@@ -17,12 +17,24 @@ static unsigned char offset = 128;
 static float gyroRate;
 static bool start = false;
 static bool autonom = false;
-static uint16_t frontDistance = 0;
-static uint16_t frontLeftDistance = 0;
-static uint16_t backLeftDistance = 0;
-static uint16_t frontRightDistance = 0;
-static uint16_t backRightDistance = 0;
+static unsigned int frontDistance = 0;
+static unsigned int frontLeftDistance = 0;
+static unsigned int backLeftDistance = 0;
+static unsigned int frontRightDistance = 0;
+static unsigned int backRightDistance = 0;
 static uint16_t sensorBar[] = {0, 0, 0, 0, 0, 0, 0};
+
+/* Variables used for converting frontDistance to cm */
+float mathf;
+float voltsPerUnit = 0.0049;
+
+unsigned int sideIrToCm(uint16_t data) {
+	mathf = data;
+	mathf = pow((3027.4/mathf), 1.2134);
+	if(mathf > 80) mathf = 80;
+	if(mathf < 10) mathf = 10;
+	return (unsigned int)mathf;
+}
 
 // Convert values so they are between 70 - 0, larger number equals closer.
 void updateRegisters(uint8_t id, uint16_t dataIn) {
@@ -44,23 +56,27 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 			break;
 			
 		case 3:
-			frontLeftDistance = data;
+			frontLeftDistance = sideIrToCm(data);
 			break;
 		
 		case 4:
-			backLeftDistance = data;
+			backLeftDistance = sideIrToCm(data);
 			break;
 		
 		case 5:
-			frontDistance = data;
+			mathf = (float)data * voltsPerUnit;
+			mathf = 60.495 * pow(mathf, -1.1904);
+			if(mathf < 20) mathf = 20;
+			if(mathf > 150) mathf = 150;
+			frontDistance = (unsigned int) mathf;
 			break;
 		
 		case 6:
-			backRightDistance = data;
+			backRightDistance = sideIrToCm(data);
 			break;
 		
 		case 7:
-			frontRightDistance = data;
+			frontRightDistance = sideIrToCm(data);
 			break;
 		/*ful-hack*/
 		case 10:
@@ -89,6 +105,11 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 			
 		case 16:
 			sensorBar[6] = data;
+			break;
+		case 17:
+			gyroValue = data;
+			gyroRate = (gyroValue - offset);
+			angle += gyroRate / 100;
 			break;
 	}
 }

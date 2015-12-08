@@ -109,25 +109,3 @@ void stop() {
 	curPwrRight = 0;
 	setMotorSpeed(0, 0);
 }
-
-void rotateLeft(void)
-{
-	int angle_value = getCurrentAngle();
-	while (angle_value < 2700)
-	{
-		driveRotateLeft(50, 50);
-		angle_value = getCurrentAngle();
-	}
-	stop();
-}
-
-void rotateRight()
-{
-	int angle_value = getCurrentAngle();
-	while (angle_value > 1000)
-	{
-		driveRotateRight(50, 50);
-		angle_value = getCurrentAngle();
-	}
-	stop();
-}

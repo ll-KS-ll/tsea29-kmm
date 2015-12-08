@@ -15,5 +15,6 @@
 typedef enum {north, south, west, east} direction;
 
 void exploreLabyrinth();
-
+void turnLeft();
+void turnRight();
 #endif /* AUTONOMOUS_H_ */
