@@ -140,13 +140,22 @@ void identifyNeighbours(){
     return;
 }
 
+struct path *path_create(dir direction, path *next) {
+	struct path *p = malloc(sizeof(path));
+	assert(p != NULL);
+	
+	p->p = direction;
+	p->next = next;
+	
+	return p;
+}
+
 //traverse the map via the nodes to a target node
 path *nextTarget(){
 //head
-	path root = {DUNNO, NULL);
-		
 		
     path *root = malloc(sizeof(path));
+	
 	
 	assert(root != NULL);
 	
@@ -155,6 +164,7 @@ path *nextTarget(){
     resetVisited();
 
 //body
+    //addNode();
     root->next = traverseLabyrint(xpos, ypos, DUNNO);
     root = root->next;
     updatePosition(root);      //Unsure where to put updatePosition(); and addNode();
