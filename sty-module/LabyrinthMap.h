@@ -31,7 +31,10 @@ typedef struct node {
 } node;
 
 
-dir correctPath[x_size][y_size];
+dir correctPathNorth[x_size][y_size];
+dir correctPathWest[x_size][y_size];
+dir correctPathEast[x_size][y_size];
+dir correctPathSouth[x_size][y_size];
 
 //functions
 void initMap();
@@ -39,8 +42,11 @@ void addNode(dir curDir);
 void getCurrentNodeStatus(int, int);
 void identifyNeighbours(dir curDir);
 
-void findClosestUnexplored();
-bool recursiveFindUnExplored(int, int);
+int findClosest(nodeStatus find);
+bool recursiveNorthFind(int x, int y, nodeStatus find);
+bool recursiveEastFind(int x, int y, nodeStatus find);
+bool recursiveWestFind(int x, int y, nodeStatus find);
+bool recursiveSouthFind(int x, int y, nodeStatus find);
 
 void setX(int x);
 void setY(int y);

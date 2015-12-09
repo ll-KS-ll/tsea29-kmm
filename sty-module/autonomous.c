@@ -267,27 +267,27 @@ void advOneNodeInCorrectPath()
 {
 	switch(currentDir) {
 		case NORTH:
-			if(correctPath[getX()][getY()] == NORTH) {
+			if(correctPathNorth[getX()][getY()] == NORTH) {
 				if(inPath()) {
 					moveOneNode();
 				} else {
 					exitCrossingOrTurn();
 				}
 				setY(getY()-1);
-			} else if(correctPath[getX()][getY()] == WEST) {
+			} else if(correctPathNorth[getX()][getY()] == WEST) {
 				turnLeft();
 				exitCrossingOrTurn();
 				currentDir = WEST;
 				setX(getX()-1);
-			} else if(correctPath[getX()][getY()] == EAST) {
+			} else if(correctPathNorth[getX()][getY()] == EAST) {
 				turnRight();
 				exitCrossingOrTurn();
 				currentDir = EAST;
 				setX(getX()+1);
-			} else if(correctPath[getX()][getY()] == SOUTH){
+			} else if(correctPathNorth[getX()][getY()] == SOUTH){
 				turnLeft();
 				turnLeft();
-				_delay_ms(100);
+				_delay_ms(200);
 				if(inPath()) {
 					moveOneNode();
 					} else {
@@ -298,27 +298,27 @@ void advOneNodeInCorrectPath()
 			}
 			break;
 		case WEST:
-			if(correctPath[getX()][getY()] == WEST) {
+			if(correctPathNorth[getX()][getY()] == WEST) {
 				if(inPath()) {
 					moveOneNode();
 				} else {
 					exitCrossingOrTurn();
 				}
 				setX(getX()-1);
-			}else if(correctPath[getX()][getY()] == SOUTH) {
+			}else if(correctPathNorth[getX()][getY()] == SOUTH) {
 				turnLeft();
 				exitCrossingOrTurn();
 				currentDir = SOUTH;
 				setY(getY()+1);
-			} else if(correctPath[getX()][getY()] == NORTH) {
+			} else if(correctPathNorth[getX()][getY()] == NORTH) {
 				turnRight();
 				exitCrossingOrTurn();
 				currentDir = NORTH;
 				setY(getY()-1);
-			} else if(correctPath[getX()][getY()] == EAST){
+			} else if(correctPathNorth[getX()][getY()] == EAST){
 				turnLeft();
 				turnLeft();
-				_delay_ms(100);
+				_delay_ms(200);
 				if(inPath()) {
 					moveOneNode();
 				} else {
@@ -329,27 +329,27 @@ void advOneNodeInCorrectPath()
 			}
 			break;
 		case SOUTH:
-			if(correctPath[getX()][getY()] == SOUTH) {
+			if(correctPathNorth[getX()][getY()] == SOUTH) {
 				if(inPath()) {
 					moveOneNode();
 				} else {
 					exitCrossingOrTurn();
 				}
 				setY(getY()+1);
-			}else if(correctPath[getX()][getY()] == EAST) {
+			}else if(correctPathNorth[getX()][getY()] == EAST) {
 				turnLeft();
 				exitCrossingOrTurn();
 				currentDir = EAST;
 				setX(getX()+1);
-			} else if(correctPath[getX()][getY()] == WEST) {
+			} else if(correctPathNorth[getX()][getY()] == WEST) {
 				turnRight();
 				exitCrossingOrTurn();
 				currentDir = WEST;
 				setX(getX()-1);
-			} else if(correctPath[getX()][getY()] == NORTH){
+			} else if(correctPathNorth[getX()][getY()] == NORTH){
 				turnLeft();
 				turnLeft();
-				_delay_ms(100);
+				_delay_ms(200);
 				if(inPath()) {
 					moveOneNode();
 					} else {
@@ -360,27 +360,27 @@ void advOneNodeInCorrectPath()
 			}
 			break;
 		case EAST:
-			if(correctPath[getX()][getY()] == EAST) {
+			if(correctPathNorth[getX()][getY()] == EAST) {
 				if(inPath()) {
 					moveOneNode();
 				} else {
 					exitCrossingOrTurn();
 				}
 				setX(getX()+1);
-			}else if(correctPath[getX()][getY()] == NORTH) {
+			}else if(correctPathNorth[getX()][getY()] == NORTH) {
 				turnLeft();
 				exitCrossingOrTurn();
 				currentDir = NORTH;
 				setY(getY()-1);
-			} else if(correctPath[getX()][getY()] == SOUTH) {
+			} else if(correctPathNorth[getX()][getY()] == SOUTH) {
 				turnRight();
 				exitCrossingOrTurn();
 				currentDir = SOUTH;
 				setY(getY()+1);
-			} else if(correctPath[getX()][getY()] == WEST){
+			} else if(correctPathNorth[getX()][getY()] == WEST){
 				turnLeft();
 				turnLeft();
-				_delay_ms(100);
+				_delay_ms(200);
 				if(inPath()) {
 					moveOneNode();
 					} else {
@@ -404,6 +404,8 @@ void testShit()
 /* Not using map atm */
 void exploreLabyrinth() {
 	bool labyrinthExplored = false;
+	bool festisboxPickedUp = false;
+	bool exitedLabyrinth = false;
 	
 	_delay_ms(200);
 	
@@ -412,21 +414,66 @@ void exploreLabyrinth() {
 	Write main loop for exploring labyrinth.
 	*/
 	while(!labyrinthExplored) {
-		
-		_delay_ms(500);
-		
-		findClosestUnexplored();
-		
-		while(correctPath[getX()][getY()] != DUNNO) {			
-			advOneNodeInCorrectPath();
+		int path = findClosest(UNEXPLORED);
+		if(path == 0) {
+			while(correctPathNorth[getX()][getY()] != DUNNO) {
+				advOneNodeInCorrectPath();
+				_delay_ms(200);
+			}
+		} else if(path == 1) {
+			while(correctPathEast[getX()][getY()] != DUNNO) {
+				advOneNodeInCorrectPath();
+				_delay_ms(200);
+			}
+		} else if(path == 2) {
+			while(correctPathWest[getX()][getY()] != DUNNO) {
+				advOneNodeInCorrectPath();
+				_delay_ms(200);
+			}
+		} else if(path == 3) {
+			while(correctPathSouth[getX()][getY()] != DUNNO) {
+				advOneNodeInCorrectPath();
+				_delay_ms(200);
+			}
+		} else if(path == 4) {
+			/* No more unexplored */
+			labyrinthExplored = true;
+			break;
 		}
+		_delay_ms(200);
 		addNode(currentDir);
-
-		openClaw();
-		_delay_ms(500);
-		closeClaw();
-		_delay_ms(500);
+	}
+	
+	_delay_ms(1000);
+	
+	/* Go back to start */
+	while(labyrinthExplored && !exitedLabyrinth) {
+		int path = findClosest(START);
 		
+		if(path == 0) {
+			while(correctPathNorth[getX()][getY()] != DUNNO) {
+				advOneNodeInCorrectPath();
+				_delay_ms(200);
+			}
+		} else if(path == 1) {
+			while(correctPathEast[getX()][getY()] != DUNNO) {
+				advOneNodeInCorrectPath();
+				_delay_ms(200);
+			}
+		} else if(path == 2) {
+			while(correctPathWest[getX()][getY()] != DUNNO) {
+				advOneNodeInCorrectPath();
+				_delay_ms(200);
+			}
+		} else if(path == 3) {
+			while(correctPathSouth[getX()][getY()] != DUNNO) {
+				advOneNodeInCorrectPath();
+				_delay_ms(200);
+			}
+		} else if(path == 4) {
+			/* No more unexplored */
+			exitedLabyrinth = true;
+		}
 	}
 
 }

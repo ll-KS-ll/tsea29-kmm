@@ -98,6 +98,17 @@ void enable_current_linesensor(uint8_t mux){
 bool start_button_down;
 bool auto_button_down;
 
+/* Variables used for converting frontDistance to cm */
+float mathf;
+float voltsPerUnit = 0.0049;
+
+unsigned int sideIrToCm(uint16_t data) {
+	mathf = data;
+	mathf = pow((3027.4/mathf), 1.2134);
+	if(mathf > 80) mathf = 80;
+	if(mathf < 10) mathf = 10;
+	return (unsigned int)mathf;
+}
 
 ISR(TIMER0_OVF_vect)
 {
@@ -136,23 +147,27 @@ ISR(TIMER0_OVF_vect)
 			break;
 			
 		case 3: // IR_sensor front left
-			data_out = adc_read(ch);
+			data_out = sideIrToCm((unsigned int)adc_read(ch));
 			id = ch;
 			break;
 		case 4: // IR-sensor back left
-			data_out = adc_read(ch);
+			data_out = sideIrToCm((unsigned int)adc_read(ch));
 			id = ch;
 			break;
 		case 5: //IR-sensor front
-			data_out = adc_read(ch);
+			mathf = (float)adc_read(ch) * voltsPerUnit;
+			mathf = 60.495 * pow(mathf, -1.1904);
+			if(mathf < 20) mathf = 20;
+			if(mathf > 150) mathf = 150;
+			data_out = (unsigned int)mathf;
 			id = ch;
 			break;
 		case 6: // IR-sensor back right
-			data_out = adc_read(ch);
+			data_out = sideIrToCm((unsigned int)adc_read(ch));
 			id = ch;
 			break;
 		case 7: // IR-sensor front right
-			data_out = adc_read(ch);
+			data_out = sideIrToCm((unsigned int)adc_read(ch));
 			id = ch;
 			break;
 	}

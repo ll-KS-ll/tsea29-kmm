@@ -86,7 +86,24 @@ int main(void)
 	
 	initMap();
 	
-	
+	//openClaw();
+	//_delay_ms(500);
+	////lowerClaw();
+	////_delay_ms(500);
+	////closeClaw();
+	////_delay_ms(500);
+	////raiseClaw();
+	////_delay_ms(500);
+	//
+	////while(1) {
+		////regulateRobot();
+	////}
+	//
+	//volatile bool test;
+	//while(1) {
+		//test = getStart();
+	//}
+	//
 	/* Main loop */
 	while (1)
 	{
@@ -97,9 +114,12 @@ int main(void)
 				exploreLabyrinth();
 				
 			}
-		} else {
+		} else if(!getAutonom()) {
 			/* Do shit that the PC says to do */
 			if(getStart()) {
+				/* reset start so it only runs the labyrinth once */
+				updateRegisters(0, 1);
+				turnRight();
 				
 			}
 		}

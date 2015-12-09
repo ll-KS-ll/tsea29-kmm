@@ -10,6 +10,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdbool.h>
+#include <util/delay.h>
 #include "motorKernel.h"
 #include "variables.h"
 #include "gyroController.h"
@@ -23,6 +24,12 @@ static bool booted = false;
 static int curPwrLeft = 0;
 static int curPwrRight = 0;
 
+/*
+PWM freq = 2000 that is 2kHz;
+
+
+*/
+
 void initMotor() {
 	/* Only initialize motor once */
 	if(!booted) {
@@ -31,11 +38,12 @@ void initMotor() {
 		TCCR1A |= (1<<COM1A1);
 		TCCR1A |= (1<<COM1B1);
 		// Set WGM for 10-bit Fast PWM
-		TCCR1A |= (1<<WGM10);
 		TCCR1A |= (1<<WGM11);
 		TCCR1B |= (1<<WGM12);
+		TCCR1B |= (1<<WGM13);
 		// Set CS bits for 8 prescaler
 		TCCR1B |= (1<<CS11);
+		ICR1 = 920;
 		
 		/* Set processor outputs for motor control */
 		DDRD |= 0x78; // 0111_1000;
@@ -78,8 +86,8 @@ void setMotorSpeed(int powerLeft, int powerRight) {
 	curPwrLeft = (TOTAL_POWER / 100) * powerLeft;
 	curPwrRight = (TOTAL_POWER / 100) * powerRight;
 	// Make sure the pwm signal to the motors doesnt go above 1000
-	if(curPwrLeft > 1000) curPwrLeft = 1000;
-	if(curPwrRight > 1000) curPwrRight = 1000;
+	if(curPwrLeft > 900) curPwrLeft = 900;
+	if(curPwrRight > 900) curPwrRight = 900;
 	OCR1A = curPwrRight;
 	OCR1B = curPwrLeft;
 	sei();
@@ -114,12 +122,14 @@ void stop() {
 /* 90-degree left turn */
 void turnLeft() {
 	startGyroInterrupts();
-	float targetAngle = (int)getCurrentAngle() + 30;
+	_delay_ms(500);
+	float targetAngle = (int)getCurrentAngle() + LEFT_TURN;
 	while(true) {
 		driveRotateLeft(50, 50);
 		if((int)getCurrentAngle() >= targetAngle) {
 			stop();
 			stopGyroInterrupts();
+			_delay_ms(500);
 			return;
 		}
 		
@@ -129,12 +139,14 @@ void turnLeft() {
 /* 90-degree right turn */
 void turnRight() {
 	startGyroInterrupts();
-	int targetAngle = (int) getCurrentAngle() - 30;
+	_delay_ms(500);
+	int targetAngle = (int) getCurrentAngle() - RIGHT_TURN;
 	while(true) {
 		driveRotateRight(50, 50);
 		if((int)getCurrentAngle() <= targetAngle) {
 			stop();
 			stopGyroInterrupts();
+			_delay_ms(500);
 			return;
 		}
 		

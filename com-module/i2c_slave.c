@@ -65,6 +65,9 @@ void read ( void ) {
 		datap_buffer_ptr->data = datap_buffer_ptr->data | recv_data;
 		id = datah = true;
 		datap = datap_buffer_ptr; // Set data package.
+		cli();
+		updateRegisters(datap->id, datap->data);
+		sei();
 	}
 }
 

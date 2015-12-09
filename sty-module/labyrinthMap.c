@@ -43,7 +43,7 @@ void initMap() {
 	for(int x = 0; x < x_size; x++) {
 		for(int y = 0; y < y_size; y++) {
 			labyrinth[x][y] = create_default_node();
-			correctPath[x][y] = DUNNO;
+			correctPathNorth[x][y] = DUNNO;
 		}
 	}
 	
@@ -111,22 +111,61 @@ void updateWalls(dir curDir) {
 }
 
 static bool visited[x_size][y_size];
-static bool found_way = false;;
+
 
 //traverse the map via the nodes to a target node
-void findClosestUnexplored(){
+int findClosest(nodeStatus find){
 	
     resetVisited();
-	resetCorrectPath();
-
-
-    bool found_way = recursiveFindUnExplored(xpos, ypos);		
+	resetCorrectPaths();
+    bool found_way_north = recursiveNorthFind(xpos, ypos, find);
+    resetVisited();
+    bool found_way_east = recursiveEastFind(xpos, ypos, find);
+    resetVisited();
+    bool found_way_west = recursiveWestFind(xpos, ypos, find);
+    resetVisited();
+    bool found_way_south = recursiveSouthFind(xpos, ypos, find);
+	
+	int cost_north = 0;
+	int cost_east = 0;
+	int cost_west = 0;
+	int cost_south = 0;
+	
+	
+	for(int x = 0; x < x_size; x++) {
+		for(int y = 0; y < y_size; y++) {
+			if(correctPathNorth[x][y] != DUNNO) {
+				cost_north++;
+			}
+			if(correctPathEast[x][y] != DUNNO) {
+				cost_east++;
+			}
+			if(correctPathWest[x][y] != DUNNO) {
+				cost_west++;
+			}
+			if(correctPathSouth[x][y] != DUNNO) {
+				cost_south++;
+			}
+		}
+	}
+	if(found_way_north && cost_north <= cost_east && cost_north <= cost_west && cost_north <= cost_south) {
+		return 0;
+	} else if(found_way_east && cost_east <= cost_west && cost_east <= cost_south) {
+		return 1;
+	} else if(found_way_west && cost_west <= cost_south) {
+		return 2;
+	} else if(found_way_south) {
+		return 3;
+	} else {
+		return 4;
+	}
+	
 }
 
 //help function to traverse the labyrinth
-bool recursiveFindUnExplored(int x, int y){
+bool recursiveNorthFind(int x, int y, nodeStatus find){
 	
-    if(labyrinth[x][y].status == UNEXPLORED){
+    if(labyrinth[x][y].status == find){
 		return true;
     }
 	
@@ -136,40 +175,155 @@ bool recursiveFindUnExplored(int x, int y){
 	
     visited[x][y] = true;
 	
-	
-	
 	if (labyrinth[x][y].neighbours[north] == OPEN && y != 0){
-		if(recursiveFindUnExplored(x, y-1)) {
-			correctPath[x][y] = NORTH;
+		if(recursiveNorthFind(x, y-1, find)) {
+			correctPathNorth[x][y] = NORTH;
 			return true;
 		}
 	}
 	if (labyrinth[x][y].neighbours[east] == OPEN  && x < x_size - 1){
-		if(recursiveFindUnExplored(x+1, y)) {
-			correctPath[x][y] = EAST;
-			return true;
-		}
-	}
-	if (labyrinth[x][y].neighbours[south] == OPEN && y < y_size - 1){
-		if(recursiveFindUnExplored(x, y+1)) {
-			correctPath[x][y] = SOUTH;
+		if(recursiveNorthFind(x+1, y, find)) {
+			correctPathNorth[x][y] = EAST;
 			return true;
 		}
 	}
 	if (labyrinth[x][y].neighbours[west] == OPEN && x != 0){
-		if(recursiveFindUnExplored(x-1, y)) {
-			correctPath[x][y] = WEST;
+		if(recursiveNorthFind(x-1, y, find)) {
+			correctPathNorth[x][y] = WEST;
 			return true;
 		}
 	}
-    
+	if (labyrinth[x][y].neighbours[south] == OPEN && y < y_size - 1){
+		if(recursiveNorthFind(x, y+1, find)) {
+			correctPathNorth[x][y] = SOUTH;
+			return true;
+		}
+	}
+	
 	return false;
 }
 
+//help function to traverse the labyrinth
+bool recursiveEastFind(int x, int y, nodeStatus find){
+	
+	if(labyrinth[x][y].status == find){
+		return true;
+	}
+	
+	if(visited[x][y]) {
+		return false;
+	}
+	
+	visited[x][y] = true;
+	
+	if (labyrinth[x][y].neighbours[east] == OPEN  && x < x_size - 1){
+		if(recursiveEastFind(x+1, y, find)) {
+			correctPathEast[x][y] = EAST;
+			return true;
+		}
+	}
+	if (labyrinth[x][y].neighbours[south] == OPEN && y < y_size - 1){
+		if(recursiveEastFind(x, y+1, find)) {
+			correctPathEast[x][y] = SOUTH;
+			return true;
+		}
+	}
+	if (labyrinth[x][y].neighbours[north] == OPEN && y != 0){
+		if(recursiveEastFind(x, y-1, find)) {
+			correctPathEast[x][y] = NORTH;
+			return true;
+		}
+	}
+	if (labyrinth[x][y].neighbours[west] == OPEN && x != 0){
+		if(recursiveEastFind(x-1, y, find)) {
+			correctPathEast[x][y] = WEST;
+			return true;
+		}
+	}
+	return false;
+}
 
-//make a good traverse function
-void traverseGetOut(){
+//help function to traverse the labyrinth
+bool recursiveWestFind(int x, int y, nodeStatus find){
+	
+	if(labyrinth[x][y].status == find){
+		return true;
+	}
+	
+	if(visited[x][y]) {
+		return false;
+	}
+	
+	visited[x][y] = true;
+	
+	if (labyrinth[x][y].neighbours[west] == OPEN && x != 0){
+		if(recursiveWestFind(x-1, y, find)) {
+			correctPathWest[x][y] = WEST;
+			return true;
+		}
+	}
+	if (labyrinth[x][y].neighbours[north] == OPEN && y != 0){
+		if(recursiveWestFind(x, y-1, find)) {
+			correctPathWest[x][y] = NORTH;
+			return true;
+		}
+	}
+	if (labyrinth[x][y].neighbours[south] == OPEN && y < y_size - 1){
+		if(recursiveWestFind(x, y+1, find)) {
+			correctPathWest[x][y] = SOUTH;
+			return true;
+		}
+	}
+	if (labyrinth[x][y].neighbours[east] == OPEN  && x < x_size - 1){
+		if(recursiveWestFind(x+1, y, find)) {
+			correctPathWest[x][y] = EAST;
+			return true;
+		}
+	}
+	
+	
+	
+	return false;
+}
 
+//help function to traverse the labyrinth
+bool recursiveSouthFind(int x, int y, nodeStatus find){
+	
+	if(labyrinth[x][y].status == find){
+		return true;
+	}
+	
+	if(visited[x][y]) {
+		return false;
+	}
+	
+	visited[x][y] = true;
+	
+	if (labyrinth[x][y].neighbours[east] == OPEN  && x < x_size - 1){
+		if(recursiveSouthFind(x+1, y, find)) {
+			correctPathSouth[x][y] = EAST;
+			return true;
+		}
+	}
+	if (labyrinth[x][y].neighbours[south] == OPEN && y < y_size - 1){
+		if(recursiveSouthFind(x, y+1, find)) {
+			correctPathSouth[x][y] = SOUTH;
+			return true;
+		}
+	}
+	if (labyrinth[x][y].neighbours[north] == OPEN && y != 0){
+		if(recursiveSouthFind(x, y-1, find)) {
+			correctPathSouth[x][y] = NORTH;
+			return true;
+		}
+	}
+	if (labyrinth[x][y].neighbours[west] == OPEN && x != 0){
+		if(recursiveSouthFind(x-1, y, find)) {
+			correctPathSouth[x][y] = WEST;
+			return true;
+		}
+	}
+	return false;
 }
 
 //read given path to determine where we are
@@ -197,10 +351,13 @@ void resetVisited(){
     }
 }
 
-void resetCorrectPath() {
+void resetCorrectPaths() {
 	for(int x = 0; x < x_size; x++) {
 		for(int y = 0; y < y_size; y++) {
-			correctPath[x][y] = DUNNO;
+			correctPathNorth[x][y] = DUNNO;
+			correctPathWest[x][y] = DUNNO;
+			correctPathEast[x][y] = DUNNO;
+			correctPathSouth[x][y] = DUNNO;
 		}
 	}
 }
