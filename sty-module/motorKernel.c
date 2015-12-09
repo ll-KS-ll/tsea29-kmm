@@ -114,7 +114,7 @@ void stop() {
 /* 90-degree left turn */
 void turnLeft() {
 	startGyroInterrupts();
-	float targetAngle = (int)getCurrentAngle() + 32;
+	float targetAngle = (int)getCurrentAngle() + 30;
 	while(true) {
 		driveRotateLeft(50, 50);
 		if((int)getCurrentAngle() >= targetAngle) {
@@ -129,7 +129,7 @@ void turnLeft() {
 /* 90-degree right turn */
 void turnRight() {
 	startGyroInterrupts();
-	int targetAngle = (int) getCurrentAngle() - 34;
+	int targetAngle = (int) getCurrentAngle() - 30;
 	while(true) {
 		driveRotateRight(50, 50);
 		if((int)getCurrentAngle() <= targetAngle) {
