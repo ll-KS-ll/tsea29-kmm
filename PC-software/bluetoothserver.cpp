@@ -12,7 +12,7 @@ void BluetoothServer::start(const QString &serialPortName)
     spp->close();
     spp->setPortName(serialPortName);
     if (spp->open(QIODevice::ReadWrite))
-        emit statusUpdate("<span style=\"color: green;\">Connected</span>");
+        emit statusUpdate("<span style=\"color: green;\">Opened port " + serialPortName + "</span>");
     else
         emit statusUpdate("<span style=\"color: red;\">Couldn't connect: " + spp->errorString() + "</span>");
 }
@@ -24,22 +24,17 @@ void BluetoothServer::stop()
 
 void BluetoothServer::readyRead()
 {
-    /* Read 3 bytes of data. 1 byte ID and 2 byte Data. */
-    QByteArray barr = spp->read(3); // Read available bytes but no more than 3 bytes.
-    while( barr.size() < 3 )   // Keep reading until 3 bytes has been read.
+    /* Read 2 bytes of data. 1 byte ID and 1 byte Data. */
+    QByteArray barr = spp->read(2); // Read available bytes but no more than 2 bytes.
+    while( barr.size() < 2 )   // Keep reading until 2 bytes has been read.
     {
-        spp->waitForReadyRead(10);  // Chilla until more bytes are available
-        barr.append(spp->read(3 - barr.size()));    // Read new avaliable bytes to read ones, no more than 3 total.
+        spp->waitForReadyRead(1);  // Chill 1ms until more bytes are available
+        barr.append(spp->read(2 - barr.size()));    // Read new avaliable bytes to read ones, no more than 2 total.
     }
 
     /* Convert read bytes to unsigned integers. */
     quint8 id = barr.at(0);     // First(0) byte is ID.
-    quint16 data = barr.at(2);  // Second(1) byte is hdata and third(2) is ldata
-
-    //emit statusUpdate(QString(QString::number(id) + " " + QString::number(data)));
-    /* === Convert 2 chars to integer === *\
-    /* int result = high + (low >> (CHAR_BIT - 2)); */
-    //quint16 data = buf[1] + (buf[2] >> (CHAR_BIT - 2));   // Second(1) byte is hdata and thired(2) is ldata.
+    quint16 data = barr.at(1);  // Second(1) byte is Data
 
     emit updateData(id, data);
 }

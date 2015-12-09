@@ -26,24 +26,7 @@ void MainWindow::statusUpdated(const QString &status)
     ui->logTextBox->append("[BT] " + status);
 }
 
-unsigned int convertFrontIrDataToCm(const quint16 &data)
-{
-    float dataf = (float)data * VOLTS_PER_UNIT;
-    dataf = 60.495F * pow(dataf, -1.1904F);
-    if(dataf < 20) dataf = 20; // min limit at 20cm
-    if(dataf > 150) dataf = 150; // max limit at 150cm
-    return dataf;
-}
-
-unsigned int convertSideIrDataToCm(const quint16 &data)
-{
-    float dataf = (float)data;
-    dataf = pow((3027.4 / dataf), 1.2134);
-    if(dataf < 10) dataf = 10; // min limit at 10cm
-    if(dataf > 80) dataf = 80; // max limit at 80cm
-    return dataf;
-}
-
+/* Convert Steer Command integer ID to a human readable string. */
 QString cmd2str(const quint16 &data)
 {
     switch (data) {
@@ -54,7 +37,7 @@ QString cmd2str(const quint16 &data)
         return "Drive forward";
         break;
     case CMD_STOP:
-        return "Stop.";
+        return "Stop";
         break;
     case CMD_REVERSE:
         return "Drive backwards";
@@ -84,27 +67,22 @@ void MainWindow::updateData(const quint8 &id, const quint16 &data)
     /* Data recived, update gui element. */
     switch (id) {
         case IR_FRONT:
-            if(data != 0)
-                ui->irFront->setText(QString::number(convertFrontIrDataToCm(data)) + " cm");
+            ui->irFront->setText(QString::number(data) + " cm");
             break;
         case IR_LEFT_FRONT:
-            if(data != 0)
-                ui->irFrontLeft->setText(QString::number(convertSideIrDataToCm(data)) + " cm");
+            ui->irFrontLeft->setText(QString::number(data) + " cm");
             break;
         case IR_RIGTH_FRONT:
-            if(data != 0)
-                ui->irFrontRight->setText(QString::number(convertSideIrDataToCm(data)) + " cm");
+            ui->irFrontRight->setText(QString::number(data) + " cm");
             break;
         case IR_LEFT_BACK:
-            if(data != 0)
-                ui->irBackLeft->setText(QString::number(convertSideIrDataToCm(data)) + " cm");
+            ui->irBackLeft->setText(QString::number(data) + " cm");
             break;
         case IR_RIGTH_BACK:
-            if(data != 0)
-                ui->irBackRight->setText(QString::number(convertSideIrDataToCm(data)) + " cm");
+            ui->irBackRight->setText(QString::number(data) + " cm");
             break;
         case LINE_SENSOR:
-
+            // Old ID for the linesensor that is sent for no good reason.
             break;
         case LINE_SENSOR1:
             ui->reflex1->setText(QString::number(data));
@@ -134,13 +112,11 @@ void MainWindow::updateData(const quint8 &id, const quint16 &data)
             }
             break;
         case BUTTON_AUTO:
-            if (data == 1)
-                ui->logTextBox->append("Pressed autonom button");
+            ui->logTextBox->append("Pressed autonom button");
             break;
 
         case BUTTON_START:
-            if (data == 1)
-                ui->logTextBox->append("Pressed start button");
+            ui->logTextBox->append("Pressed start button");
             break;
 
         default:
@@ -157,7 +133,6 @@ void MainWindow::sentCommand(const quint8 &cmd)
 
 void MainWindow::on_connect_clicked()
 {
-    statusUpdated(QString("Connecting..."));
     btServer->start(ui->serialPortName->text());
 }
 

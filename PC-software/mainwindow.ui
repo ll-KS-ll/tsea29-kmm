@@ -341,6 +341,9 @@ p, li { white-space: pre-wrap; }
     <property name="text">
      <string>Connect</string>
     </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
    </widget>
    <widget class="QLabel" name="conectInfo">
     <property name="geometry">
@@ -364,5 +367,22 @@ p, li { white-space: pre-wrap; }
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>serialPortName</sender>
+   <signal>returnPressed()</signal>
+   <receiver>connect</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>515</x>
+     <y>503</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>630</x>
+     <y>503</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
