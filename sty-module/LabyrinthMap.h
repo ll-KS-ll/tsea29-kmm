@@ -16,9 +16,11 @@
 #include <stdlib.h>
 #include "sensorValues.h"
 
+#define x_size 24
+#define y_size 24
 
 //enum
-typedef enum {UNKNOWN, UNEXPLORED, EXPLORED, START, FESTISBOX} nodeStatus;
+typedef enum {UNEXPLORED, EXPLORED, START, FESTISBOX} nodeStatus;
 typedef enum {OPEN, CLOSED} ways;
 typedef enum {NORTH, EAST, SOUTH, WEST, DUNNO}	dir;
 
@@ -28,29 +30,24 @@ typedef struct node {
     ways neighbours[4];
 } node;
 
-typedef struct path {
-    dir p;
-    struct path* next;
-} path;
 
-typedef struct vector {
-    path* next_path;
-} vector;
-
-
-static bool found_way;
+dir correctPath[x_size][y_size];
 
 //functions
 void initMap();
-void addNode();
-void updateNewNeighbours();
+void addNode(dir curDir);
 void getCurrentNodeStatus(int, int);
-void identifyNeighbours();
-path *nextTarget();
-path *traverseLabyrint(int, int, dir);
-path getOut();
+void identifyNeighbours(dir curDir);
+
+void findClosestUnexplored();
+bool recursiveFindUnExplored(int, int);
+
+void setX(int x);
+void setY(int y);
+int getX();
+int getY();
+
 void traverseGetOut();
-void updatePosition(path *);
 void selectNewPosition(int ,int);
 void getCurrentNodeNeighbour(int, int);
 void resetVisited();

@@ -11,15 +11,15 @@
 #define VARIABLES_H_
 
 
-#define TOTAL_POWER 1100
-#define FRONT_CLOSED 27
+#define TOTAL_POWER 1800
+#define FRONT_CLOSED 28
 #define FRONT_SPOTTED 85
 #define SIDE_OPEN 45
 #define ONE_SQUARE_DISTANCE 60
-#define ONE_SQUARE 145
+#define ONE_SQUARE 90
 
 #define KP 3
-#define KD 9
+#define KD 11
 
 #define GYRO 1
 

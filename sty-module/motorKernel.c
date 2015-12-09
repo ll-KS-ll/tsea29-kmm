@@ -50,20 +50,20 @@ void adjust(int u) {
 	/* Calculate new Power for motors */
 	int nPwrL = 0, nPwrR = 0;
 	if(u >= 100) {
-		nPwrL = 10;
-		nPwrR = 90;
+		nPwrL = 35;
+		nPwrR = 65;
 	}else if(u <= -100) {
-		nPwrL = 90;
-		nPwrR = 10;
+		nPwrL = 65;
+		nPwrR = 35;
 	} else {
 		nPwrL = 50 - u;
 		nPwrR = 50 + u;
 		// if they try to use more then 100% power,
 		// make them use less.
-		if(nPwrL > 100) nPwrL = 90;
-		if(nPwrL < 0) nPwrL = 10;
-		if(nPwrR > 100) nPwrR = 90;
-		if(nPwrR < 0) nPwrR = 10;
+		if(nPwrL > 65) nPwrL = 65;
+		if(nPwrL < 35) nPwrL = 35;
+		if(nPwrR > 65) nPwrR = 65;
+		if(nPwrR < 35) nPwrR = 35;
 	}
 	
 	// set new power as current power
@@ -129,7 +129,7 @@ void turnLeft() {
 /* 90-degree right turn */
 void turnRight() {
 	startGyroInterrupts();
-	int targetAngle = (int) getCurrentAngle() - 37;
+	int targetAngle = (int) getCurrentAngle() - 34;
 	while(true) {
 		driveRotateRight(50, 50);
 		if((int)getCurrentAngle() <= targetAngle) {

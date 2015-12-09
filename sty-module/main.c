@@ -86,6 +86,7 @@ int main(void)
 	
 	initMap();
 	
+	
 	/* Main loop */
 	while (1)
 	{

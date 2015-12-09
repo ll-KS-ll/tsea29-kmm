@@ -253,7 +253,7 @@ void exitCrossingOrTurn() {
 	startOneSquareInterrupts();
 	while(true) {
 		regulateRobot();
-		if(oneSquare >= ONE_SQUARE) {
+		if(oneSquare >= ONE_SQUARE || getFrontDistance() <= FRONT_CLOSED) {
 			stopOneSquareInterrupts();
 			stop();
 			break;
@@ -262,97 +262,132 @@ void exitCrossingOrTurn() {
 }
 
 static dir currentDir = NORTH;
-static dir targetDir = DUNNO;
 
-void advanceOneNodeInPath()
+void advOneNodeInCorrectPath()
 {
 	switch(currentDir) {
 		case NORTH:
-			if(targetDir == NORTH) {
+			if(correctPath[getX()][getY()] == NORTH) {
 				if(inPath()) {
 					moveOneNode();
 				} else {
 					exitCrossingOrTurn();
 				}
-			} else if(targetDir == WEST) {
+				setY(getY()-1);
+			} else if(correctPath[getX()][getY()] == WEST) {
 				turnLeft();
 				exitCrossingOrTurn();
 				currentDir = WEST;
-			} else if(targetDir == EAST) {
+				setX(getX()-1);
+			} else if(correctPath[getX()][getY()] == EAST) {
 				turnRight();
 				exitCrossingOrTurn();
 				currentDir = EAST;
-			} else {
+				setX(getX()+1);
+			} else if(correctPath[getX()][getY()] == SOUTH){
 				turnLeft();
 				turnLeft();
-				moveOneNode();
+				_delay_ms(100);
+				if(inPath()) {
+					moveOneNode();
+					} else {
+					exitCrossingOrTurn();
+				}
 				currentDir = SOUTH;
+				setY(getY()+1);
 			}
 			break;
 		case WEST:
-			if(targetDir = WEST) {
+			if(correctPath[getX()][getY()] == WEST) {
 				if(inPath()) {
 					moveOneNode();
 				} else {
 					exitCrossingOrTurn();
 				}
-			}else if(targetDir = SOUTH) {
+				setX(getX()-1);
+			}else if(correctPath[getX()][getY()] == SOUTH) {
 				turnLeft();
 				exitCrossingOrTurn();
 				currentDir = SOUTH;
-			} else if(targetDir == NORTH) {
+				setY(getY()+1);
+			} else if(correctPath[getX()][getY()] == NORTH) {
 				turnRight();
 				exitCrossingOrTurn();
 				currentDir = NORTH;
-			} else {
+				setY(getY()-1);
+			} else if(correctPath[getX()][getY()] == EAST){
 				turnLeft();
 				turnLeft();
-				moveOneNode();
+				_delay_ms(100);
+				if(inPath()) {
+					moveOneNode();
+				} else {
+					exitCrossingOrTurn();
+				}
 				currentDir = EAST;
+				setX(getX()+1);
 			}
 			break;
 		case SOUTH:
-			if(targetDir = SOUTH) {
+			if(correctPath[getX()][getY()] == SOUTH) {
 				if(inPath()) {
 					moveOneNode();
 				} else {
 					exitCrossingOrTurn();
 				}
-			}else if(targetDir = EAST) {
+				setY(getY()+1);
+			}else if(correctPath[getX()][getY()] == EAST) {
 				turnLeft();
 				exitCrossingOrTurn();
 				currentDir = EAST;
-			} else if(targetDir == WEST) {
+				setX(getX()+1);
+			} else if(correctPath[getX()][getY()] == WEST) {
 				turnRight();
 				exitCrossingOrTurn();
 				currentDir = WEST;
-			} else {
+				setX(getX()-1);
+			} else if(correctPath[getX()][getY()] == NORTH){
 				turnLeft();
 				turnLeft();
-				moveOneNode();
+				_delay_ms(100);
+				if(inPath()) {
+					moveOneNode();
+					} else {
+					exitCrossingOrTurn();
+				}
 				currentDir = NORTH;
+				setY(getY()-1);
 			}
 			break;
 		case EAST:
-			if(targetDir = EAST) {
+			if(correctPath[getX()][getY()] == EAST) {
 				if(inPath()) {
 					moveOneNode();
 				} else {
 					exitCrossingOrTurn();
 				}
-			}else if(targetDir = NORTH) {
+				setX(getX()+1);
+			}else if(correctPath[getX()][getY()] == NORTH) {
 				turnLeft();
 				exitCrossingOrTurn();
 				currentDir = NORTH;
-			} else if(targetDir == SOUTH) {
+				setY(getY()-1);
+			} else if(correctPath[getX()][getY()] == SOUTH) {
 				turnRight();
 				exitCrossingOrTurn();
 				currentDir = SOUTH;
-			} else {
+				setY(getY()+1);
+			} else if(correctPath[getX()][getY()] == WEST){
 				turnLeft();
 				turnLeft();
-				moveOneNode();
+				_delay_ms(100);
+				if(inPath()) {
+					moveOneNode();
+					} else {
+					exitCrossingOrTurn();
+				}
 				currentDir = WEST;
+				setX(getX()-1);
 			}
 			break;
 	}
@@ -377,55 +412,23 @@ void exploreLabyrinth() {
 	Write main loop for exploring labyrinth.
 	*/
 	while(!labyrinthExplored) {
-		path *ourPath = malloc(sizeof(path));
 		
 		_delay_ms(500);
 		
-		ourPath = nextTarget();
-
-		//if(!found_way) {
-			//testShit();
-			//break;
-		//}
+		findClosestUnexplored();
 		
-		while(ourPath->p != DUNNO) {
-			path *tmp = malloc(sizeof(path));
-			
-			lowerClaw();
-			_delay_ms(500);
-			raiseClaw();
-			_delay_ms(500);
-			
-			targetDir = ourPath->p;
-			
-			advanceOneNodeInPath();
-			
-			_delay_ms(2000);
-			
-			tmp = ourPath;
-			ourPath = ourPath->next;
-			free(tmp);
-		
+		while(correctPath[getX()][getY()] != DUNNO) {			
+			advOneNodeInCorrectPath();
 		}
-		addNode();
-		
-		
+		addNode(currentDir);
+
 		openClaw();
 		_delay_ms(500);
 		closeClaw();
 		_delay_ms(500);
 		
-		free(ourPath);
 	}
-	//
-	openClaw();
-	_delay_ms(500);
-	//lowerClaw();
-	//_delay_ms(500);
-	closeClaw();
-	_delay_ms(500);
-	//raiseClaw();
-	
+
 }
 
 
