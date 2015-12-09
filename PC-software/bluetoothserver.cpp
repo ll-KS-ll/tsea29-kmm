@@ -41,10 +41,17 @@ void BluetoothServer::readyRead()
 
 void BluetoothServer::writeCommand(const quint8 &sty_cmd)
 {
+    if (!spp->isOpen()) {   // Check so there is a open connection otherewise abort write command.
+        emit statusUpdate("<span style=\"color: red;\">Didn't write command. Isn't connected to FireFly.</span>");
+        return;
+    }
+
+    /* Write command. */
     char data = sty_cmd;
     int written = spp->write(&data);
     spp->flush();
 
+    /* Check status of write. */
     if (written == 1)
         emit sentCommand(sty_cmd);
     else

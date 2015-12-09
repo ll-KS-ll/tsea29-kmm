@@ -366,6 +366,19 @@ p, li { white-space: pre-wrap; }
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>serialPortName</tabstop>
+  <tabstop>connect</tabstop>
+  <tabstop>driveForward</tabstop>
+  <tabstop>stop</tabstop>
+  <tabstop>turnRight</tabstop>
+  <tabstop>turnLeft</tabstop>
+  <tabstop>reverse</tabstop>
+  <tabstop>rotateLeft</tabstop>
+  <tabstop>rotateRight</tabstop>
+  <tabstop>calibrate</tabstop>
+  <tabstop>logTextBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
