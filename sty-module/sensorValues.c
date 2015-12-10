@@ -22,7 +22,10 @@ static unsigned int frontLeftDistance = 0;
 static unsigned int backLeftDistance = 0;
 static unsigned int frontRightDistance = 0;
 static unsigned int backRightDistance = 0;
-static uint16_t sensorBar[] = {0, 0, 0, 0, 0, 0, 0};
+static unsigned int sensorBar[] = {0, 0, 0, 0, 0, 0, 0};
+static unsigned int sensorBarCalibration[] = {0, 0, 0, 0, 0, 0, 0};
+static unsigned int seesTape = 0;
+static unsigned int tapeReg = 5;
 
 
 // Convert values so they are between 70 - 0, larger number equals closer.
@@ -97,8 +100,27 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 			gyroRate = (gyroValue - offset);
 			angle += gyroRate / 100;
 			break;
+		case 18:
+			if(data)
+			{
+				seesTape = !seesTape;
+			}
+			break;
+		case 19:
+			tapeReg = data;
+			break;
+			
 	}
 }
+
+unsigned int getTapeReg() {
+	return tapeReg;
+}
+
+bool getSeesTape() {
+	return seesTape;
+}
+
 bool getStart(){
 	return start;
 }
@@ -111,31 +133,35 @@ bool getIsThereTape() {
 	return false;
 }
 
-uint16_t getCurrentAngle() {
-	return angle;
+int getCurrentAngle() {
+	return (int) angle;
 }
 
-uint16_t *getSensorBar() {
+unsigned int *getSensorBar() {
 	return sensorBar;
 }
 
-uint16_t getFrontDistance() {
+unsigned int *getCalibrationBar() {
+	return sensorBarCalibration;
+}
+
+unsigned int getFrontDistance() {
 	return frontDistance;
 }
 
-uint16_t getFrontLeftDistance() {
+unsigned int getFrontLeftDistance() {
 	return frontLeftDistance;
 }
 
-uint16_t getFrontRightDistance() {
+unsigned int getFrontRightDistance() {
 	return frontRightDistance;
 }
 
-uint16_t getBackLeftDistance() {
+unsigned int getBackLeftDistance() {
 	return backLeftDistance;
 }
 
-uint16_t getBackRightDistance() {
+unsigned int getBackRightDistance() {
 	return backRightDistance;
 }
 

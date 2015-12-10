@@ -15,6 +15,8 @@
 #include <math.h>
 #include <i2c_master.h>	// Sensor module is an i2c master.
 
+
+
 volatile uint8_t count;
 volatile int angular_rate;
 volatile unsigned long ms;
@@ -110,6 +112,81 @@ unsigned int sideIrToCm(uint16_t data) {
 	return (unsigned int)mathf;
 }
 
+static unsigned int sensorBar[] = {0, 0, 0, 0, 0, 0, 0};
+static unsigned int sensorBarCalibration[] = {0, 0, 0, 0, 0, 0, 0};
+
+void updateLineSensorValues()
+{
+	TCCR0 = (0<<CS02)|(0<<CS00);
+	
+	for(int mux = 0; mux < 7; mux++) {
+		enable_current_linesensor(mux);
+		PORTD = mux;
+		sensorBar[mux] = (unsigned int)adc_read(ch);
+		
+		_delay_ms(2);
+	}
+	TCCR0 = (1<<CS02)|(1<<CS00);
+}
+
+void updateLineSensorCalibrationValues()
+{
+	TCCR0 = (0<<CS02)|(0<<CS00);
+	for(int mux = 0; mux < 7; mux++) {
+		enable_current_linesensor(mux);
+		PORTD = mux;
+		sensorBarCalibration[mux] = (unsigned int)adc_read(ch);
+		
+		_delay_ms(2);
+	}
+	TCCR0 = (1<<CS02)|(1<<CS00);
+}
+
+bool is_tape(){
+	int count = 0;
+	for(int i = 0; i < 7; i++){
+		unsigned int sensorValue = sensorBar[i];
+		unsigned int calibrationValue = sensorBarCalibration[i];
+		
+		if(sensorValue >= calibrationValue - 100) {
+			count++;
+		}
+		
+		if(count > 3) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
+unsigned int reg = 5;
+
+unsigned tapeRegulation() {
+	for(int i = 0; i < 3; i++) {
+		unsigned int sensorValue = sensorBar[i];
+		unsigned int calibrationValue = sensorBarCalibration[i];
+		if(sensorValue >= calibrationValue - 100) {
+			if(reg < 10) {
+				reg++;
+			}
+		}
+	}
+	for(int i = 4; i < 7; i++) {
+		unsigned int sensorValue = sensorBar[i];
+		unsigned int calibrationValue = sensorBarCalibration[i];
+		if(sensorValue >= calibrationValue - 100) {
+			if(reg > 0) {
+				reg--;
+			}
+		}
+	}
+	return reg;
+}
+
+bool calibrate = false;
+bool dontCalibrateMore = false;
+
 ISR(TIMER0_OVF_vect)
 {
 	switch(ch)
@@ -117,10 +194,13 @@ ISR(TIMER0_OVF_vect)
 		case 0://start button
 			data_out = 0;
 			if(adc_read(ch) > 1000){
-				start_button_down = true;				
+				start_button_down = true;
 			} else if(start_button_down) {
 				start_button_down = false;
 				data_out=1;
+				if(!dontCalibrateMore) {
+					calibrate = true;
+				}
 			}
 			id = ch;
 			break;
@@ -132,18 +212,30 @@ ISR(TIMER0_OVF_vect)
 			else if(auto_button_down) {
 				auto_button_down = false;
 				data_out=1;
-		}
-		id = ch;
+				dontCalibrateMore = true;
+			}
+			id = ch;
 			break;
 		case 2: // line sensor
-			//enable_current_linesensor(mux);
-			PORTD = mux;			
-			id = mux+10; //so there is no duplicate for id.
-			_delay_ms(10);
-			data_out = adc_read(ch);
-			//disable_line_sensor();
-			mux++;
-			if (mux == 7) mux = 0;
+			if(calibrate) {
+				updateLineSensorCalibrationValues();
+				calibrate = false;
+				dontCalibrateMore = false;
+			} else {
+				updateLineSensorValues();
+			}
+			
+			//if(is_tape()) {
+				//data_out = 1;
+			//} else {
+				//data_out = 0;
+			//}
+			//id = 18;
+			
+			data_out = tapeRegulation();
+			
+			id = 19;
+			
 			break;
 			
 		case 3: // IR_sensor front left
@@ -171,9 +263,11 @@ ISR(TIMER0_OVF_vect)
 			id = ch;
 			break;
 	}
-	
+
 	data_package datap = {id, data_out};
 	i2c_write(GENERAL_CALL_ADDRESS, datap);	// Write an entire package to com-module.
+	
+	data_out = 0;
 	
 	ch++;
 	if (ch == 8) {
@@ -205,5 +299,12 @@ int main(void)
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
 	
-	while(true){}
+	//volatile  l4, l5, l6;
+	
+	while(true){
+		//l4 = sensorBar[4];
+		//l5 = sensorBar[5];
+		//l6 = sensorBar[6];
+		//
+	}
 }

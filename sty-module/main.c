@@ -59,17 +59,15 @@ void follow_marking_tape(){
 	stop();
 }
 
-bool is_tape(){
-	uint16_t *sensorBar = getSensorBar();
-	uint16_t sensor_value;
-	for(int i=0; i<7; i++){
-		sensor_value = *(sensorBar + i);
-		if (sensor_value > 200){
-			return true;
-		}
+void setTapeCalibrationValues() {
+	unsigned int *calibrationBar = getCalibrationBar();
+	unsigned int *sensorBar = getSensorBar();
+	for(int i = 0; i < 7; i++ ) {
+		*(calibrationBar + i) = *(sensorBar + i);
 	}
-	return false;
 }
+
+
 
 int main(void)
 {
@@ -86,25 +84,36 @@ int main(void)
 	
 	initMap();
 	
-	//volatile f, fr, br, fl, bl;
-	//
-	//while(1) {
-		//f = getFrontDistance();
-		//fr = getFrontRightDistance();
-		//br = getBackRightDistance();
-		//fl = getFrontLeftDistance();
-		//bl = getBackLeftDistance();
-		//
-	//}
 	
 	/* Main loop */
 	while (1)
 	{
 		if(getAutonom()) {
 			if(getStart()) {
-				/* reset start so it only runs the labyrinth once */
+				
 				updateRegisters(0, 1);
-				exploreLabyrinth();
+				/* reset start so it only runs the labyrinth once */
+				//while (!getSeesTape())
+				//{
+					//driveForward(15, 15);
+				//}
+				//stop();
+				// --------------------------
+				//updateRegisters(0, 1);
+				//exploreLabyrinth();
+				// -------------------------
+				
+				while(true) {
+					if(getTapeReg() == 5) {
+						driveForward(15, 15);
+					}
+					if(getTapeReg() > 5) {
+						driveRotateRight(15, 15);
+					}
+					if(getTapeReg() < 5) {
+						driveRotateLeft(15, 15);
+					}
+				}
 				
 			}
 		} else if(!getAutonom()) {
@@ -112,24 +121,7 @@ int main(void)
 			if(getStart()) {
 				/* reset start so it only runs the labyrinth once */
 				updateRegisters(0, 1);
-				
-				
-				
-				turnRight(1);
-				_delay_ms(1000);
-				turnRight(2);
-				_delay_ms(1000);
-				turnRight(1);
-				_delay_ms(1000);
-				
-				
-				turnLeft(1);
-				_delay_ms(1000);
-				turnLeft(2);
-				_delay_ms(1000);
-				turnLeft(1);
-				_delay_ms(1000);
-				
+				//setTapeCalibrationValues();
 			}
 		}
 	}

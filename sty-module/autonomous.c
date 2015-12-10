@@ -191,8 +191,8 @@ void findNextTurnCrossingOrDeadend()
 /* Timer interrupt:
 	256 - (14 745 000 / 1024(prescaler) / 5(frequency)) = 144
 	Set TCNT to 144 and it will overflow once every 10 ms. */
-unsigned int oneSquare;
 
+unsigned int oneSquare;
 ISR(TIMER2_OVF_vect) {
 	oneSquare++;
 	TCNT2 = 144;
