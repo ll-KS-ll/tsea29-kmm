@@ -19,7 +19,7 @@ void driveReverse(int leftSpeed, int rightSpeed);
 void driveRotateLeft(int leftSpeed, int rightSpeed);
 void driveRotateRight(int leftSpeed, int rightSpeed);
 void stop();
-void turnLeft();
-void turnRight();
+void turnLeft(int turns);
+void turnRight(int turns);
  
 #endif /* MOTORKERNEL_H_ */

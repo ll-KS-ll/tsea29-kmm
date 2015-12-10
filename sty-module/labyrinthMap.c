@@ -132,8 +132,8 @@ int findClosest(nodeStatus find){
 	int cost_south = 0;
 	
 	
-	for(int x = 0; x < x_size; x++) {
-		for(int y = 0; y < y_size; y++) {
+	for(int x = 0; x < x_size - 1; x++) {
+		for(int y = 0; y < y_size - 1; y++) {
 			if(correctPathNorth[x][y] != DUNNO) {
 				cost_north++;
 			}
@@ -181,12 +181,6 @@ bool recursiveNorthFind(int x, int y, nodeStatus find){
 			return true;
 		}
 	}
-	if (labyrinth[x][y].neighbours[east] == OPEN  && x < x_size - 1){
-		if(recursiveNorthFind(x+1, y, find)) {
-			correctPathNorth[x][y] = EAST;
-			return true;
-		}
-	}
 	if (labyrinth[x][y].neighbours[west] == OPEN && x != 0){
 		if(recursiveNorthFind(x-1, y, find)) {
 			correctPathNorth[x][y] = WEST;
@@ -199,6 +193,13 @@ bool recursiveNorthFind(int x, int y, nodeStatus find){
 			return true;
 		}
 	}
+	if (labyrinth[x][y].neighbours[east] == OPEN  && x < x_size - 1){
+		if(recursiveNorthFind(x+1, y, find)) {
+			correctPathNorth[x][y] = EAST;
+			return true;
+		}
+	}
+	
 	
 	return false;
 }
@@ -222,12 +223,6 @@ bool recursiveEastFind(int x, int y, nodeStatus find){
 			return true;
 		}
 	}
-	if (labyrinth[x][y].neighbours[south] == OPEN && y < y_size - 1){
-		if(recursiveEastFind(x, y+1, find)) {
-			correctPathEast[x][y] = SOUTH;
-			return true;
-		}
-	}
 	if (labyrinth[x][y].neighbours[north] == OPEN && y != 0){
 		if(recursiveEastFind(x, y-1, find)) {
 			correctPathEast[x][y] = NORTH;
@@ -240,6 +235,15 @@ bool recursiveEastFind(int x, int y, nodeStatus find){
 			return true;
 		}
 	}
+	if (labyrinth[x][y].neighbours[south] == OPEN && y < y_size - 1){
+		if(recursiveEastFind(x, y+1, find)) {
+			correctPathEast[x][y] = SOUTH;
+			return true;
+		}
+	}
+	
+	
+	
 	return false;
 }
 
@@ -268,21 +272,20 @@ bool recursiveWestFind(int x, int y, nodeStatus find){
 			return true;
 		}
 	}
-	if (labyrinth[x][y].neighbours[south] == OPEN && y < y_size - 1){
-		if(recursiveWestFind(x, y+1, find)) {
-			correctPathWest[x][y] = SOUTH;
-			return true;
-		}
-	}
 	if (labyrinth[x][y].neighbours[east] == OPEN  && x < x_size - 1){
 		if(recursiveWestFind(x+1, y, find)) {
 			correctPathWest[x][y] = EAST;
 			return true;
 		}
 	}
+	if (labyrinth[x][y].neighbours[south] == OPEN && y < y_size - 1){
+		if(recursiveWestFind(x, y+1, find)) {
+			correctPathWest[x][y] = SOUTH;
+			return true;
+		}
+	}
 	
-	
-	
+
 	return false;
 }
 
@@ -299,21 +302,9 @@ bool recursiveSouthFind(int x, int y, nodeStatus find){
 	
 	visited[x][y] = true;
 	
-	if (labyrinth[x][y].neighbours[east] == OPEN  && x < x_size - 1){
-		if(recursiveSouthFind(x+1, y, find)) {
-			correctPathSouth[x][y] = EAST;
-			return true;
-		}
-	}
 	if (labyrinth[x][y].neighbours[south] == OPEN && y < y_size - 1){
 		if(recursiveSouthFind(x, y+1, find)) {
 			correctPathSouth[x][y] = SOUTH;
-			return true;
-		}
-	}
-	if (labyrinth[x][y].neighbours[north] == OPEN && y != 0){
-		if(recursiveSouthFind(x, y-1, find)) {
-			correctPathSouth[x][y] = NORTH;
 			return true;
 		}
 	}
@@ -323,6 +314,21 @@ bool recursiveSouthFind(int x, int y, nodeStatus find){
 			return true;
 		}
 	}
+	if (labyrinth[x][y].neighbours[north] == OPEN && y != 0){
+		if(recursiveSouthFind(x, y-1, find)) {
+			correctPathSouth[x][y] = NORTH;
+			return true;
+		}
+	}
+	if (labyrinth[x][y].neighbours[east] == OPEN  && x < x_size - 1){
+		if(recursiveSouthFind(x+1, y, find)) {
+			correctPathSouth[x][y] = EAST;
+			return true;
+		}
+	}
+	
+	
+	
 	return false;
 }
 

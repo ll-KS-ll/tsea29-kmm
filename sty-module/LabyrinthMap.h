@@ -39,8 +39,6 @@ dir correctPathSouth[x_size][y_size];
 //functions
 void initMap();
 void addNode(dir curDir);
-void getCurrentNodeStatus(int, int);
-void identifyNeighbours(dir curDir);
 
 int findClosest(nodeStatus find);
 bool recursiveNorthFind(int x, int y, nodeStatus find);
