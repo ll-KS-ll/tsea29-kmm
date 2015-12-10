@@ -107,6 +107,10 @@ bool getAutonom(){
 	return autonom;
 }
 
+bool getIsThereTape() {
+	return false;
+}
+
 uint16_t getCurrentAngle() {
 	return angle;
 }

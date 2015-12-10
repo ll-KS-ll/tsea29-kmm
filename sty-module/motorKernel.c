@@ -128,7 +128,6 @@ void turnLeft(int turns) {
 		if((int)getCurrentAngle() >= targetAngle) {
 			stop();
 			stopGyroInterrupts();
-			_delay_ms(500);
 			return;
 		}
 		
@@ -144,7 +143,6 @@ void turnRight(int turns) {
 		if((int)getCurrentAngle() <= targetAngle) {
 			stop();
 			stopGyroInterrupts();
-			_delay_ms(500);
 			return;
 		}
 		

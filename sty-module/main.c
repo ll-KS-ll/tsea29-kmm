@@ -101,6 +101,9 @@ int main(void)
 			if(getStart()) {
 				/* reset start so it only runs the labyrinth once */
 				updateRegisters(0, 1);
+				
+				
+				
 				turnRight(1);
 				_delay_ms(1000);
 				turnRight(2);

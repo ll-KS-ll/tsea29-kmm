@@ -53,10 +53,16 @@ int alignLeft(){
 	
 	// t = How wrongly the robot is rotated
 	t = (fl - bl) ;
-
-	u = 5 * t; 
+	
+	/* only align if error is worthy of aligning */
+	if(t > 2 || t < -2) {
+	
+	u = 5 * t;
 	
 	return u;
+		} else {
+	return 0;
+}
 }
 
 int leftReg(){
@@ -89,10 +95,16 @@ int alignRight(){
 
 	// t = How wrongly the robot is rotated
 	t = (br - fr);
+	/* only align if error is worthy of aligning */
+	if(t > 2 || t < -2) {
+		
+		u = 5 * t;
+		
+		return u;
+	} else {
+		return 0;
+	}
 
-	u = 5 * t;
-	
-	return u;
 }
 
 int rightReg(){
@@ -152,7 +164,7 @@ void findNextTurnCrossingOrDeadend()
 		*/
 		if(getFrontDistance() >= ONE_SQUARE_DISTANCE && (getBackLeftDistance() >= SIDE_OPEN || getBackRightDistance() >= SIDE_OPEN)) {
 			/* All crossings except T-crossing is found */
-			_delay_ms(150);
+			_delay_ms(50);
 			stop();
 			return;
 		} else if (getFrontDistance() <= FRONT_CLOSED && getFrontLeftDistance() >= SIDE_OPEN && getFrontRightDistance() >= SIDE_OPEN) {
@@ -205,38 +217,6 @@ void initOneSquareTimer() {
 	
 }
 
-bool inDeadEnd() {
-	if(getFrontDistance <= SIDE_OPEN && getFrontLeftDistance() <= SIDE_OPEN && getFrontRightDistance() <= SIDE_OPEN) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-bool inLeftTurn() {
-	if(getFrontDistance <= SIDE_OPEN && getFrontLeftDistance() >= SIDE_OPEN && getFrontRightDistance() <= SIDE_OPEN) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-bool inRightTurn() {
-	if(getFrontDistance <= SIDE_OPEN && getFrontLeftDistance() <= SIDE_OPEN && getFrontRightDistance() >= SIDE_OPEN) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-bool inCrossing() {
-	if(getFrontDistance >= SIDE_OPEN && (getFrontLeftDistance() >= SIDE_OPEN || getFrontRightDistance() >= SIDE_OPEN)) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
 bool inPath() {
 	if(getFrontDistance >= SIDE_OPEN && (getFrontLeftDistance() <= SIDE_OPEN && getFrontRightDistance() <= SIDE_OPEN)) {
 		return true;
@@ -246,56 +226,71 @@ bool inPath() {
 }
 
 //Move the equivalent of one node
-void moveOneNode(){
+void moveOneNode(nodeStatus find){
 	startOneSquareInterrupts();
 	while(true) {
 		findNextTurnCrossingOrDeadend();
-		if(oneSquare >= ONE_SQUARE || getFrontDistance() <= FRONT_CLOSED) {
-			stopOneSquareInterrupts();
-			stop();
-			break;
+		if(find != FESTISBOX) {
+			if(oneSquare >= ONE_SQUARE || getFrontDistance() <= FRONT_CLOSED) {
+				stopOneSquareInterrupts();
+				stop();
+				break;
+			}
+			} else if(find == FESTISBOX) {
+			if(oneSquare >= ONE_SQUARE || getFrontDistance() <= FRONT_CLOSED || getIsThereTape()) {
+				stopOneSquareInterrupts();
+				stop();
+				break;
+			}
 		}
 	}
 }
 
-void exitCrossingOrTurn() {
+void exitCrossingOrTurn(nodeStatus find) {
 	startOneSquareInterrupts();
 	while(true) {
 		regulateRobot();
-		if(oneSquare >= ONE_SQUARE || getFrontDistance() <= FRONT_CLOSED) {
-			stopOneSquareInterrupts();
-			stop();
-			break;
+		if(find != FESTISBOX) {
+			if(oneSquare >= ONE_SQUARE || getFrontDistance() <= FRONT_CLOSED) {
+				stopOneSquareInterrupts();
+				stop();
+				break;
+			}
+		} else if(find == FESTISBOX) {
+			if(oneSquare >= ONE_SQUARE || getFrontDistance() <= FRONT_CLOSED || getIsThereTape()) {
+				stopOneSquareInterrupts();
+				stop();
+				break;
+			}
 		}
 	}
-}
 
 static dir currentDir = NORTH;
 
-void advOneNodeInCorrectPathNorth()
+void advOneNodeInCorrectPath(dir map[][x_size], nodeStatus find)
 {
 	switch(currentDir) {
 		case NORTH:
-			if(correctPathNorth[getX()][getY()] == NORTH) {
+			if(map[getX()][getY()] == NORTH) {
 				if(inPath()) {
-					moveOneNode();
+					moveOneNode(find);
 				} else {
-					exitCrossingOrTurn();
+					exitCrossingOrTurn(find);
 				}
 				setY(getY()-1);
-			} else if(correctPathNorth[getX()][getY()] == WEST) {
+			} else if(map[getX()][getY()] == WEST) {
 				turnLeft(1);
 				correctSelf();
-				exitCrossingOrTurn();
+				exitCrossingOrTurn(find);
 				currentDir = WEST;
 				setX(getX()-1);
-			} else if(correctPathNorth[getX()][getY()] == EAST) {
+			} else if(map[getX()][getY()] == EAST) {
 				turnRight(1);
 				correctSelf();
-				exitCrossingOrTurn();
+				exitCrossingOrTurn(find);
 				currentDir = EAST;
 				setX(getX()+1);
-			} else if(correctPathNorth[getX()][getY()] == SOUTH){
+			} else if(map[getX()][getY()] == SOUTH){
 				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
 					turnLeft(2);
 					} else {
@@ -303,35 +298,35 @@ void advOneNodeInCorrectPathNorth()
 				}
 				correctSelf();
 				if(inPath()) {
-					moveOneNode();
+					moveOneNode(find);
 					} else {
-					exitCrossingOrTurn();
+					exitCrossingOrTurn(find);
 				}
 				currentDir = SOUTH;
 				setY(getY()+1);
 			}
 			break;
 		case WEST:
-			if(correctPathNorth[getX()][getY()] == WEST) {
+			if(map[getX()][getY()] == WEST) {
 				if(inPath()) {
-					moveOneNode();
+					moveOneNode(find);
 				} else {
-					exitCrossingOrTurn();
+					exitCrossingOrTurn(find);
 				}
 				setX(getX()-1);
-			}else if(correctPathNorth[getX()][getY()] == SOUTH) {
+			}else if(map[getX()][getY()] == SOUTH) {
 				turnLeft(1);
 				correctSelf();
-				exitCrossingOrTurn();
+				exitCrossingOrTurn(find);
 				currentDir = SOUTH;
 				setY(getY()+1);
-			} else if(correctPathNorth[getX()][getY()] == NORTH) {
+			} else if(map[getX()][getY()] == NORTH) {
 				turnRight(1);
 				correctSelf();
-				exitCrossingOrTurn();
+				exitCrossingOrTurn(find);
 				currentDir = NORTH;
 				setY(getY()-1);
-			} else if(correctPathNorth[getX()][getY()] == EAST){
+			} else if(map[getX()][getY()] == EAST){
 				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
 					turnLeft(2);
 				} else {
@@ -339,35 +334,35 @@ void advOneNodeInCorrectPathNorth()
 				}
 				correctSelf();
 				if(inPath()) {
-					moveOneNode();
+					moveOneNode(find);
 				} else {
-					exitCrossingOrTurn();
+					exitCrossingOrTurn(find);
 				}
 				currentDir = EAST;
 				setX(getX()+1);
 			}
 			break;
 		case SOUTH:
-			if(correctPathNorth[getX()][getY()] == SOUTH) {
+			if(map[getX()][getY()] == SOUTH) {
 				if(inPath()) {
-					moveOneNode();
+					moveOneNode(find);
 				} else {
-					exitCrossingOrTurn();
+					exitCrossingOrTurn(find);
 				}
 				setY(getY()+1);
-			}else if(correctPathNorth[getX()][getY()] == EAST) {
+			}else if(map[getX()][getY()] == EAST) {
 				turnLeft(1);
 				correctSelf();
-				exitCrossingOrTurn();
+				exitCrossingOrTurn(find);
 				currentDir = EAST;
 				setX(getX()+1);
-			} else if(correctPathNorth[getX()][getY()] == WEST) {
+			} else if(map[getX()][getY()] == WEST) {
 				turnRight(1);
 				correctSelf();
-				exitCrossingOrTurn();
+				exitCrossingOrTurn(find);
 				currentDir = WEST;
 				setX(getX()-1);
-			} else if(correctPathNorth[getX()][getY()] == NORTH){
+			} else if(map[getX()][getY()] == NORTH){
 				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
 					turnLeft(2);
 					} else {
@@ -375,35 +370,35 @@ void advOneNodeInCorrectPathNorth()
 				}
 				correctSelf();
 				if(inPath()) {
-					moveOneNode();
+					moveOneNode(find);
 					} else {
-					exitCrossingOrTurn();
+					exitCrossingOrTurn(find);
 				}
 				currentDir = NORTH;
 				setY(getY()-1);
 			}
 			break;
 		case EAST:
-			if(correctPathNorth[getX()][getY()] == EAST) {
+			if(map[getX()][getY()] == EAST) {
 				if(inPath()) {
-					moveOneNode();
+					moveOneNode(find);
 				} else {
-					exitCrossingOrTurn();
+					exitCrossingOrTurn(find);
 				}
 				setX(getX()+1);
-			}else if(correctPathNorth[getX()][getY()] == NORTH) {
+			}else if(map[getX()][getY()] == NORTH) {
 				turnLeft(1);
 				correctSelf();
-				exitCrossingOrTurn();
+				exitCrossingOrTurn(find);
 				currentDir = NORTH;
 				setY(getY()-1);
-			} else if(correctPathNorth[getX()][getY()] == SOUTH) {
+			} else if(map[getX()][getY()] == SOUTH) {
 				turnRight(1);
 				correctSelf();
-				exitCrossingOrTurn();
+				exitCrossingOrTurn(find);
 				currentDir = SOUTH;
 				setY(getY()+1);
-			} else if(correctPathNorth[getX()][getY()] == WEST){
+			} else if(map[getX()][getY()] == WEST){
 				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
 					turnLeft(2);
 					} else {
@@ -411,473 +406,15 @@ void advOneNodeInCorrectPathNorth()
 				}
 				correctSelf();
 				if(inPath()) {
-					moveOneNode();
+					moveOneNode(find);
 					} else {
-					exitCrossingOrTurn();
+					exitCrossingOrTurn(find);
 				}
 				currentDir = WEST;
 				setX(getX()-1);
 			}
 			break;
 	}
-}
-
-void advOneNodeInCorrectPathEast()
-{
-	switch(currentDir) {
-		case NORTH:
-			if(correctPathEast[getX()][getY()] == NORTH) {
-				if(inPath()) {
-					moveOneNode();
-				} else {
-					exitCrossingOrTurn();
-				}
-				setY(getY()-1);
-			} else if(correctPathEast[getX()][getY()] == WEST) {
-				turnLeft(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = WEST;
-				setX(getX()-1);
-			} else if(correctPathEast[getX()][getY()] == EAST) {
-				turnRight(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = EAST;
-				setX(getX()+1);
-			} else if(correctPathEast[getX()][getY()] == SOUTH){
-				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
-					turnLeft(2);
-					} else {
-					turnRight(2);
-				}
-				correctSelf();
-				if(inPath()) {
-					moveOneNode();
-					} else {
-					exitCrossingOrTurn();
-				}
-				currentDir = SOUTH;
-				setY(getY()+1);
-			}
-			break;
-		case WEST:
-			if(correctPathEast[getX()][getY()] == WEST) {
-				if(inPath()) {
-					moveOneNode();
-				} else {
-					exitCrossingOrTurn();
-				}
-				setX(getX()-1);
-			}else if(correctPathEast[getX()][getY()] == SOUTH) {
-				turnLeft(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = SOUTH;
-				setY(getY()+1);
-			} else if(correctPathEast[getX()][getY()] == NORTH) {
-				turnRight(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = NORTH;
-				setY(getY()-1);
-			} else if(correctPathEast[getX()][getY()] == EAST){
-				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
-					turnLeft(2);
-					} else {
-					turnRight(2);
-				}
-				correctSelf();
-				if(inPath()) {
-					moveOneNode();
-				} else {
-					exitCrossingOrTurn();
-				}
-				currentDir = EAST;
-				setX(getX()+1);
-			}
-			break;
-		case SOUTH:
-			if(correctPathEast[getX()][getY()] == SOUTH) {
-				if(inPath()) {
-					moveOneNode();
-				} else {
-					exitCrossingOrTurn();
-				}
-				setY(getY()+1);
-			}else if(correctPathEast[getX()][getY()] == EAST) {
-				turnLeft(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = EAST;
-				setX(getX()+1);
-			} else if(correctPathEast[getX()][getY()] == WEST) {
-				turnRight(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = WEST;
-				setX(getX()-1);
-			} else if(correctPathEast[getX()][getY()] == NORTH){
-				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
-					turnLeft(2);
-					} else {
-					turnRight(2);
-				}
-				correctSelf();
-				if(inPath()) {
-					moveOneNode();
-					} else {
-					exitCrossingOrTurn();
-				}
-				currentDir = NORTH;
-				setY(getY()-1);
-			}
-			break;
-		case EAST:
-			if(correctPathEast[getX()][getY()] == EAST) {
-				if(inPath()) {
-					moveOneNode();
-				} else {
-					exitCrossingOrTurn();
-				}
-				setX(getX()+1);
-			}else if(correctPathEast[getX()][getY()] == NORTH) {
-				turnLeft(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = NORTH;
-				setY(getY()-1);
-			} else if(correctPathEast[getX()][getY()] == SOUTH) {
-				turnRight(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = SOUTH;
-				setY(getY()+1);
-			} else if(correctPathEast[getX()][getY()] == WEST){
-				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
-					turnLeft(2);
-					} else {
-					turnRight(2);
-				}
-				correctSelf();
-				if(inPath()) {
-					moveOneNode();
-					} else {
-					exitCrossingOrTurn();
-				}
-				currentDir = WEST;
-				setX(getX()-1);
-			}
-			break;
-	}
-}
-
-void advOneNodeInCorrectPathWest()
-{
-	switch(currentDir) {
-		case NORTH:
-			if(correctPathWest[getX()][getY()] == NORTH) {
-				if(inPath()) {
-					moveOneNode();
-				} else {
-					exitCrossingOrTurn();
-				}
-				setY(getY()-1);
-			} else if(correctPathWest[getX()][getY()] == WEST) {
-				turnLeft(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = WEST;
-				setX(getX()-1);
-			} else if(correctPathWest[getX()][getY()] == EAST) {
-				turnRight(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = EAST;
-				setX(getX()+1);
-			} else if(correctPathWest[getX()][getY()] == SOUTH){
-				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
-					turnLeft(2);
-					} else {
-					turnRight(2);
-				}
-				correctSelf();
-				if(inPath()) {
-					moveOneNode();
-					} else {
-					exitCrossingOrTurn();
-				}
-				currentDir = SOUTH;
-				setY(getY()+1);
-			}
-			break;
-		case WEST:
-			if(correctPathWest[getX()][getY()] == WEST) {
-				if(inPath()) {
-					moveOneNode();
-				} else {
-					exitCrossingOrTurn();
-				}
-				setX(getX()-1);
-			}else if(correctPathWest[getX()][getY()] == SOUTH) {
-				turnLeft(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = SOUTH;
-				setY(getY()+1);
-			} else if(correctPathWest[getX()][getY()] == NORTH) {
-				turnRight(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = NORTH;
-				setY(getY()-1);
-			} else if(correctPathWest[getX()][getY()] == EAST){
-				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
-					turnLeft(2);
-					} else {
-					turnRight(2);
-				}
-				correctSelf();
-				if(inPath()) {
-					moveOneNode();
-				} else {
-					exitCrossingOrTurn();
-				}
-				currentDir = EAST;
-				setX(getX()+1);
-			}
-			break;
-		case SOUTH:
-			if(correctPathWest[getX()][getY()] == SOUTH) {
-				if(inPath()) {
-					moveOneNode();
-				} else {
-					exitCrossingOrTurn();
-				}
-				setY(getY()+1);
-			}else if(correctPathWest[getX()][getY()] == EAST) {
-				turnLeft(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = EAST;
-				setX(getX()+1);
-			} else if(correctPathWest[getX()][getY()] == WEST) {
-				turnRight(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = WEST;
-				setX(getX()-1);
-			} else if(correctPathWest[getX()][getY()] == NORTH){
-				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
-					turnLeft(2);
-					} else {
-					turnRight(2);
-				}
-				correctSelf();
-				if(inPath()) {
-					moveOneNode();
-					} else {
-					exitCrossingOrTurn();
-				}
-				currentDir = NORTH;
-				setY(getY()-1);
-			}
-			break;
-		case EAST:
-			if(correctPathWest[getX()][getY()] == EAST) {
-				if(inPath()) {
-					moveOneNode();
-				} else {
-					exitCrossingOrTurn();
-				}
-				setX(getX()+1);
-			}else if(correctPathWest[getX()][getY()] == NORTH) {
-				turnLeft(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = NORTH;
-				setY(getY()-1);
-			} else if(correctPathWest[getX()][getY()] == SOUTH) {
-				turnRight(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = SOUTH;
-				setY(getY()+1);
-			} else if(correctPathWest[getX()][getY()] == WEST){
-				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
-					turnLeft(2);
-					} else {
-					turnRight(2);
-				}
-				correctSelf();
-				if(inPath()) {
-					moveOneNode();
-					} else {
-					exitCrossingOrTurn();
-				}
-				currentDir = WEST;
-				setX(getX()-1);
-			}
-			break;
-	}
-}
-
-void advOneNodeInCorrectPathSouth()
-{
-	switch(currentDir) {
-		case NORTH:
-			if(correctPathSouth[getX()][getY()] == NORTH) {
-				if(inPath()) {
-					moveOneNode();
-				} else {
-					exitCrossingOrTurn();
-				}
-				setY(getY()-1);
-			} else if(correctPathSouth[getX()][getY()] == WEST) {
-				turnLeft(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = WEST;
-				setX(getX()-1);
-			} else if(correctPathSouth[getX()][getY()] == EAST) {
-				turnRight(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = EAST;
-				setX(getX()+1);
-			} else if(correctPathSouth[getX()][getY()] == SOUTH){
-				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
-					turnLeft(2);
-					} else {
-					turnRight(2);
-				}
-				correctSelf();
-				if(inPath()) {
-					moveOneNode();
-					} else {
-					exitCrossingOrTurn();
-				}
-				currentDir = SOUTH;
-				setY(getY()+1);
-			}
-			break;
-		case WEST:
-			if(correctPathSouth[getX()][getY()] == WEST) {
-				if(inPath()) {
-					moveOneNode();
-				} else {
-					exitCrossingOrTurn();
-				}
-				setX(getX()-1);
-			}else if(correctPathSouth[getX()][getY()] == SOUTH) {
-				turnLeft(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = SOUTH;
-				setY(getY()+1);
-			} else if(correctPathSouth[getX()][getY()] == NORTH) {
-				turnRight(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = NORTH;
-				setY(getY()-1);
-			} else if(correctPathSouth[getX()][getY()] == EAST){
-				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
-					turnLeft(2);
-					} else {
-					turnRight(2);
-				}
-				correctSelf();
-				if(inPath()) {
-					moveOneNode();
-				} else {
-					exitCrossingOrTurn();
-				}
-				currentDir = EAST;
-				setX(getX()+1);
-			}
-			break;
-		case SOUTH:
-			if(correctPathSouth[getX()][getY()] == SOUTH) {
-				if(inPath()) {
-					moveOneNode();
-				} else {
-					exitCrossingOrTurn();
-				}
-				setY(getY()+1);
-			}else if(correctPathSouth[getX()][getY()] == EAST) {
-				turnLeft(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = EAST;
-				setX(getX()+1);
-			} else if(correctPathSouth[getX()][getY()] == WEST) {
-				turnRight(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = WEST;
-				setX(getX()-1);
-			} else if(correctPathSouth[getX()][getY()] == NORTH){
-				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
-					turnLeft(2);
-					} else {
-					turnRight(2);
-				}
-				correctSelf();
-				if(inPath()) {
-					moveOneNode();
-					} else {
-					exitCrossingOrTurn();
-				}
-				currentDir = NORTH;
-				setY(getY()-1);
-			}
-			break;
-		case EAST:
-			if(correctPathSouth[getX()][getY()] == EAST) {
-				if(inPath()) {
-					moveOneNode();
-				} else {
-					exitCrossingOrTurn();
-				}
-				setX(getX()+1);
-			}else if(correctPathSouth[getX()][getY()] == NORTH) {
-				turnLeft(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = NORTH;
-				setY(getY()-1);
-			} else if(correctPathSouth[getX()][getY()] == SOUTH) {
-				turnRight(1);
-				correctSelf();
-				exitCrossingOrTurn();
-				currentDir = SOUTH;
-				setY(getY()+1);
-			} else if(correctPathSouth[getX()][getY()] == WEST){
-				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
-					turnLeft(2);
-					} else {
-					turnRight(2);
-				}
-				correctSelf();
-				if(inPath()) {
-					moveOneNode();
-					} else {
-					exitCrossingOrTurn();
-				}
-				currentDir = WEST;
-				setX(getX()-1);
-			}
-			break;
-	}
-}
-
-void testShit()
-{
-	driveForward(50,50);
-	_delay_ms(50);
-	stop();
-	_delay_ms(100);
 }
 
 void placeSelfCloserToWall() {
@@ -890,110 +427,100 @@ void placeSelfCloserToWall() {
 void correctSelf() {
 	if(getFrontLeftDistance() <= SIDE_OPEN && getBackLeftDistance() <= SIDE_OPEN && getFrontLeftDistance() >= 15 && getBackRightDistance() >= 15) {
 		while(alignLeft() < 0) {
-			driveRotateRight(15, 15);
+			driveRotateRight(20, 20);
 		}
 		while(alignLeft() > 0) {
-			driveRotateLeft(15, 15);
+			driveRotateLeft(20, 20);
 		}
 	}
 	stop();
 	if(getFrontRightDistance() <= SIDE_OPEN && getBackRightDistance() <= SIDE_OPEN && getFrontRightDistance() >= 15 && getBackRightDistance() >= 15) {
 		while(alignRight() > 0 ) {
-			driveRotateLeft(15, 15);
+			driveRotateLeft(20, 20);
 		}
 		while(alignRight() < 0) {
-			driveRotateRight(15, 15);
+			driveRotateRight(20, 20);
 		}
 	}
 	stop();
 }
 
+bool moveToNode(nodeStatus find)
+{
+	int path = findClosest(find);
+	if(path == 0) {
+		while(correctPathNorth[getX()][getY()] != DUNNO) {
+			advOneNodeInCorrectPath(correctPathNorth, find);
+			placeSelfCloserToWall();
+			correctSelf();
+		}
+	} else if(path == 1) {
+		while(correctPathEast[getX()][getY()] != DUNNO) {
+			advOneNodeInCorrectPath(correctPathNorth, find);
+			placeSelfCloserToWall();
+			correctSelf();
+		}
+	} else if(path == 2) {
+		while(correctPathWest[getX()][getY()] != DUNNO) {
+			advOneNodeInCorrectPath(correctPathNorth, find);
+			placeSelfCloserToWall();
+			correctSelf();
+		}
+	} else if(path == 3) {
+		while(correctPathSouth[getX()][getY()] != DUNNO) {
+			advOneNodeInCorrectPath(correctPathNorth, find);
+			placeSelfCloserToWall();
+			correctSelf();
+		}
+	} else if(path == 4) {
+		/* No more unexplored */
+		return true;
+	}		
+	return false;
+}
+
 /* Not using map atm */
 void exploreLabyrinth() {
 	bool labyrinthExplored = false;
-	bool festisboxPickedUp = false;
+	bool festisBoxReached = false;
 	bool exitedLabyrinth = false;
 	
-	_delay_ms(200);
 	
+	openClaw();
+	_delay_ms(200);
 	
 	/*
 	Write main loop for exploring labyrinth.
 	*/
 	while(!labyrinthExplored) {
-		int path = findClosest(UNEXPLORED);
-		if(path == 0) {
-			while(correctPathNorth[getX()][getY()] != DUNNO) {
-				advOneNodeInCorrectPathNorth();
-				placeSelfCloserToWall();
-				correctSelf();
-			}
-		} else if(path == 1) {
-			while(correctPathEast[getX()][getY()] != DUNNO) {
-				advOneNodeInCorrectPathEast();
-				placeSelfCloserToWall();
-				correctSelf();
-			}
-		} else if(path == 2) {
-			while(correctPathWest[getX()][getY()] != DUNNO) {
-				advOneNodeInCorrectPathWest();
-				placeSelfCloserToWall();
-				correctSelf();
-			}
-		} else if(path == 3) {
-			while(correctPathSouth[getX()][getY()] != DUNNO) {
-				advOneNodeInCorrectPathSouth();
-				placeSelfCloserToWall();
-				correctSelf();
-			}
-		} else if(path == 4) {
-			/* No more unexplored */
-			labyrinthExplored = true;
-			break;
-		}
-		_delay_ms(200);
+		labyrinthExplored = moveToNode(UNEXPLORED);
 		addNode(currentDir);
 	}
 	
-	_delay_ms(1000);
+	lowerClaw();
+	_delay_ms(500);
+	closeClaw();
+	_delay_ms(500);
+	raiseClaw();
+	
+	// ******************************************
+	// ACTIVATE CODE WHEN LINESENSOR IS FINISHED
+	// ******************************************
+	
+	/*
+	while(labyrinthExplored && !festisBoxReached) {
+		festisBoxReached = moveToNode(FESTISBOX);
+	}
+	*/
+	
+	/*
+		Insert code for following tape and picking up festisbox
+	*/
+	
 	
 	/* Go back to start */
 	while(labyrinthExplored && !exitedLabyrinth) {
-		int path = findClosest(START);
-		
-		if(path == 0) {
-			while(correctPathNorth[getX()][getY()] != DUNNO) {
-				advOneNodeInCorrectPathNorth();
-				placeSelfCloserToWall();
-				correctSelf();
-			}
-		} else if(path == 1) {
-			while(correctPathEast[getX()][getY()] != DUNNO) {
-				advOneNodeInCorrectPathEast();
-				placeSelfCloserToWall();
-				correctSelf();
-			}
-		} else if(path == 2) {
-			while(correctPathWest[getX()][getY()] != DUNNO) {
-				advOneNodeInCorrectPathWest();
-				placeSelfCloserToWall();
-				correctSelf();
-			}
-		} else if(path == 3) {
-			while(correctPathSouth[getX()][getY()] != DUNNO) {
-				advOneNodeInCorrectPathSouth();
-				placeSelfCloserToWall();
-				correctSelf();
-			}
-		} else if(path == 4) {
-			/* No more unexplored */
-			exitedLabyrinth = true;
-		}
+		exitedLabyrinth = moveToNode(START);
 	}
 
 }
-
-
-
-
-

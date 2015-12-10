@@ -25,6 +25,7 @@ uint16_t getFrontLeftDistance();
 uint16_t getFrontRightDistance();
 uint16_t getBackLeftDistance();
 uint16_t getBackRightDistance();
+bool getIsThereTape();
 
 uint8_t test;
 

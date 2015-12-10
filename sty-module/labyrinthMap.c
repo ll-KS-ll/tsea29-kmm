@@ -12,6 +12,7 @@
 #include "variables.h"
 #include "clawKernel.h"
 #include <util/delay.h>
+#include "sensorValues.h"
 
 //var
 #define north 0
@@ -58,10 +59,13 @@ void initMap() {
 
 // When robot has reached unexplored, set it as explored and update its walls.
 void addNode(dir curDir){
-    if(labyrinth[xpos][ypos].status == UNEXPLORED){
+    if(labyrinth[xpos][ypos].status == UNEXPLORED && !getIsThereTape()) {
         labyrinth[xpos][ypos].status = EXPLORED;
 		updateWalls(curDir);
-    }
+    } else if(labyrinth[xpos][ypos].status == UNEXPLORED && getIsThereTape()) {
+		labyrinth[xpos][ypos].status = FESTISBOX;
+		updateWalls(curDir);
+	}
 }
 
 void updateWalls(dir curDir) {
