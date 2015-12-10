@@ -86,6 +86,17 @@ int main(void)
 	
 	initMap();
 	
+	//volatile f, fr, br, fl, bl;
+	//
+	//while(1) {
+		//f = getFrontDistance();
+		//fr = getFrontRightDistance();
+		//br = getBackRightDistance();
+		//fl = getFrontLeftDistance();
+		//bl = getBackLeftDistance();
+		//
+	//}
+	
 	/* Main loop */
 	while (1)
 	{

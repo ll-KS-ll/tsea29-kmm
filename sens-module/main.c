@@ -179,12 +179,12 @@ ISR(TIMER0_OVF_vect)
 	if (ch == 8) {
 		ch = 0;
 	}
-	TCNT0 = 241;
+	TCNT0 = 227;
 }
 
 void initTimerInteruppt() {
 	TIMSK = (1<<TOIE0);
-	TCNT0 = 241;
+	TCNT0 = 227;
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
 

@@ -18,6 +18,9 @@
 #include "variables.h"
 #include "labyrinthMap.h"
 
+#define ONCE 1
+#define TWICE 2
+
 /* Using PD-regulator to make robot drive in middle of corridor */
 int pdReg(){
 	int u = 0;
@@ -56,13 +59,11 @@ int alignLeft(){
 	
 	/* only align if error is worthy of aligning */
 	if(t > 2 || t < -2) {
-	
-	u = 5 * t;
-	
-	return u;
-		} else {
-	return 0;
-}
+		u = 5 * t;	
+		return u;
+	} else {
+		return 0;
+	}
 }
 
 int leftReg(){
@@ -97,9 +98,7 @@ int alignRight(){
 	t = (br - fr);
 	/* only align if error is worthy of aligning */
 	if(t > 2 || t < -2) {
-		
 		u = 5 * t;
-		
 		return u;
 	} else {
 		return 0;
@@ -116,7 +115,7 @@ int rightReg(){
 	int br = getBackRightDistance();
 
 	if(fr < 16 && br < 16) {
-		return 10;
+		return -10;
 	}
 	
 	// t = How wrongly the robot is rotated
@@ -228,20 +227,13 @@ bool inPath() {
 //Move the equivalent of one node
 void moveOneNode(nodeStatus find){
 	startOneSquareInterrupts();
+	
 	while(true) {
 		findNextTurnCrossingOrDeadend();
-		if(find != FESTISBOX) {
-			if(oneSquare >= ONE_SQUARE || getFrontDistance() <= FRONT_CLOSED) {
-				stopOneSquareInterrupts();
-				stop();
-				break;
-			}
-			} else if(find == FESTISBOX) {
-			if(oneSquare >= ONE_SQUARE || getFrontDistance() <= FRONT_CLOSED || getIsThereTape()) {
-				stopOneSquareInterrupts();
-				stop();
-				break;
-			}
+		if(oneSquare >= ONE_SQUARE || getFrontDistance() <= FRONT_CLOSED) {
+			stopOneSquareInterrupts();
+			stop();
+			break;
 		}
 	}
 }
@@ -250,25 +242,17 @@ void exitCrossingOrTurn(nodeStatus find) {
 	startOneSquareInterrupts();
 	while(true) {
 		regulateRobot();
-		if(find != FESTISBOX) {
-			if(oneSquare >= ONE_SQUARE || getFrontDistance() <= FRONT_CLOSED) {
-				stopOneSquareInterrupts();
-				stop();
-				break;
-			}
-		} else if(find == FESTISBOX) {
-			if(oneSquare >= ONE_SQUARE || getFrontDistance() <= FRONT_CLOSED || getIsThereTape()) {
-				stopOneSquareInterrupts();
-				stop();
-				break;
-			}
+		if(oneSquare >= ONE_SQUARE || getFrontDistance() <= FRONT_CLOSED) {
+			stopOneSquareInterrupts();
+			stop();
+			break;
 		}
 	}
+}
 
 static dir currentDir = NORTH;
 
-void advOneNodeInCorrectPath(dir map[][x_size], nodeStatus find)
-{
+void advOneNodeInCorrectPath(dir map[][x_size], nodeStatus find) {
 	switch(currentDir) {
 		case NORTH:
 			if(map[getX()][getY()] == NORTH) {
@@ -279,27 +263,29 @@ void advOneNodeInCorrectPath(dir map[][x_size], nodeStatus find)
 				}
 				setY(getY()-1);
 			} else if(map[getX()][getY()] == WEST) {
-				turnLeft(1);
+				turnLeft(ONCE);
 				correctSelf();
 				exitCrossingOrTurn(find);
 				currentDir = WEST;
 				setX(getX()-1);
 			} else if(map[getX()][getY()] == EAST) {
-				turnRight(1);
+				turnRight(ONCE);
 				correctSelf();
 				exitCrossingOrTurn(find);
 				currentDir = EAST;
 				setX(getX()+1);
 			} else if(map[getX()][getY()] == SOUTH){
 				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
-					turnLeft(2);
-					} else {
-					turnRight(2);
+					turnLeft(TWICE);
+				} else {
+					turnRight(TWICE);
 				}
+				
 				correctSelf();
+				
 				if(inPath()) {
 					moveOneNode(find);
-					} else {
+				} else {
 					exitCrossingOrTurn(find);
 				}
 				currentDir = SOUTH;
@@ -315,24 +301,26 @@ void advOneNodeInCorrectPath(dir map[][x_size], nodeStatus find)
 				}
 				setX(getX()-1);
 			}else if(map[getX()][getY()] == SOUTH) {
-				turnLeft(1);
+				turnLeft(ONCE);
 				correctSelf();
 				exitCrossingOrTurn(find);
 				currentDir = SOUTH;
 				setY(getY()+1);
 			} else if(map[getX()][getY()] == NORTH) {
-				turnRight(1);
+				turnRight(ONCE);
 				correctSelf();
 				exitCrossingOrTurn(find);
 				currentDir = NORTH;
 				setY(getY()-1);
 			} else if(map[getX()][getY()] == EAST){
 				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
-					turnLeft(2);
+					turnLeft(TWICE);
 				} else {
-					turnRight(2);
+					turnRight(TWICE);
 				}
+				
 				correctSelf();
+				
 				if(inPath()) {
 					moveOneNode(find);
 				} else {
@@ -348,30 +336,32 @@ void advOneNodeInCorrectPath(dir map[][x_size], nodeStatus find)
 					moveOneNode(find);
 				} else {
 					exitCrossingOrTurn(find);
-				}
+			}
 				setY(getY()+1);
 			}else if(map[getX()][getY()] == EAST) {
-				turnLeft(1);
+				turnLeft(ONCE);
 				correctSelf();
 				exitCrossingOrTurn(find);
 				currentDir = EAST;
 				setX(getX()+1);
 			} else if(map[getX()][getY()] == WEST) {
-				turnRight(1);
+				turnRight(ONCE);
 				correctSelf();
 				exitCrossingOrTurn(find);
 				currentDir = WEST;
 				setX(getX()-1);
 			} else if(map[getX()][getY()] == NORTH){
 				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
-					turnLeft(2);
-					} else {
-					turnRight(2);
+					turnLeft(TWICE);
+				} else {
+					turnRight(TWICE);
 				}
+				
 				correctSelf();
+				
 				if(inPath()) {
 					moveOneNode(find);
-					} else {
+				} else {
 					exitCrossingOrTurn(find);
 				}
 				currentDir = NORTH;
@@ -387,27 +377,29 @@ void advOneNodeInCorrectPath(dir map[][x_size], nodeStatus find)
 				}
 				setX(getX()+1);
 			}else if(map[getX()][getY()] == NORTH) {
-				turnLeft(1);
+				turnLeft(ONCE);
 				correctSelf();
 				exitCrossingOrTurn(find);
 				currentDir = NORTH;
 				setY(getY()-1);
 			} else if(map[getX()][getY()] == SOUTH) {
-				turnRight(1);
+				turnRight(ONCE);
 				correctSelf();
 				exitCrossingOrTurn(find);
 				currentDir = SOUTH;
 				setY(getY()+1);
 			} else if(map[getX()][getY()] == WEST){
 				if((getBackLeftDistance() + getFrontLeftDistance()) >= (getBackRightDistance() + getFrontRightDistance())) {
-					turnLeft(2);
-					} else {
-					turnRight(2);
+					turnLeft(TWICE);
+				} else {
+					turnRight(TWICE);
 				}
+			
 				correctSelf();
+			
 				if(inPath()) {
 					moveOneNode(find);
-					} else {
+				} else {
 					exitCrossingOrTurn(find);
 				}
 				currentDir = WEST;
@@ -448,38 +440,38 @@ void correctSelf() {
 bool moveToNode(nodeStatus find)
 {
 	int path = findClosest(find);
-	if(path == 0) {
+	if(path == north) {
 		while(correctPathNorth[getX()][getY()] != DUNNO) {
 			advOneNodeInCorrectPath(correctPathNorth, find);
 			placeSelfCloserToWall();
 			correctSelf();
 		}
-	} else if(path == 1) {
+	} else if(path == east) {
 		while(correctPathEast[getX()][getY()] != DUNNO) {
-			advOneNodeInCorrectPath(correctPathNorth, find);
+			advOneNodeInCorrectPath(correctPathEast, find);
 			placeSelfCloserToWall();
 			correctSelf();
 		}
-	} else if(path == 2) {
-		while(correctPathWest[getX()][getY()] != DUNNO) {
-			advOneNodeInCorrectPath(correctPathNorth, find);
-			placeSelfCloserToWall();
-			correctSelf();
-		}
-	} else if(path == 3) {
+	} else if(path == south) {
 		while(correctPathSouth[getX()][getY()] != DUNNO) {
-			advOneNodeInCorrectPath(correctPathNorth, find);
+			advOneNodeInCorrectPath(correctPathSouth, find);
 			placeSelfCloserToWall();
 			correctSelf();
 		}
-	} else if(path == 4) {
+	} else if(path == west) {
+		while(correctPathWest[getX()][getY()] != DUNNO) {
+			advOneNodeInCorrectPath(correctPathWest, find);
+			placeSelfCloserToWall();
+			correctSelf();
+		}
+	} else if(path == none) {
 		/* No more unexplored */
 		return true;
 	}		
 	return false;
 }
 
-/* Not using map atm */
+
 void exploreLabyrinth() {
 	bool labyrinthExplored = false;
 	bool festisBoxReached = false;
@@ -494,6 +486,7 @@ void exploreLabyrinth() {
 	*/
 	while(!labyrinthExplored) {
 		labyrinthExplored = moveToNode(UNEXPLORED);
+		_delay_ms(200);
 		addNode(currentDir);
 	}
 	

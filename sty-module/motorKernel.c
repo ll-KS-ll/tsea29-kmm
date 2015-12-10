@@ -43,7 +43,7 @@ void initMotor() {
 		TCCR1B |= (1<<WGM13);
 		// Set CS bits for 8 prescaler
 		TCCR1B |= (1<<CS11);
-		ICR1 = 920;
+		ICR1 = 921;
 		
 		/* Set processor outputs for motor control */
 		DDRD |= 0x78; // 0111_1000;
@@ -58,20 +58,20 @@ void adjust(int u) {
 	/* Calculate new Power for motors */
 	int nPwrL = 0, nPwrR = 0;
 	if(u >= 100) {
-		nPwrL = 35;
-		nPwrR = 65;
+		nPwrL = MIN_SPEED;
+		nPwrR = MAX_SPEED;
 	}else if(u <= -100) {
-		nPwrL = 65;
-		nPwrR = 35;
+		nPwrL = MAX_SPEED;
+		nPwrR = MIN_SPEED;
 	} else {
 		nPwrL = 50 - u;
 		nPwrR = 50 + u;
 		// if they try to use more then 100% power,
 		// make them use less.
-		if(nPwrL > 65) nPwrL = 65;
-		if(nPwrL < 35) nPwrL = 35;
-		if(nPwrR > 65) nPwrR = 65;
-		if(nPwrR < 35) nPwrR = 35;
+		if(nPwrL > MAX_SPEED) nPwrL = MAX_SPEED;
+		if(nPwrL < MIN_SPEED) nPwrL = MIN_SPEED;
+		if(nPwrR > MAX_SPEED) nPwrR = MAX_SPEED;
+		if(nPwrR < MIN_SPEED) nPwrR = MIN_SPEED;
 	}
 	
 	// set new power as current power
@@ -86,8 +86,8 @@ void setMotorSpeed(int powerLeft, int powerRight) {
 	curPwrLeft = (TOTAL_POWER / 100) * powerLeft;
 	curPwrRight = (TOTAL_POWER / 100) * powerRight;
 	// Make sure the pwm signal to the motors doesnt go above 1000
-	if(curPwrLeft > 900) curPwrLeft = 900;
-	if(curPwrRight > 900) curPwrRight = 900;
+	if(curPwrLeft > MAX_POWER) curPwrLeft = MAX_POWER;
+	if(curPwrRight > MAX_POWER) curPwrRight = MAX_POWER;
 	OCR1A = curPwrRight;
 	OCR1B = curPwrLeft;
 	sei();
@@ -114,9 +114,9 @@ void driveRotateRight(int powerLeft, int powerRight) {
 }
 
 void stop() {
-	curPwrLeft = 0;
-	curPwrRight = 0;
-	setMotorSpeed(0, 0);
+	curPwrLeft = ZERO_SPEED;
+	curPwrRight = ZERO_SPEED;
+	setMotorSpeed(ZERO_SPEED, ZERO_SPEED);
 }
 
 /* 90-degree left turn */
@@ -124,7 +124,7 @@ void turnLeft(int turns) {
 	startGyroInterrupts();
 	float targetAngle = (int)getCurrentAngle() + (LEFT_TURN * turns);
 	while(true) {
-		driveRotateLeft(30, 30);
+		driveRotateLeft(TURN_SPEED, TURN_SPEED);
 		if((int)getCurrentAngle() >= targetAngle) {
 			stop();
 			stopGyroInterrupts();
@@ -139,7 +139,7 @@ void turnRight(int turns) {
 	startGyroInterrupts();
 	int targetAngle = (int) getCurrentAngle() - (RIGHT_TURN * turns);
 	while(true) {
-		driveRotateRight(30, 30);
+		driveRotateRight(TURN_SPEED, TURN_SPEED);
 		if((int)getCurrentAngle() <= targetAngle) {
 			stop();
 			stopGyroInterrupts();

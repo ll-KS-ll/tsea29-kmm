@@ -6,7 +6,7 @@
  * SDA = Serial Data
  * SCL = Serial CLock
  */ 
-#define F_CPU 1000000UL
+#define F_CPU 15000000UL
 
 #include <avr/io.h>
 #include <i2c_master.h>

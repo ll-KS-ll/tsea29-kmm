@@ -15,10 +15,7 @@
 #include "sensorValues.h"
 
 //var
-#define north 0
-#define east 1
-#define south 2
-#define west 3
+
 
 
 static int xpos = 11;
@@ -153,13 +150,13 @@ int findClosest(nodeStatus find){
 		}
 	}
 	if(found_way_north && cost_north <= cost_east && cost_north <= cost_west && cost_north <= cost_south) {
-		return 0;
+		return north;
 	} else if(found_way_east && cost_east <= cost_west && cost_east <= cost_south) {
-		return 1;
-	} else if(found_way_west && cost_west <= cost_south) {
-		return 2;
-	} else if(found_way_south) {
-		return 3;
+		return east;
+	} else if(found_way_south && cost_south <= cost_west) {
+		return south;
+	} else if(found_way_west) {
+		return west;
 	} else {
 		return 4;
 	}

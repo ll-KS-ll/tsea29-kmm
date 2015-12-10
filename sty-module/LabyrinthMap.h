@@ -18,6 +18,11 @@
 
 #define x_size 24
 #define y_size 24
+#define north 0
+#define east 1
+#define south 2
+#define west 3
+#define none 4
 
 //enum
 typedef enum {UNEXPLORED, EXPLORED, START, FESTISBOX} nodeStatus;

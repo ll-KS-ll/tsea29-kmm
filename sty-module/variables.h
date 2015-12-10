@@ -10,8 +10,15 @@
 #ifndef VARIABLES_H_
 #define VARIABLES_H_
 
-
+/* Motor variables */
 #define TOTAL_POWER 1250
+#define MAX_POWER 900
+#define MAX_SPEED 65
+#define MIN_SPEED 35
+#define TURN_SPEED 30
+#define ZERO_SPEED 0
+
+/* Distance variables */
 #define FRONT_CLOSED 31
 #define FRONT_SPOTTED 85
 #define SIDE_OPEN 45
