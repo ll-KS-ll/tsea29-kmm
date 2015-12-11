@@ -15,6 +15,8 @@
 #include <math.h>
 #include <i2c_master.h>	// Sensor module is an i2c master.
 
+
+
 volatile uint8_t count;
 volatile int angular_rate;
 volatile unsigned long ms;
@@ -116,6 +118,7 @@ unsigned int sideIrToCm(uint16_t data) {
 bool start_button_down;
 bool auto_button_down;
 
+<<<<<<< HEAD
 void calibrate_sensor_bar()
 {
 	cal_sb = true;
@@ -157,6 +160,94 @@ uint16_t tape_regulator(){
 		return 4; //4 = forwárd
 	}
 }
+=======
+/* Variables used for converting frontDistance to cm */
+float mathf;
+float voltsPerUnit = 0.0049;
+
+unsigned int sideIrToCm(uint16_t data) {
+	mathf = data;
+	mathf = pow((3027.4/mathf), 1.2134);
+	if(mathf > 80) mathf = 80;
+	if(mathf < 10) mathf = 10;
+	return (unsigned int)mathf;
+}
+
+static unsigned int sensorBar[] = {0, 0, 0, 0, 0, 0, 0};
+static unsigned int sensorBarCalibration[] = {0, 0, 0, 0, 0, 0, 0};
+
+void updateLineSensorValues()
+{
+	TCCR0 = (0<<CS02)|(0<<CS00);
+	
+	for(int mux = 0; mux < 7; mux++) {
+		enable_current_linesensor(mux);
+		PORTD = mux;
+		sensorBar[mux] = (unsigned int)adc_read(ch);
+		
+		_delay_ms(2);
+	}
+	TCCR0 = (1<<CS02)|(1<<CS00);
+}
+
+void updateLineSensorCalibrationValues()
+{
+	TCCR0 = (0<<CS02)|(0<<CS00);
+	for(int mux = 0; mux < 7; mux++) {
+		enable_current_linesensor(mux);
+		PORTD = mux;
+		sensorBarCalibration[mux] = (unsigned int)adc_read(ch);
+		
+		_delay_ms(2);
+	}
+	TCCR0 = (1<<CS02)|(1<<CS00);
+}
+
+bool is_tape(){
+	int count = 0;
+	for(int i = 0; i < 7; i++){
+		unsigned int sensorValue = sensorBar[i];
+		unsigned int calibrationValue = sensorBarCalibration[i];
+		
+		if(sensorValue >= calibrationValue - 100) {
+			count++;
+		}
+		
+		if(count > 3) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
+unsigned int reg = 5;
+
+unsigned tapeRegulation() {
+	for(int i = 0; i < 3; i++) {
+		unsigned int sensorValue = sensorBar[i];
+		unsigned int calibrationValue = sensorBarCalibration[i];
+		if(sensorValue >= calibrationValue - 100) {
+			if(reg < 10) {
+				reg++;
+			}
+		}
+	}
+	for(int i = 4; i < 7; i++) {
+		unsigned int sensorValue = sensorBar[i];
+		unsigned int calibrationValue = sensorBarCalibration[i];
+		if(sensorValue >= calibrationValue - 100) {
+			if(reg > 0) {
+				reg--;
+			}
+		}
+	}
+	return reg;
+}
+
+bool calibrate = false;
+bool dontCalibrateMore = false;
+>>>>>>> refs/remotes/origin/autonom
 
 ISR(TIMER0_OVF_vect)
 {
@@ -168,14 +259,18 @@ ISR(TIMER0_OVF_vect)
 		case 0://start button
 			data_out = 0;
 			if(adc_read(ch) > 1000){
-				start_button_down = true;				
+				start_button_down = true;
 			} else if(start_button_down) {
 				start_button_down = false;
 				data_out=1;
+				if(!dontCalibrateMore) {
+					calibrate = true;
+				}
 			}
 			id = ch;
 			break;
 		case 1: // autonom/remote
+<<<<<<< HEAD
 				data_out = 0;
 				if(adc_read(ch) > 1000){
 					auto_button_down = true;
@@ -271,6 +366,7 @@ ISR(TIMER0_OVF_vect)
 			break;
 		
 		case 4: // IR-sensor back left
+<<<<<<< HEAD
 			data_out = sideIrToCm(adc_read(ch));
 			id = ch;
 			break;
@@ -282,11 +378,22 @@ ISR(TIMER0_OVF_vect)
 			if(mathf >= 2) math += 2; // fix linear error (+2)
 			if(mathf < 20) math = 20; // min limit at 10cm
 			if(mathf > 150) math = 150; // max limit at 80cm
+=======
+			data_out = sideIrToCm((unsigned int)adc_read(ch));
+			id = ch;
+			break;
+		case 5: //IR-sensor front
+			mathf = (float)adc_read(ch) * voltsPerUnit;
+			mathf = 60.495 * pow(mathf, -1.1904);
+			if(mathf < 20) mathf = 20;
+			if(mathf > 150) mathf = 150;
+>>>>>>> refs/remotes/origin/autonom
 			data_out = (unsigned int)mathf;
 			id = ch;
 			break;
 		
 		case 6: // IR-sensor back right
+<<<<<<< HEAD
 			data_out = sideIrToCm(adc_read(ch));
 			id = ch;
 			break;
@@ -303,6 +410,27 @@ ISR(TIMER0_OVF_vect)
 	if (ch == 8) ch = 0;
 	TCNT0 = 227;
 	TCCR0 = (1<<CS02)|(1<<CS00);
+=======
+			data_out = sideIrToCm((unsigned int)adc_read(ch));
+			id = ch;
+			break;
+		case 7: // IR-sensor front right
+			data_out = sideIrToCm((unsigned int)adc_read(ch));
+			id = ch;
+			break;
+	}
+
+	data_package datap = {id, data_out};
+	i2c_write(GENERAL_CALL_ADDRESS, datap);	// Write an entire package to com-module.
+	
+	data_out = 0;
+	
+	ch++;
+	if (ch == 8) {
+		ch = 0;
+	}
+	TCNT0 = 227;
+>>>>>>> refs/remotes/origin/autonom
 }
 
 void initTimerInteruppt() {
@@ -329,5 +457,12 @@ int main(void)
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
 	
-	while(true){}
+	//volatile  l4, l5, l6;
+	
+	while(true){
+		//l4 = sensorBar[4];
+		//l5 = sensorBar[5];
+		//l6 = sensorBar[6];
+		//
+	}
 }

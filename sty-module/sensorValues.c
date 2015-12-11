@@ -22,6 +22,7 @@ static unsigned int frontLeftDistance = 0;
 static unsigned int backLeftDistance = 0;
 static unsigned int frontRightDistance = 0;
 static unsigned int backRightDistance = 0;
+<<<<<<< HEAD
 volatile static unsigned int regulate_value = 0;
 
 /* Variables used for converting frontDistance to cm */
@@ -35,6 +36,13 @@ unsigned int sideIrToCm(uint16_t data) {
 	if(mathf < 10) mathf = 10;
 	return (unsigned int)mathf;
 }
+=======
+static unsigned int sensorBar[] = {0, 0, 0, 0, 0, 0, 0};
+static unsigned int sensorBarCalibration[] = {0, 0, 0, 0, 0, 0, 0};
+static unsigned int seesTape = 0;
+static unsigned int tapeReg = 5;
+
+>>>>>>> refs/remotes/origin/autonom
 
 // Convert values so they are between 70 - 0, larger number equals closer.
 void updateRegisters(uint8_t id, uint16_t dataIn) {
@@ -43,7 +51,7 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 	
 	switch (id) {
 		case 0:
-			if(data && autonom)
+			if(data)
 			{
 				 start = !start;
 			}
@@ -61,27 +69,24 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 			break;
 			
 		case 3:
-			frontLeftDistance = sideIrToCm(data);
+			frontLeftDistance = data;
 			break;
 		
 		case 4:
-			backLeftDistance = sideIrToCm(data);
+			backLeftDistance = data;
 			break;
 		
 		case 5:
-			mathf = (float)data * voltsPerUnit;
-			mathf = 60.495 * pow(mathf, -1.1904);
-			if(mathf < 20) mathf = 20;
-			if(mathf > 150) mathf = 150;
-			frontDistance = (unsigned int) mathf;
+			
+			frontDistance = data;
 			break;
 		
 		case 6:
-			backRightDistance = sideIrToCm(data);
+			backRightDistance = data;
 			break;
 		
 		case 7:
-			frontRightDistance = sideIrToCm(data);
+			frontRightDistance = data;
 			break;
 
 		case 17:
@@ -89,8 +94,27 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 			gyroRate = (gyroValue - offset);
 			angle += gyroRate / 100;
 			break;
+		case 18:
+			if(data)
+			{
+				seesTape = !seesTape;
+			}
+			break;
+		case 19:
+			tapeReg = data;
+			break;
+			
 	}
 }
+
+unsigned int getTapeReg() {
+	return tapeReg;
+}
+
+bool getSeesTape() {
+	return seesTape;
+}
+
 bool getStart(){
 	return start;
 }
@@ -99,31 +123,48 @@ bool getAutonom(){
 	return autonom;
 }
 
+<<<<<<< HEAD
 uint16_t getRegulateValue(){
 	return regulate_value;
 }
 
 uint16_t getCurrentAngle() {
 	return angle;
+=======
+bool getIsThereTape() {
+	return false;
 }
 
-uint16_t getFrontDistance() {
+int getCurrentAngle() {
+	return (int) angle;
+}
+
+unsigned int *getSensorBar() {
+	return sensorBar;
+>>>>>>> refs/remotes/origin/autonom
+}
+
+unsigned int *getCalibrationBar() {
+	return sensorBarCalibration;
+}
+
+unsigned int getFrontDistance() {
 	return frontDistance;
 }
 
-uint16_t getFrontLeftDistance() {
+unsigned int getFrontLeftDistance() {
 	return frontLeftDistance;
 }
 
-uint16_t getFrontRightDistance() {
+unsigned int getFrontRightDistance() {
 	return frontRightDistance;
 }
 
-uint16_t getBackLeftDistance() {
+unsigned int getBackLeftDistance() {
 	return backLeftDistance;
 }
 
-uint16_t getBackRightDistance() {
+unsigned int getBackRightDistance() {
 	return backRightDistance;
 }
 

@@ -11,10 +11,11 @@
 #ifndef AUTONOMOUS_H_
 #define AUTONOMOUS_H_
 
-
-typedef enum {north, south, west, east} direction;
-
 void exploreLabyrinth();
+<<<<<<< HEAD
 void regulateRobot();
+=======
+void initOneSquareTimer();
+>>>>>>> refs/remotes/origin/autonom
 
 #endif /* AUTONOMOUS_H_ */
