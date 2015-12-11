@@ -12,6 +12,7 @@
 #include <i2c_slave.h>	// Com module is a Slave on the I2C-bus. 
 #include <bluetooth.h>	// Add bluetooth compatibility.
 #include <util/delay.h>
+#include "sensorValues.h"
 
 /* Simple program waiting for data on the i2c bus. */
 int main(void)
@@ -25,19 +26,14 @@ int main(void)
 	
 	write_data = 0xBEEF;	// Set data to write. In future this will be a command from PC.
 	
+	volatile bool test;
 	/* Main loop */
 	while ( 1 ) 
     {
 		_delay_ms(100);
+		test = getStart();
 		
-		data_package tmp = *datap; // Store entire package in case a new is read.
-		bt_transmit( '<' );
-		bt_transmit( tmp.id );
-		bt_transmit( ',' );
-		bt_transmit( (tmp.data >> 8) );
-		bt_transmit( tmp.data );
-		bt_transmit( '>' );
-		bt_transmit( ' ' );
+		
     }
 }
 

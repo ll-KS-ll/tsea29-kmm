@@ -23,6 +23,7 @@
 #include "motorKernel.h"
 #include "clawKernel.h"
 
+
 void follow_tape(uint16_t regulate_value){
 	switch(regulate_value){
 		case 1:
@@ -39,7 +40,6 @@ void follow_tape(uint16_t regulate_value){
 	}
 }
 
-
 int main(void)
 {
 	/* Initialize com-module as a slave on I2C-bus with the address of com-module. */
@@ -51,6 +51,10 @@ int main(void)
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
 	
+	_delay_ms(1000);
+	
+	initMap();
+
 	
 	
 	/* Main loop */
@@ -70,10 +74,9 @@ int main(void)
 				}
 			} 
 		}
-			else {
-			/* Do shit that the PC says to do */
-				if(getStart()) {
-				
+		else {
+		/* Do shit that the PC says to do */
+			if(getStart()) {
 			}
 		}
 	}

@@ -10,8 +10,10 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdbool.h>
+#include <util/delay.h>
 #include "motorKernel.h"
 #include "variables.h"
+#include "gyroController.h"
 
 /*
 	Port 6 = DirLeft, Port 5 = PWMLeft
@@ -22,6 +24,12 @@ static bool booted = false;
 static int curPwrLeft = 0;
 static int curPwrRight = 0;
 
+/*
+PWM freq = 2000 that is 2kHz;
+
+
+*/
+
 void initMotor() {
 	/* Only initialize motor once */
 	if(!booted) {
@@ -30,11 +38,12 @@ void initMotor() {
 		TCCR1A |= (1<<COM1A1);
 		TCCR1A |= (1<<COM1B1);
 		// Set WGM for 10-bit Fast PWM
-		TCCR1A |= (1<<WGM10);
 		TCCR1A |= (1<<WGM11);
 		TCCR1B |= (1<<WGM12);
+		TCCR1B |= (1<<WGM13);
 		// Set CS bits for 8 prescaler
 		TCCR1B |= (1<<CS11);
+		ICR1 = 921;
 		
 		/* Set processor outputs for motor control */
 		DDRD |= 0x78; // 0111_1000;
@@ -49,20 +58,20 @@ void adjust(int u) {
 	/* Calculate new Power for motors */
 	int nPwrL = 0, nPwrR = 0;
 	if(u >= 100) {
-		nPwrL = 10;
-		nPwrR = 90;
+		nPwrL = MIN_SPEED;
+		nPwrR = MAX_SPEED;
 	}else if(u <= -100) {
-		nPwrL = 90;
-		nPwrR = 10;
+		nPwrL = MAX_SPEED;
+		nPwrR = MIN_SPEED;
 	} else {
 		nPwrL = 50 - u;
 		nPwrR = 50 + u;
 		// if they try to use more then 100% power,
 		// make them use less.
-		if(nPwrL > 100) nPwrL = 90;
-		if(nPwrL < 0) nPwrL = 10;
-		if(nPwrR > 100) nPwrR = 90;
-		if(nPwrR < 0) nPwrR = 10;
+		if(nPwrL > MAX_SPEED) nPwrL = MAX_SPEED;
+		if(nPwrL < MIN_SPEED) nPwrL = MIN_SPEED;
+		if(nPwrR > MAX_SPEED) nPwrR = MAX_SPEED;
+		if(nPwrR < MIN_SPEED) nPwrR = MIN_SPEED;
 	}
 	
 	// set new power as current power
@@ -77,8 +86,8 @@ void setMotorSpeed(int powerLeft, int powerRight) {
 	curPwrLeft = (TOTAL_POWER / 100) * powerLeft;
 	curPwrRight = (TOTAL_POWER / 100) * powerRight;
 	// Make sure the pwm signal to the motors doesnt go above 1000
-	if(curPwrLeft > 1000) curPwrLeft = 1000;
-	if(curPwrRight > 1000) curPwrRight = 1000;
+	if(curPwrLeft > MAX_POWER) curPwrLeft = MAX_POWER;
+	if(curPwrRight > MAX_POWER) curPwrRight = MAX_POWER;
 	OCR1A = curPwrRight;
 	OCR1B = curPwrLeft;
 	sei();
@@ -105,7 +114,37 @@ void driveRotateRight(int powerLeft, int powerRight) {
 }
 
 void stop() {
-	curPwrLeft = 0;
-	curPwrRight = 0;
-	setMotorSpeed(0, 0);
+	curPwrLeft = ZERO_SPEED;
+	curPwrRight = ZERO_SPEED;
+	setMotorSpeed(ZERO_SPEED, ZERO_SPEED);
+}
+
+/* 90-degree left turn */
+void turnLeft(int turns) {
+	startGyroInterrupts();
+	float targetAngle = (int)getCurrentAngle() + (LEFT_TURN * turns);
+	while(true) {
+		driveRotateLeft(TURN_SPEED, TURN_SPEED);
+		if((int)getCurrentAngle() >= targetAngle) {
+			stop();
+			stopGyroInterrupts();
+			return;
+		}
+		
+	}
+}
+
+/* 90-degree right turn */
+void turnRight(int turns) {
+	startGyroInterrupts();
+	int targetAngle = (int) getCurrentAngle() - (RIGHT_TURN * turns);
+	while(true) {
+		driveRotateRight(TURN_SPEED, TURN_SPEED);
+		if((int)getCurrentAngle() <= targetAngle) {
+			stop();
+			stopGyroInterrupts();
+			return;
+		}
+		
+	}
 }

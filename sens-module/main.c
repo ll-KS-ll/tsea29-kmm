@@ -230,6 +230,43 @@ ISR(TIMER0_OVF_vect)
 			
 		case 3: // IR_sensor front left
 			data_out = sideIrToCm(adc_read(ch));
+=======
+			data_out = 0;
+			if(adc_read(ch) > 1000){
+				auto_button_down = true;
+			}
+			else if(auto_button_down) {
+				auto_button_down = false;
+				data_out=1;
+				dontCalibrateMore = true;
+			}
+			id = ch;
+			break;
+		case 2: // line sensor
+			if(calibrate) {
+				updateLineSensorCalibrationValues();
+				calibrate = false;
+				dontCalibrateMore = false;
+			} else {
+				updateLineSensorValues();
+			}
+			
+			//if(is_tape()) {
+				//data_out = 1;
+			//} else {
+				//data_out = 0;
+			//}
+			//id = 18;
+			
+			data_out = tapeRegulation();
+			
+			id = 19;
+			
+			break;
+			
+		case 3: // IR_sensor front left
+			data_out = sideIrToCm((unsigned int)adc_read(ch));
+>>>>>>> refs/remotes/origin/autonom
 			id = ch;
 			break;
 		
