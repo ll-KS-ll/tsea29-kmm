@@ -9,8 +9,8 @@ Target "CoreBuild" in file "C:\Program Files (x86)\Atmel\Studio\7.0\Vs\Compiler.
 		make: Nothing to be done for `all'.
 	Done executing task "RunCompilerTask".
 	Task "RunOutputFileVerifyTask"
-				Program Memory Usage 	:	1486 bytes   1,1 % Full
-				Data Memory Usage 		:	48 bytes   0,3 % Full
+				Program Memory Usage 	:	4020 bytes   3,1 % Full
+				Data Memory Usage 		:	52 bytes   0,3 % Full
 	Done executing task "RunOutputFileVerifyTask".
 Done building target "CoreBuild" in project "sty-module.cproj".
 Target "PostBuildEvent" skipped, due to false condition; ('$(PostBuildEvent)' != '') was evaluated as ('' != '').

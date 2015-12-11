@@ -18,13 +18,12 @@ void updateRegisters(uint8_t id, uint16_t data);
 bool getStart();
 bool getAutonom();
 uint16_t getCurrentAngle();
-uint16_t *getSensorBar();
+uint16_t getRegulateValue();
 uint16_t getFrontDistance();
 uint16_t getFrontLeftDistance();
 uint16_t getFrontRightDistance();
 uint16_t getBackLeftDistance();
 uint16_t getBackRightDistance();
-
 uint8_t test;
 
 

@@ -23,11 +23,15 @@ float mathf;
 unsigned int math;
 float voltsperunit = 0.0049;
 
-int ch = 0; //ch = 2 = line sensor
+int ch = 0;
 uint16_t data_test = 0;
-uint8_t mux = 0b00000000;
 uint8_t id;
- uint16_t data_out = 0;
+uint16_t data_out = 0;
+const int DIFF = 50;
+static uint16_t calibrated_sensor_bar[] = {783, 389, 460, 393, 364, 330, 353};
+static uint16_t current_sensor_values[] = {0, 0, 0, 0, 0, 0, 0};
+bool on_tape = false;
+bool cal_sb = true;
 
 void adc_init()
 {
@@ -112,6 +116,47 @@ unsigned int sideIrToCm(uint16_t data) {
 bool start_button_down;
 bool auto_button_down;
 
+void calibrate_sensor_bar()
+{
+	cal_sb = true;
+}
+
+uint16_t tape_regulator(){
+	uint16_t sensor_value;
+	int numerator=0;
+	int denominator=0;
+	//bool arrived = true;
+	volatile float fault=0;
+	
+	volatile int sara=0;
+	volatile int svensson=0;
+	
+	for(int i=0; i<7; i++){
+		sensor_value = current_sensor_values[i];
+		/*if((sensor_value < calibrated_sensor_bar[i]+DIFF) && arrived)
+		{
+			arrived = false;
+		}*/
+		numerator += sensor_value*(i+1);
+		sara=sensor_value*(i+1);
+		sara++;
+		denominator += sensor_value;
+		svensson=sensor_value;
+		svensson++;
+	}
+	fault = (numerator/denominator);
+	fault++;
+	//if(arrived) return 1;
+	if(fault<4){
+		return 2; //2 = left
+	}
+	else if(fault>4.2){
+		return 3; //3 = right
+	}
+	else{
+		return 4; //4 = forwárd
+	}
+}
 
 ISR(TIMER0_OVF_vect)
 {
@@ -142,14 +187,45 @@ ISR(TIMER0_OVF_vect)
 				id = ch;
 			break;
 		case 2: // line sensor
-			//enable_current_linesensor(mux);
-			PORTD = mux;			
-			id = mux+10; //so there is no duplicate for id.
-			_delay_ms(10);
-			data_out = adc_read(ch);
-			//disable_line_sensor();
-			mux++;
-			if (mux == 7) mux = 0;
+			id = ch;
+			volatile uint16_t test=0;
+			volatile uint16_t hej=0;
+			//PORTB=0xFF;
+		/*	if(cal_sb)
+			{
+				cal_sb=false;
+				for (int i=0; i<7; i++)
+				{
+					PORTD = i;
+					calibrated_sensor_bar[i] = adc_read(ch);
+					test = calibrated_sensor_bar[i];
+					test++;
+				}
+			}
+			else{*/
+				for (uint8_t mux=0; mux<7; mux++)
+				{
+					enable_current_linesensor(mux);
+					PORTD = mux;
+					current_sensor_values[mux] = adc_read(ch);
+					hej=current_sensor_values[mux];
+					hej++;
+					//if(current_sensor_values[mux] > calibrated_sensor_bar[mux]+DIFF) on_tape = true; //can't be here since this wont be true before it's calibrated
+				}
+			//}
+			/*if (cal_sb)
+			{
+				strncpy(calibrated_sensor_bar,current_sensor_values,7);
+				cal_sb = false;
+			}*/
+			
+			//if(on_tape)
+			//{
+				//on_tape = false;
+				data_out = tape_regulator();
+			//}
+			//else data_out = 0; 
+			disable_line_sensor();
 			break;
 			
 		case 3: // IR_sensor front left
@@ -212,7 +288,7 @@ int main(void)
 	adc_init();
 	
 	_delay_ms(500);
-	
+	volatile uint8_t test;
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
 	

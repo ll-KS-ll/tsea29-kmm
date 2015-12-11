@@ -22,7 +22,7 @@ static unsigned int frontLeftDistance = 0;
 static unsigned int backLeftDistance = 0;
 static unsigned int frontRightDistance = 0;
 static unsigned int backRightDistance = 0;
-static uint16_t sensorBar[] = {0, 0, 0, 0, 0, 0, 0};
+volatile static unsigned int regulate_value = 0;
 
 /* Variables used for converting frontDistance to cm */
 float mathf;
@@ -48,11 +48,16 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 				 start = !start;
 			}
 			break;
+			
 		case 1:
 			if(data)
 			 {
 				 autonom = !autonom;
 			 }
+			break;
+			
+		case 2:
+			regulate_value = data;
 			break;
 			
 		case 3:
@@ -78,34 +83,7 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 		case 7:
 			frontRightDistance = sideIrToCm(data);
 			break;
-		/*ful-hack*/
-		case 10:
-			sensorBar[0] = data;
-			break;
-			
-		case 11:
-			sensorBar[1] = data;
-			break;
-			
-		case 12:
-			sensorBar[2] = data;
-			break;
-			
-		case 13:
-			sensorBar[3] = data;
-			break;
-			
-		case 14:
-			sensorBar[4] = data;
-			break;
-			
-		case 15:
-			sensorBar[5] = data;
-			break;
-			
-		case 16:
-			sensorBar[6] = data;
-			break;
+
 		case 17:
 			gyroValue = data;
 			gyroRate = (gyroValue - offset);
@@ -121,12 +99,12 @@ bool getAutonom(){
 	return autonom;
 }
 
-uint16_t getCurrentAngle() {
-	return angle;
+uint16_t getRegulateValue(){
+	return regulate_value;
 }
 
-uint16_t *getSensorBar() {
-	return sensorBar;
+uint16_t getCurrentAngle() {
+	return angle;
 }
 
 uint16_t getFrontDistance() {
