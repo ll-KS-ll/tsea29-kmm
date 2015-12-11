@@ -6,7 +6,7 @@
  */ 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <i2c_slave.h>
+#include "i2c_slave.h"
 #include <stdbool.h>
 
 /* Variables to track progress of package */

@@ -11,7 +11,10 @@
 #include "sensorValues.h"
 
 // Init all values to zero
-static int angle = 0;
+static float angle = 0;
+static unsigned char gyroValue = 0;
+static unsigned char offset = 128;
+static float gyroRate;
 static uint16_t frontDistance = 0;
 static uint16_t frontLeftDistance = 0;
 static uint16_t backLeftDistance = 0;
@@ -19,12 +22,16 @@ static uint16_t frontRightDistance = 0;
 static uint16_t backRightDistance = 0;
 static uint16_t sensorBar[] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-
-void updateRegisters(uint8_t id, uint16_t data) {
-	
+// Convert values so they are between 70 - 0, larger number equals closer.
+void updateRegisters(uint8_t id, uint16_t dataIn) {
+	int data = dataIn;
+	int temp = 0;
 	switch (id) {
 		
 		case 1:
+			gyroValue = data;
+			gyroRate = (gyroValue - offset);
+			angle += gyroRate / 100;
 			break;
 		
 		case 2:

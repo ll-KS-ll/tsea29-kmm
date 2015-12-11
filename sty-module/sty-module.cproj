@@ -40,12 +40,12 @@
       </framework-data>
     </AsfFrameworkConfig>
     <avrtool>com.atmel.avrdbg.tool.atmelice</avrtool>
-    <avrtoolserialnumber>J41800005500</avrtoolserialnumber>
+    <avrtoolserialnumber>J41800004432</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x1E9705</avrdeviceexpectedsignature>
     <com_atmel_avrdbg_tool_atmelice>
       <ToolOptions>
         <InterfaceProperties>
-          <JtagDbgClock>3000000</JtagDbgClock>
+          <JtagDbgClock>3057624</JtagDbgClock>
           <JtagEnableExtResetOnStartSession>false</JtagEnableExtResetOnStartSession>
           <JtagInChain>true</JtagInChain>
           <JtagDevicesBefore>0</JtagDevicesBefore>
@@ -60,11 +60,11 @@
         <InterfaceName>JTAG</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.atmelice</ToolType>
-      <ToolNumber>J41800005500</ToolNumber>
+      <ToolNumber>J41800004432</ToolNumber>
       <ToolName>Atmel-ICE</ToolName>
     </com_atmel_avrdbg_tool_atmelice>
     <avrtoolinterface>JTAG</avrtoolinterface>
-    <avrtoolinterfaceclock>3000000</avrtoolinterfaceclock>
+    <avrtoolinterfaceclock>3057624</avrtoolinterfaceclock>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
@@ -120,7 +120,6 @@
         <avrgcc.compiler.directories.IncludePaths>
           <ListValues>
             <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.0.90\include</Value>
-            <Value>..</Value>
           </ListValues>
         </avrgcc.compiler.directories.IncludePaths>
         <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
@@ -154,6 +153,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="clawKernel.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="gyroController.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="gyroController.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="i2c_slave.c">

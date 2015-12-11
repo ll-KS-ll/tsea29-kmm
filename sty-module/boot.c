@@ -7,10 +7,13 @@
  *																		*
 /************************************************************************/
 
+#include "boot.h"
 #include "motorKernel.h"
 #include "clawKernel.h"
+#include "gyroController.h"
 
 void boot() {
 	initMotor();
-	initClaw();
+	//initClaw();
+	initGyro();
 }

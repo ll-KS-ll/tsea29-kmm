@@ -5,15 +5,20 @@
  *  Author: Lukas
  */ 
 
+#include <stdint-gcc.h>
 
 #ifndef VARIABLES_H_
 #define VARIABLES_H_
 
 
-#define DEFAULT_SPEED 400
-#define MAX_SPEED (DEFAULT_SPEED + 100)
-#define MIN_SPEED (DEFAULT_SPEED - 100)
-#define MIN_DISTANCE_TO_FRONT_WALL 500
+#define TOTAL_POWER 1000
+#define MIN_DISTANCE_TO_FRONT_WALL 25
+
+#define KP 3
+#define KD 8
+
+#define GYRO 1
+
 
 
 

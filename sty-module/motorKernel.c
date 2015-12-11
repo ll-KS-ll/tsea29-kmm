@@ -11,19 +11,20 @@
 #include <avr/interrupt.h>
 #include <stdbool.h>
 #include "motorKernel.h"
+#include "variables.h"
 
 /*
 	Port 6 = DirLeft, Port 5 = PWMLeft
 	Port 3 = DirRight, Port 4 = PWMRight
 */
-static int currentLeftSpeed;
-static int currentRightSpeed;
+
 static bool booted = false;
+static int curPwrLeft = 0;
+static int curPwrRight = 0;
 
 void initMotor() {
 	/* Only initialize motor once */
 	if(!booted) {
-		cli(); // disable global interrupts
 		
 		// Set compare output mode to non-inverted
 		TCCR1A |= (1<<COM1A1);
@@ -40,51 +41,93 @@ void initMotor() {
 		
 		booted = true; // Stop from booting again
 		
-		sei(); // enable global interrupts
 	}
 }
 
-void adjustRight() {
-	currentLeftSpeed += 2;
-	currentRightSpeed -= 2;
-	setMotorSpeed(currentLeftSpeed, currentRightSpeed);
+
+void adjust(int u) {
+	/* Calculate new Power for motors */
+	int nPwrL = 0, nPwrR = 0;
+	if(u >= 100) {
+		nPwrL = 10;
+		nPwrR = 90;
+	}else if(u <= -100) {
+		nPwrL = 90;
+		nPwrR = 10;
+	} else {
+		nPwrL = 50 - u;
+		nPwrR = 50 + u;
+		// if they try to use more then 100% power,
+		// make them use less.
+		if(nPwrL > 100) nPwrL = 90;
+		if(nPwrL < 0) nPwrL = 10;
+		if(nPwrR > 100) nPwrR = 90;
+		if(nPwrR < 0) nPwrR = 10;
+	}
+	
+	// set new power as current power
+	curPwrLeft = nPwrL;
+	curPwrRight = nPwrR;
+
+	driveForward(curPwrLeft, curPwrRight);
 }
 
-void adjustLeft() {
-	currentLeftSpeed -= 2;
-	currentRightSpeed += 2;
-	setMotorSpeed(currentLeftSpeed, currentRightSpeed);
-}
-
-void setMotorSpeed(int leftSpeed, int rightSpeed) {
+void setMotorSpeed(int powerLeft, int powerRight) {
 	cli();
-	OCR1A = leftSpeed;
-	OCR1B = rightSpeed;
-	currentLeftSpeed = leftSpeed;
-	currentRightSpeed = rightSpeed;
+	curPwrLeft = (TOTAL_POWER / 100) * powerLeft;
+	curPwrRight = (TOTAL_POWER / 100) * powerRight;
+	// Make sure the pwm signal to the motors doesnt go above 1000
+	if(curPwrLeft > 1000) curPwrLeft = 1000;
+	if(curPwrRight > 1000) curPwrRight = 1000;
+	OCR1A = curPwrRight;
+	OCR1B = curPwrLeft;
 	sei();
 }
 
-void driveForward(int leftSpeed, int rightSpeed) {
+void driveForward(int powerLeft, int powerRight) {
 	PORTD = (0<<3)|(1<<6);
-	setMotorSpeed(leftSpeed, rightSpeed);
+	setMotorSpeed(powerLeft, powerRight);
 }
 
-void driveReverse(int leftSpeed, int rightSpeed) {
+void driveReverse(int powerLeft, int powerRight) {
 	PORTD = (1<<3)|(0<<6);
-	setMotorSpeed(leftSpeed, rightSpeed);
+	setMotorSpeed(powerLeft, powerRight);
 }
 
-void driveRotateLeft(int leftSpeed, int rightSpeed) {
+void driveRotateLeft(int powerLeft, int powerRight) {
 	PORTD = (1<<3)|(1<<6);
-	setMotorSpeed(leftSpeed, rightSpeed);
+	setMotorSpeed(powerLeft, powerRight);
 }
 
-void driveRotateRight(int leftSpeed, int rightSpeed) {
+void driveRotateRight(int powerLeft, int powerRight) {
 	PORTD = (0<<3)|(0<<6);
-	setMotorSpeed(leftSpeed, rightSpeed);
+	setMotorSpeed(powerLeft, powerRight);
 }
 
 void stop() {
+	curPwrLeft = 0;
+	curPwrRight = 0;
 	setMotorSpeed(0, 0);
+}
+
+void rotateLeft(void)
+{
+	int angle_value = getCurrentAngle();
+	while (angle_value < 2700)
+	{
+		driveRotateLeft(50, 50);
+		angle_value = getCurrentAngle();
+	}
+	stop();
+}
+
+void rotateRight()
+{
+	int angle_value = getCurrentAngle();
+	while (angle_value > 1000)
+	{
+		driveRotateRight(50, 50);
+		angle_value = getCurrentAngle();
+	}
+	stop();
 }
