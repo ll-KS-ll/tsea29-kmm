@@ -12,6 +12,7 @@
 #include <stdbool.h>
 #include "motorKernel.h"
 #include "variables.h"
+#include "i2c_slave.h"
 
 /*
 	Port 6 = DirLeft, Port 5 = PWMLeft
@@ -87,25 +88,30 @@ void setMotorSpeed(int powerLeft, int powerRight) {
 void driveForward(int powerLeft, int powerRight) {
 	PORTD = (0<<3)|(1<<6);
 	setMotorSpeed(powerLeft, powerRight);
+	cur_steer_cmd = 1;
 }
 
 void driveReverse(int powerLeft, int powerRight) {
 	PORTD = (1<<3)|(0<<6);
 	setMotorSpeed(powerLeft, powerRight);
+	cur_steer_cmd = 3;
 }
 
 void driveRotateLeft(int powerLeft, int powerRight) {
 	PORTD = (1<<3)|(1<<6);
 	setMotorSpeed(powerLeft, powerRight);
+	cur_steer_cmd = 7;
 }
 
 void driveRotateRight(int powerLeft, int powerRight) {
 	PORTD = (0<<3)|(0<<6);
 	setMotorSpeed(powerLeft, powerRight);
+	cur_steer_cmd = 6;
 }
 
 void stop() {
 	curPwrLeft = 0;
 	curPwrRight = 0;
 	setMotorSpeed(0, 0);
+	cur_steer_cmd = 2;
 }

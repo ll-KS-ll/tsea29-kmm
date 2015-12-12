@@ -7,5 +7,4 @@ void bt_transmit( uint8_t data );
 /* Polling for receiving data on bluetooth. */
 uint8_t bt_receive( void );
 
-
-uint8_t bt_data;	// Received data over bluetooth is put here.  
+uint8_t steeringCmd;	// Received data over bluetooth is put here.
