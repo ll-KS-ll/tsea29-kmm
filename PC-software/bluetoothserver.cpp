@@ -1,6 +1,5 @@
 #include "bluetoothserver.h"
 
-
 BluetoothServer::BluetoothServer(QObject *parent) : QObject(parent)
 {
     spp = new QSerialPort(this->parent());
@@ -36,6 +35,12 @@ void BluetoothServer::readyRead()
     quint8 id = barr.at(0);     // First(0) byte is ID.
     quint16 data = barr.at(1);  // Second(1) byte is Data
 
+    if (spp->size() >= 64)
+        spp->clear();
+
+    //unsigned int id = barr.at(0);     // First(0) byte is ID.
+    //unsigned int data = barr.at(1);  // Second(1) byte is Data
+
     emit updateData(id, data);
 }
 
@@ -55,5 +60,5 @@ void BluetoothServer::writeCommand(const quint8 &sty_cmd)
     if (written == 1)
         emit sentCommand(sty_cmd);
     else
-        emit statusUpdate("<span style=\"color: red;\">Couldn't write command.</span>");
+        emit statusUpdate("<span style=\"color: red;\">Couldn't write command. Wrote " + QString::number(written) + "bytes.</span>");
 }
