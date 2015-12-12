@@ -56,10 +56,10 @@ void initMap() {
 
 // When robot has reached unexplored, set it as explored and update its walls.
 void addNode(dir curDir){
-    if(labyrinth[xpos][ypos].status == UNEXPLORED && !getIsThereTape()) {
+    if(labyrinth[xpos][ypos].status == UNEXPLORED && !getSeesTape()) {
         labyrinth[xpos][ypos].status = EXPLORED;
 		updateWalls(curDir);
-    } else if(labyrinth[xpos][ypos].status == UNEXPLORED && getIsThereTape()) {
+    } else if(labyrinth[xpos][ypos].status == UNEXPLORED && getSeesTape()) {
 		labyrinth[xpos][ypos].status = FESTISBOX;
 		updateWalls(curDir);
 	}

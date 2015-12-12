@@ -28,7 +28,6 @@ unsigned int getBackLeftDistance();
 unsigned int getBackRightDistance();
 bool getSeesTape();
 unsigned int getTapeReg();
-bool getIsThereTape();
 
 uint8_t test;
 

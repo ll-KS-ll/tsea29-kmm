@@ -230,6 +230,11 @@ void moveOneNode(nodeStatus find){
 	
 	while(true) {
 		findNextTurnCrossingOrDeadend();
+		if(find == FESTISBOX && getSeesTape()) {
+			stopOneSquareInterrupts();
+			stop();
+			break;
+		}
 		if(oneSquare >= ONE_SQUARE || getFrontDistance() <= FRONT_CLOSED) {
 			stopOneSquareInterrupts();
 			stop();
@@ -242,6 +247,11 @@ void exitCrossingOrTurn(nodeStatus find) {
 	startOneSquareInterrupts();
 	while(true) {
 		regulateRobot();
+		if(find == FESTISBOX && getSeesTape()) {
+			stopOneSquareInterrupts();
+			stop();
+			break;
+		}
 		if(oneSquare >= ONE_SQUARE || getFrontDistance() <= FRONT_CLOSED) {
 			stopOneSquareInterrupts();
 			stop();
@@ -440,27 +450,44 @@ void correctSelf() {
 bool moveToNode(nodeStatus find)
 {
 	int path = findClosest(find);
+	
+	if(find == START) {
+		// pickUpFestisBox();
+	}
+	
 	if(path == north) {
 		while(correctPathNorth[getX()][getY()] != DUNNO) {
 			advOneNodeInCorrectPath(correctPathNorth, find);
+			if(find == FESTISBOX && getSeesTape()) {
+				return true;
+			}
 			placeSelfCloserToWall();
 			correctSelf();
 		}
 	} else if(path == east) {
 		while(correctPathEast[getX()][getY()] != DUNNO) {
 			advOneNodeInCorrectPath(correctPathEast, find);
+			if(find == FESTISBOX && getSeesTape()) {
+				return true;
+			}
 			placeSelfCloserToWall();
 			correctSelf();
 		}
 	} else if(path == south) {
 		while(correctPathSouth[getX()][getY()] != DUNNO) {
 			advOneNodeInCorrectPath(correctPathSouth, find);
+			if(find == FESTISBOX && getSeesTape()) {
+				return true;
+			}
 			placeSelfCloserToWall();
 			correctSelf();
 		}
 	} else if(path == west) {
 		while(correctPathWest[getX()][getY()] != DUNNO) {
 			advOneNodeInCorrectPath(correctPathWest, find);
+			if(find == FESTISBOX && getSeesTape()) {
+				return true;
+			}
 			placeSelfCloserToWall();
 			correctSelf();
 		}
@@ -471,6 +498,17 @@ bool moveToNode(nodeStatus find)
 	return false;
 }
 
+void followTape() {
+	unsigned int regValue = getTapeReg();
+	
+	if(regValue < 5) {
+		driveRotateRight(15, 15);
+	} else if(regValue > 7) {
+		driveRotateLeft(15, 15);
+	} else {
+		driveForward(15, 15);
+	}
+}
 
 void exploreLabyrinth() {
 	bool labyrinthExplored = false;
@@ -489,25 +527,24 @@ void exploreLabyrinth() {
 		_delay_ms(200);
 		addNode(currentDir);
 	}
-	
-	lowerClaw();
-	_delay_ms(500);
-	closeClaw();
-	_delay_ms(500);
-	raiseClaw();
+	//
+	//lowerClaw();
+	//_delay_ms(500);
+	//closeClaw();
+	//_delay_ms(500);
+	//raiseClaw();
 	
 	// ******************************************
 	// ACTIVATE CODE WHEN LINESENSOR IS FINISHED
 	// ******************************************
 	
-	/*
 	while(labyrinthExplored && !festisBoxReached) {
 		festisBoxReached = moveToNode(FESTISBOX);
 	}
-	*/
+	
 	
 	/*
-		Insert code for following tape and picking up festisbox
+		advanceToFestisBox();
 	*/
 	
 	

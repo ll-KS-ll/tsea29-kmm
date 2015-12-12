@@ -124,11 +124,12 @@ void updateLineSensorValues()
 		PORTD = mux;
 		sensorBar[mux] = (unsigned int)adc_read(ch);
 		
-		_delay_ms(2);
 	}
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
 
+
+volatile unsigned int l0, l1, l2, l3, l4, l5, l6;
 void updateLineSensorCalibrationValues()
 {
 	TCCR0 = (0<<CS02)|(0<<CS00);
@@ -137,22 +138,38 @@ void updateLineSensorCalibrationValues()
 		PORTD = mux;
 		sensorBarCalibration[mux] = (unsigned int)adc_read(ch);
 		
-		_delay_ms(2);
 	}
+	l0 = sensorBarCalibration[0];
+	//l0++;
+	//l1 = sensorBarCalibration[1];
+	//l1++;
+	//l2 = sensorBarCalibration[2];
+	//l2++;
+	//l3 = sensorBarCalibration[3];
+	//l3++;
+	//l4 = sensorBarCalibration[4];
+	//l4++;
+	//l5 = sensorBarCalibration[5];
+	//l5++;
+	//l6 = sensorBarCalibration[6];
+	//l6++;
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
 
 bool is_tape(){
 	int count = 0;
+	unsigned int sensorValue;;
+	unsigned int calibrationValue;
+	
 	for(int i = 0; i < 7; i++){
-		unsigned int sensorValue = sensorBar[i];
-		unsigned int calibrationValue = sensorBarCalibration[i];
+		sensorValue = sensorBar[i];
+		calibrationValue = sensorBarCalibration[i];
 		
-		if(sensorValue >= calibrationValue - 100) {
+		if(sensorValue >= calibrationValue - 20) {
 			count++;
 		}
 		
-		if(count > 3) {
+		if(count > 2) {
 			return true;
 		}
 	}
@@ -160,32 +177,30 @@ bool is_tape(){
 }
 
 
-unsigned int reg = 5;
 
-unsigned tapeRegulation() {
-	for(int i = 0; i < 3; i++) {
-		unsigned int sensorValue = sensorBar[i];
-		unsigned int calibrationValue = sensorBarCalibration[i];
-		if(sensorValue >= calibrationValue - 100) {
-			if(reg < 10) {
-				reg++;
-			}
+unsigned int tapeRegulation() {
+	int wrong = 0;
+	int count = 0;
+	
+	unsigned int sensorValue;
+	unsigned int calibrationValue;
+	
+	for(int i = 0; i < 7; i++){
+		sensorValue = sensorBar[i];
+		calibrationValue = sensorBarCalibration[i];
+		
+		if(sensorValue >= calibrationValue - 20) {
+			wrong += (i+1);
+			count++;
 		}
 	}
-	for(int i = 4; i < 7; i++) {
-		unsigned int sensorValue = sensorBar[i];
-		unsigned int calibrationValue = sensorBarCalibration[i];
-		if(sensorValue >= calibrationValue - 100) {
-			if(reg > 0) {
-				reg--;
-			}
-		}
-	}
-	return reg;
+	
+	return  10 - (wrong/count);
+	
 }
 
-bool calibrate = false;
-bool dontCalibrateMore = false;
+static bool calibrate = false;
+static bool dontCalibrateMore = false;
 
 ISR(TIMER0_OVF_vect)
 {
@@ -220,22 +235,16 @@ ISR(TIMER0_OVF_vect)
 			if(calibrate) {
 				updateLineSensorCalibrationValues();
 				calibrate = false;
-				dontCalibrateMore = false;
 			} else {
 				updateLineSensorValues();
 			}
 			
-			//if(is_tape()) {
-				//data_out = 1;
-			//} else {
-				//data_out = 0;
-			//}
-			//id = 18;
-			
-			data_out = tapeRegulation();
-			
-			id = 19;
-			
+			if(is_tape()) {
+				data_out = 1;
+			} else {
+				data_out = 0;
+			}
+			id = 18;			
 			break;
 			
 		case 3: // IR_sensor front left
@@ -262,6 +271,9 @@ ISR(TIMER0_OVF_vect)
 			data_out = sideIrToCm((unsigned int)adc_read(ch));
 			id = ch;
 			break;
+		case 8:
+			data_out = (unsigned int) tapeRegulation();
+			id = 19;
 	}
 
 	data_package datap = {id, data_out};
@@ -270,7 +282,7 @@ ISR(TIMER0_OVF_vect)
 	data_out = 0;
 	
 	ch++;
-	if (ch == 8) {
+	if (ch == 9) {
 		ch = 0;
 	}
 	TCNT0 = 227;
@@ -299,12 +311,8 @@ int main(void)
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
 	
-	//volatile  l4, l5, l6;
 	
 	while(true){
-		//l4 = sensorBar[4];
-		//l5 = sensorBar[5];
-		//l6 = sensorBar[6];
-		//
+		
 	}
 }

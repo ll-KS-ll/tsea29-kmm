@@ -24,8 +24,8 @@ static unsigned int frontRightDistance = 0;
 static unsigned int backRightDistance = 0;
 static unsigned int sensorBar[] = {0, 0, 0, 0, 0, 0, 0};
 static unsigned int sensorBarCalibration[] = {0, 0, 0, 0, 0, 0, 0};
-static unsigned int seesTape = 0;
-static unsigned int tapeReg = 5;
+static bool seesTape = false;
+static unsigned int tapeReg;
 
 
 // Convert values so they are between 70 - 0, larger number equals closer.
@@ -103,7 +103,9 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 		case 18:
 			if(data)
 			{
-				seesTape = !seesTape;
+				seesTape = true;
+			} else {
+				seesTape = false;
 			}
 			break;
 		case 19:
@@ -127,10 +129,6 @@ bool getStart(){
 
 bool getAutonom(){
 	return autonom;
-}
-
-bool getIsThereTape() {
-	return false;
 }
 
 int getCurrentAngle() {

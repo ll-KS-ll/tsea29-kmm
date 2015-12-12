@@ -83,7 +83,7 @@ int main(void)
 	_delay_ms(1000);
 	
 	initMap();
-	
+	//volatile fr,fl, br, bl;
 	
 	/* Main loop */
 	while (1)
@@ -91,29 +91,34 @@ int main(void)
 		if(getAutonom()) {
 			if(getStart()) {
 				
-				updateRegisters(0, 1);
 				/* reset start so it only runs the labyrinth once */
-				//while (!getSeesTape())
-				//{
-					//driveForward(15, 15);
-				//}
-				//stop();
+				updateRegisters(0, 1);
+				while(!getSeesTape()) {
+					driveForward(50, 50);
+				}
+				stop();
+				_delay_ms(1000);
+				while(!getSeesTape()) {
+					followTape();
+				}
+				stop();
+				
 				// --------------------------
 				//updateRegisters(0, 1);
 				//exploreLabyrinth();
 				// -------------------------
 				
-				while(true) {
-					if(getTapeReg() == 5) {
-						driveForward(15, 15);
-					}
-					if(getTapeReg() > 5) {
-						driveRotateRight(15, 15);
-					}
-					if(getTapeReg() < 5) {
-						driveRotateLeft(15, 15);
-					}
-				}
+				//while(true) {
+					//if(getTapeReg() == 5) {
+						//driveForward(15, 15);
+					//}
+					//if(getTapeReg() > 5) {
+						//driveRotateRight(15, 15);
+					//}
+					//if(getTapeReg() < 5) {
+						//driveRotateLeft(15, 15);
+					//}
+				//}
 				
 			}
 		} else if(!getAutonom()) {
@@ -121,7 +126,8 @@ int main(void)
 			if(getStart()) {
 				/* reset start so it only runs the labyrinth once */
 				updateRegisters(0, 1);
-				//setTapeCalibrationValues();
+				
+				
 			}
 		}
 	}

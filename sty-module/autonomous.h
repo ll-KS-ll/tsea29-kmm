@@ -13,5 +13,6 @@
 
 void exploreLabyrinth();
 void initOneSquareTimer();
+void followTape();
 
 #endif /* AUTONOMOUS_H_ */
