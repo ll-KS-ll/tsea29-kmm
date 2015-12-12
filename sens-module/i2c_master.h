@@ -36,8 +36,10 @@ typedef struct {
 } data_package;
 
 data_package recv_datap;	// Received data packages from slaves can be put here.
+volatile int dataRead;		// Flag to keep track of when all the data have been read.
 
 
 void i2c_init_master( void );							// Initialize processor as master on i2c_bus.
 void i2c_write(uint8_t address, data_package datap);	// Write a data package to slave with specified address. If bus is busy, package is dropped.
 void i2c_read(uint8_t address, uint8_t id);				// Read data from data package with specified id from a slave with specified address. Read data can be access from recv_datap. If bus is busy, package is dropped. 
+void i2c_wait_for_data();

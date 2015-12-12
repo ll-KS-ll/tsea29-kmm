@@ -23,6 +23,7 @@ static unsigned int backLeftDistance = 0;
 static unsigned int frontRightDistance = 0;
 static unsigned int backRightDistance = 0;
 static uint16_t sensorBar[] = {0, 0, 0, 0, 0, 0, 0};
+static unsigned int recvSteeringCmd = 0;
 	
 /* Variables used for converting frontDistance to cm */
 float mathf;
@@ -78,6 +79,9 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 		case 7:
 			frontRightDistance = data = sideIrToCm(data);
 			flag_array |= 1<<6;
+			break;
+		case 8:
+			recvSteeringCmd = data;
 			break;
 		/*ful-hack*/
 		case 10:

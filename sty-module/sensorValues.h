@@ -24,6 +24,7 @@ uint16_t getFrontLeftDistance();
 uint16_t getFrontRightDistance();
 uint16_t getBackLeftDistance();
 uint16_t getBackRightDistance();
+uint16_t getActiveCmd();
 
 uint8_t test;
 

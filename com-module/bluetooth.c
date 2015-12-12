@@ -25,21 +25,8 @@ void bt_transmit( uint8_t data )
 	UDR0 = data;
 }
 
-/* Read using POLLING, we don't use polling. */
-uint8_t bt_receive( void )
-{
-	/* Wait for data to be received */
-	while ( !(UCSR0A & (1<<RXC0)) )
-	;
-	/* Get and return received data from buffer */
-	steeringCmd = UDR0;
-	write_data = steeringCmd;
-	return steeringCmd;
-}
-
 ISR(USART0_RX_vect)
 {
 	steeringCmd = UDR0;
 	write_data = steeringCmd;
-	/* Echo back received data */
 }

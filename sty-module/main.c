@@ -94,9 +94,34 @@ int main(void)
 			}
 		} else {
 			/* Do shit that the PC says to do */
-			if(getStart()) {
-				
-			}
+			switch (getActiveCmd())
+			{
+				case 0: // NOP
+					break;
+				case 1: // Forward
+					driveForward(30,30);
+					break;
+				case 2: // Stop
+					stop();
+					break;
+				case 3: // Reverse
+					driveReverse(30,30);
+					break;
+				case 4: // Turn Right
+					driveForward(45,30);
+					break;
+				case 5: // Turn Left
+					driveForward(30,45);
+					break;
+				case 6: // Rotate Right
+					driveRotateRight(30,30);
+					break;
+				case 7: // Rotate Left
+					driveRotateLeft(30,30);
+					break;
+				case 8: // Calibrate --- TODO
+					break;
+			}	
 		}
 	}
 }
