@@ -112,11 +112,13 @@ void MainWindow::updateData(const quint8 &id, const quint16 &data)
             }
             break;
         case BUTTON_AUTO:
-            ui->logTextBox->append("Pressed autonom button");
+            if(data == 1)
+                ui->logTextBox->append("Pressed autonom button");
             break;
 
         case BUTTON_START:
-            ui->logTextBox->append("Pressed start button");
+            if(data == 1)
+                ui->logTextBox->append("Pressed start button");
             break;
 
         default:
