@@ -27,6 +27,5 @@ void bt_transmit( uint8_t data )
 
 ISR(USART0_RX_vect)
 {
-	steeringCmd = UDR0;
-	write_data = steeringCmd;
+	write_data = UDR0; //steeringCmd;
 }

@@ -100,18 +100,15 @@ void i2c_read(uint8_t address, uint8_t id)
 		return;
 	//while (bus_busy);
 	bus_busy = true;
-	dataRead = 0;
+	if(id == 8)
+		styDataRead = 0;
+	else
+		comDataRead = 0;
 	rw_mode = I2C_READ;
 	transaction_state = 0;
 	adr = address + I2C_WRITE;
 	dp.id = id;
 	start();	// Send START condition to begin transaction.
-}
-
-void i2c_wait_for_data()
-{
-	while(dataRead == 0);
-	dataRead = 0;	
 }
 
 /* Interrupt handler for I2C interrupts. */
@@ -168,8 +165,13 @@ ISR(TWI_vect){
 			
 		case DATA_NACK_RECEIVED:	// Data byte has been received; NACK received.
 			dp.data = (recv_data<<8) + TWDR;	// Ldata received.
-			recv_datap = dp;	// Complete package read.
-			dataRead = 1;		// All data have been read.
+			if(dp.id == 8){
+				sty_recv_datap = dp;	// Complete package read.
+				styDataRead = 1;
+			} else {
+				com_recv_datap = dp;
+				comDataRead = 1;	// All data have been read.
+			}
 			stop();				// End transmission.
 			break;		
 		/* ================== */

@@ -88,7 +88,12 @@ void setMotorSpeed(int powerLeft, int powerRight) {
 void driveForward(int powerLeft, int powerRight) {
 	PORTD = (0<<3)|(1<<6);
 	setMotorSpeed(powerLeft, powerRight);
-	cur_steer_cmd = 1;
+	if (powerLeft == powerRight)
+		cur_steer_cmd = 1;
+	else if (powerRight < powerLeft)
+		cur_steer_cmd = 4;
+	else
+		cur_steer_cmd = 5;
 }
 
 void driveReverse(int powerLeft, int powerRight) {

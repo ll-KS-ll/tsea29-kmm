@@ -35,8 +35,10 @@ typedef struct {
 	uint16_t data;
 } data_package;
 
-data_package recv_datap;	// Received data packages from slaves can be put here.
-volatile int dataRead;		// Flag to keep track of when all the data have been read.
+data_package sty_recv_datap;	// Received data packages from slaves can be put here.
+data_package com_recv_datap;	// Received data packages from slaves can be put here.
+volatile int styDataRead;		// Flag to keep track of when all the data have been read.
+volatile int comDataRead;		// Flag to keep track of when all the data have been read.
 
 
 void i2c_init_master( void );							// Initialize processor as master on i2c_bus.

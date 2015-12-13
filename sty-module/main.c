@@ -108,10 +108,10 @@ int main(void)
 					driveReverse(30,30);
 					break;
 				case 4: // Turn Right
-					driveForward(45,30);
+					driveForward(40,20);
 					break;
 				case 5: // Turn Left
-					driveForward(30,45);
+					driveForward(20,40);
 					break;
 				case 6: // Rotate Right
 					driveRotateRight(30,30);

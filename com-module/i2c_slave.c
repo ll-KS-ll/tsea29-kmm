@@ -33,6 +33,7 @@ void i2c_init_slave( uint8_t address )
 	id = datah = true;
 	datap = &datap_buffer1;
 	buffer = 0;
+	write_data = 0;
 }
 
 /* Clear the i2c interrupt flag. */

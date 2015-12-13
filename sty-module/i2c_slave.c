@@ -32,6 +32,7 @@ void i2c_init_slave( uint8_t address )
 	id = datah = true;
 	datap = &datap_buffer1;
 	buffer = 0;
+	cur_steer_cmd = 2; // Initiate robot with steering command stop aka don't do stupid shit.
 	
 }
 
