@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QKeySequence>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -12,6 +13,18 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(btServer, SIGNAL(statusUpdate(QString)), this, SLOT(statusUpdated(QString)));
     connect(btServer, SIGNAL(updateData(quint8,quint16)), this, SLOT(updateData(quint8,quint16)));
     connect(btServer, SIGNAL(sentCommand(quint8)), this, SLOT(sentCommand(quint8)));
+
+    ui->btn_forward->setShortcut(QKeySequence(tr("W")));
+    ui->btn_stop->setShortcut(QKeySequence(tr("S")));
+    ui->btn_reverse->setShortcut(QKeySequence(tr("X")));
+
+    ui->btn_turnLeft->setShortcut(QKeySequence(tr("A")));
+    ui->btn_turnRight->setShortcut(QKeySequence(tr("D")));
+
+    ui->btn_rotateLeft->setShortcut(QKeySequence(tr("Q")));
+    ui->btn_rotateRight->setShortcut(QKeySequence(tr("E")));
+
+    ui->btn_calibrate->setShortcut(QKeySequence(tr("C")));
 }
 
 MainWindow::~MainWindow()
@@ -106,10 +119,13 @@ void MainWindow::updateData(const quint8 &id, const quint16 &data)
             ui->reflex7->setText(QString::number(data));
             break;
         case STY_CMD:
-            if (ui->activeCmd->text() != cmd2str(data)) {
-                ui->activeCmd->setText(cmd2str(data));
+            if (ui->lbl_activeCmd->text() != cmd2str(data) && data != 0) {
+                ui->lbl_activeCmd->setText(cmd2str(data));
                 ui->logTextBox->append(cmd2str(data));
             }
+            break;
+        case REMOTE_CMD:
+
             break;
         case BUTTON_AUTO:
             if(data == 1)
@@ -123,7 +139,7 @@ void MainWindow::updateData(const quint8 &id, const quint16 &data)
 
         default:
             ui->logTextBox->append(QString("<span style=\"color: orange;\">Unrecognized id: [" +
-                                           QString::number(id) + ": " +QString::number(data) + "]"));
+                                           QString::number(id) + ": " +QString::number(data) + "]</span>"));
             break;
     }
 }
@@ -136,20 +152,22 @@ void MainWindow::sentCommand(const quint8 &cmd)
 void MainWindow::on_connect_clicked()
 {
     btServer->start(ui->serialPortName->text());
+    this->focusNextChild();
 }
 
-void MainWindow::on_driveForward_clicked() { btServer->writeCommand(CMD_FORWARD); }
+void MainWindow::on_btn_forward_clicked() { btServer->writeCommand(CMD_FORWARD); }
 
-void MainWindow::on_stop_clicked() { btServer->writeCommand(CMD_STOP); }
+void MainWindow::on_btn_stop_clicked() { btServer->writeCommand(CMD_STOP); }
 
-void MainWindow::on_reverse_clicked() { btServer->writeCommand(CMD_REVERSE); }
+void MainWindow::on_btn_reverse_clicked() { btServer->writeCommand(CMD_REVERSE); }
 
-void MainWindow::on_turnRight_clicked() { btServer->writeCommand(CMD_RIGHT); }
+void MainWindow::on_btn_turnRight_clicked() { btServer->writeCommand(CMD_RIGHT); }
 
-void MainWindow::on_turnLeft_clicked() { btServer->writeCommand(CMD_LEFT); }
+void MainWindow::on_btn_turnLeft_clicked() { btServer->writeCommand(CMD_LEFT); }
 
-void MainWindow::on_rotateRight_clicked() { btServer->writeCommand(CMD_ROTATE_R); }
+void MainWindow::on_btn_rotateRight_clicked() { btServer->writeCommand(CMD_ROTATE_R); }
 
-void MainWindow::on_rotateLeft_clicked() { btServer->writeCommand(CMD_ROTATE_L); }
+void MainWindow::on_btn_rotateLeft_clicked() { btServer->writeCommand(CMD_ROTATE_L); }
 
-void MainWindow::on_calibrate_clicked() { btServer->writeCommand(CMD_CALIBRATE); }
+void MainWindow::on_btn_calibrate_clicked() { btServer->writeCommand(CMD_CALIBRATE); }
+

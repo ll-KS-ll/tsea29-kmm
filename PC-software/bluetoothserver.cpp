@@ -52,13 +52,13 @@ void BluetoothServer::writeCommand(const quint8 &sty_cmd)
     }
 
     /* Write command. */
-    char data = sty_cmd;
-    int written = spp->write(&data);
+    const char data = sty_cmd;
+    int written = spp->write(&data, 1);
     spp->flush();
 
     /* Check status of write. */
     if (written == 1)
         emit sentCommand(sty_cmd);
     else
-        emit statusUpdate("<span style=\"color: red;\">Couldn't write command. Wrote " + QString::number(written) + "bytes.</span>");
+        emit statusUpdate("<span style=\"color: red;\">Couldn't write command. Wrote " + QString::number(written) + " bytes.</span>");
 }

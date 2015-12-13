@@ -110,56 +110,56 @@
         <enum>QLayout::SetMaximumSize</enum>
        </property>
        <item row="2" column="0">
-        <widget class="QPushButton" name="calibrate">
+        <widget class="QPushButton" name="btn_calibrate">
          <property name="text">
           <string>Calibrate</string>
          </property>
         </widget>
        </item>
        <item row="0" column="2">
-        <widget class="QPushButton" name="rotateRight">
+        <widget class="QPushButton" name="btn_rotateRight">
          <property name="text">
           <string>Rotate R</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QPushButton" name="driveForward">
+        <widget class="QPushButton" name="btn_forward">
          <property name="text">
           <string>Forward</string>
          </property>
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QPushButton" name="turnLeft">
+        <widget class="QPushButton" name="btn_turnLeft">
          <property name="text">
           <string>Left</string>
          </property>
         </widget>
        </item>
        <item row="1" column="2">
-        <widget class="QPushButton" name="turnRight">
+        <widget class="QPushButton" name="btn_turnRight">
          <property name="text">
           <string>Right</string>
          </property>
         </widget>
        </item>
        <item row="0" column="0">
-        <widget class="QPushButton" name="rotateLeft">
+        <widget class="QPushButton" name="btn_rotateLeft">
          <property name="text">
           <string>Rotate L</string>
          </property>
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QPushButton" name="reverse">
+        <widget class="QPushButton" name="btn_reverse">
          <property name="text">
           <string>Reverse</string>
          </property>
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QPushButton" name="stop">
+        <widget class="QPushButton" name="btn_stop">
          <property name="text">
           <string>Stop</string>
          </property>
@@ -186,7 +186,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="activeCmd">
+        <widget class="QLabel" name="lbl_activeCmd">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
            <horstretch>0</horstretch>
@@ -369,14 +369,14 @@ p, li { white-space: pre-wrap; }
  <tabstops>
   <tabstop>serialPortName</tabstop>
   <tabstop>connect</tabstop>
-  <tabstop>driveForward</tabstop>
-  <tabstop>stop</tabstop>
-  <tabstop>turnRight</tabstop>
-  <tabstop>turnLeft</tabstop>
-  <tabstop>reverse</tabstop>
-  <tabstop>rotateLeft</tabstop>
-  <tabstop>rotateRight</tabstop>
-  <tabstop>calibrate</tabstop>
+  <tabstop>btn_forward</tabstop>
+  <tabstop>btn_stop</tabstop>
+  <tabstop>btn_turnRight</tabstop>
+  <tabstop>btn_turnLeft</tabstop>
+  <tabstop>btn_reverse</tabstop>
+  <tabstop>btn_rotateLeft</tabstop>
+  <tabstop>btn_rotateRight</tabstop>
+  <tabstop>btn_calibrate</tabstop>
   <tabstop>logTextBox</tabstop>
  </tabstops>
  <resources/>

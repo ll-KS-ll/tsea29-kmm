@@ -17,6 +17,7 @@
 #define IR_RIGTH_FRONT 7
 
 #define STY_CMD 8
+#define REMOTE_CMD 9
 
 #define LINE_SENSOR1 10
 #define LINE_SENSOR2 11
@@ -58,14 +59,14 @@ public slots:
 
 private slots:
     void on_connect_clicked();  // Connect to FireFly
-    void on_driveForward_clicked();
-    void on_stop_clicked();
-    void on_reverse_clicked();
-    void on_turnRight_clicked();
-    void on_turnLeft_clicked();
-    void on_rotateRight_clicked();
-    void on_rotateLeft_clicked();
-    void on_calibrate_clicked();
+    void on_btn_forward_clicked();
+    void on_btn_stop_clicked();
+    void on_btn_reverse_clicked();
+    void on_btn_turnRight_clicked();
+    void on_btn_turnLeft_clicked();
+    void on_btn_rotateRight_clicked();
+    void on_btn_rotateLeft_clicked();
+    void on_btn_calibrate_clicked();
 
 private:
     Ui::MainWindow *ui;
