@@ -1,14 +1,13 @@
-/*
- * slave.c
- * Program for Slave Mode
- * Created: 2015-11-05 14:47:54
- * Author: Viktor & Victor
- */ 
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <stdbool.h>
-#include <i2c_slave.h>
+/************************************************************************
+ *																		*
+ * Author: Güntech							                            *
+ * Purpose: Program for slave mode.										*
+ * Language: C															*
+ * File type: Source													*
+ *																		*
+/************************************************************************/
 
+#include "i2c_slave.h"
 
 /* Variables to track progress of package */
 bool id, datah;

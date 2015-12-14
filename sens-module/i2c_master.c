@@ -1,11 +1,12 @@
-/*
- * TSEA29.c
- * Program for Master Mode
- * Created: 2015-11-05 13:27:23
- * Author : Viktor & Victor
- * SDA = Serial Data
- * SCL = Serial CLock
- */ 
+/************************************************************************
+ *																		*
+ * Author: Güntech							                            *
+ * Purpose: Program for master mode.								    *
+ * Language: C															*
+ * File type: Source													*
+ *																		*
+/************************************************************************/
+
 #define F_CPU 14745000UL
 
 #include <avr/io.h>

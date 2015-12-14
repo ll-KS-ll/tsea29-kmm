@@ -1,5 +1,21 @@
+/************************************************************************
+ *																		*
+ * Author: Güntech							                            *
+ * Purpose: I2C Slave. Interrupt driven implementation of an i2c slave.	*
+ *		Data packages are automatically read to "datap".				*	
+ * Language: C															*
+ * File type: Header													*
+ *																		*
+/************************************************************************/
+
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <stdbool.h>
+
+#ifndef I2C_SLAVE_H_
+#define I2C_SLAVE_H_
+
 /*
-* I2C Slave. Interrupt driven implementation of a i2c slave. Data packages are automatically read to "datap".  
 *
 * Usage:
 *	Call initialize-function with address of this slave.
@@ -48,3 +64,5 @@ volatile uint16_t write_data;	// Data write buffer. Put data to write on the bus
 
 
 void i2c_init_slave( uint8_t address );	// Initialize the I2C slave.
+
+#endif /* I2C_SLAVE_H_ */

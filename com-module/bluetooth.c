@@ -1,5 +1,13 @@
-#include <avr/io.h>
-#include <avr/interrupt.h>
+/************************************************************************
+ *																		*
+ * Author: Güntech							                            *
+ * Purpose: Program for usage of bluetooth communication.				*
+ * Language: C															*
+ * File type: Source													*
+ *																		*
+/************************************************************************/
+
+
 #include "bluetooth.h"
 #include "i2c_slave.h"
 

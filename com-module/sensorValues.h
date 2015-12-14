@@ -9,6 +9,7 @@
 
 #include <stdint-gcc.h>
 #include <stdbool.h>
+#include "bluetooth.h"
 
 #ifndef SENSORVALUES_H_
 #define SENSORVALUES_H_
@@ -20,6 +21,7 @@
 #define FRONT 5
 #define BACK_RIGHT 6
 #define FRONT_RIGHT 7
+#define STEER_CMD 8
 #define LINESENSOR_0 10
 #define LINESENSOR_1 11
 #define LINESENSOR_2 12
@@ -30,9 +32,6 @@
 
 
 void updateRegisters(uint8_t id, uint16_t data);
-/*
-uint16_t getCurrentAngle();
-*/
 bool getStart();
 bool getAutonom();
 uint16_t *getSensorBar();
@@ -41,9 +40,5 @@ uint16_t getFrontLeftDistance();
 uint16_t getFrontRightDistance();
 uint16_t getBackLeftDistance();
 uint16_t getBackRightDistance();
-
-uint16_t flag_array;
-
-
 
 #endif /* SENSORVALUES_H_ */

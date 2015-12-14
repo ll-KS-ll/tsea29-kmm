@@ -27,8 +27,6 @@ int ch = 0; //ch = 2 = line sensor
 uint16_t data_test = 0;
 uint8_t mux = 0b00000000;
 uint8_t id;
-int RWFLAG = 0;
-int RWFLAG2 = 0;
 uint16_t data_out = 0;
 
 void adc_init()
@@ -151,35 +149,11 @@ ISR(TIMER0_OVF_vect)
 		case 7: // IR-sensor front right
 			data_out = adc_read(ch);
 			break;
-		case 8: // Read steerCmd
-			cli();
-			if (RWFLAG == 0) {
-				RWFLAG = 1;
-				data_out = 0;
-				i2c_read(STY_ADDRESS, 8); // Ask STYR for active steering command.
-			} else if (styDataRead == 1) {
-				data_out = sty_recv_datap.data;
-				styDataRead = 0;
-				RWFLAG = 0;
-			} else {
-				data_out = 0;
-			}
-			sei();
+		case 8: // Get active command from STYR.
+			data_out = sty_steer_cmd();
 			break;
-		case 9: // Send steerCmd
-			cli();
-			if (RWFLAG2 == 0) {
-				RWFLAG2 = 1;
-				data_out = 0;
-				i2c_read(COM_ADDRESS, 9); // Ask COM for requested steering command.
-			} else if (comDataRead == 1) {
-				data_out = com_recv_datap.data;
-				comDataRead = 0;
-				RWFLAG2 = 0;
-			} else {
-				data_out = 0;
-			}
-			sei();
+		case 9: // Get remote command from COM.
+			data_out = com_steer_cmd();
 			break;
 	}
 	

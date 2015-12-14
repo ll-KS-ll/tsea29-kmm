@@ -7,7 +7,6 @@
  *																		*
 /************************************************************************/
 
-#include <stdbool.h>
 #include "sensorValues.h"
 
 // Init all values to zero
