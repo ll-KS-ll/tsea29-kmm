@@ -19,58 +19,6 @@
 #include "gyroController.h"
 #include "clawKernel.h"
 
-// temporary, only for testing
-#include "motorKernel.h"
-#include "clawKernel.h"
-
-
-
-
-void follow_marking_tape(){
-	stop();
-	uint16_t sensor_value;
-	uint16_t *sensorBar;
-	int numerator;
-	int denominator;
-	bool arrived = false;
-	volatile float fault=0;
-	while(!arrived){
-		arrived = true;
-		numerator = 0;
-		denominator = 0;
-		sensorBar = getSensorBar();
-		for(int i=0; i<7; i++){	
-			sensor_value = *(sensorBar+i);
-			if(sensor_value < 100 && arrived) arrived = false;
-			numerator+=sensor_value*(i+1);
-			denominator+=sensor_value;
-		}
-		fault = (numerator/denominator);
-		if(fault<4){
-			driveRotateLeft(25,25);
-		}
-		else if(fault>4.2){
-			driveRotateRight(25,25);
-		}
-		else{
-			driveForward(15,15);
-			}
-		}
-	stop();
-}
-
-bool is_tape(){
-	uint16_t *sensorBar = getSensorBar();
-	uint16_t sensor_value;
-	for(int i=0; i<7; i++){
-		sensor_value = *(sensorBar + i);
-		if (sensor_value > 200){
-			return true;
-		}
-	}
-	return false;
-}
-
 int main(void)
 {
 	/* Initialize com-module as a slave on I2C-bus with the address of com-module. */
@@ -82,20 +30,59 @@ int main(void)
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
 	
+	_delay_ms(1000);
+	
+	
+	//openClaw();
+	//_delay_ms(500);
+	//lowerClaw();
+	//_delay_ms(500);
+	//closeClaw();
+	//_delay_ms(500);
+	//raiseClaw();
+	
+	//volatile fr, br, fl, bl, test;
+	//while(1) {
+		//turnLeft(1);
+		//_delay_ms(1000);
+		//turnLeft(2);
+		//_delay_ms(1000);
+		//turnRight(1);
+		//_delay_ms(1000);
+		//turnRight(2);
+		//_delay_ms(1000);
+	//}
+	volatile test, temp;
 	/* Main loop */
 	while (1)
 	{
 		if(getAutonom()) {
 			if(getStart()) {
-				/* reset start so it only runs the labyrinth once */
 				updateRegisters(0, 1);
+				
+				//while(!getSeesTape()) {
+					//followTape();
+				//}
+				//stop();
+				initMap();
+				///* reset start so it only runs the labyrinth once */
+				//followTape();
+		
+				// --------------------------
 				exploreLabyrinth();
+				// -------------------------
 				
 			}
-		} else {
+		} else if(!getAutonom()) {
 			/* Do shit that the PC says to do */
 			if(getStart()) {
-				
+				/* reset start so it only runs the labyrinth once */
+				updateRegisters(0, 1);
+				//fr = getFrontRightDistance();
+				//br = getBackRightDistance();
+				//fl = getFrontLeftDistance();
+				//bl = getBackLeftDistance();
+				//test++;
 			}
 		}
 	}

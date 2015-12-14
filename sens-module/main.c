@@ -15,10 +15,7 @@
 #include <math.h>
 #include <i2c_master.h>	// Sensor module is an i2c master.
 
-volatile uint8_t count;
-volatile int angular_rate;
-volatile unsigned long ms;
-volatile float sec;
+
 float mathf;
 unsigned int math;
 float voltsperunit = 0.0049;
@@ -98,6 +95,101 @@ void enable_current_linesensor(uint8_t mux){
 bool start_button_down;
 bool auto_button_down;
 
+/* Variables used for converting frontDistance to cm */
+float mathf;
+float voltsPerUnit = 0.0049;
+
+unsigned int sideIrToCm(uint16_t data) {
+	mathf = data;
+	mathf = pow((3027.4/mathf), 1.2134);
+	if(mathf > 80) mathf = 80;
+	if(mathf < 10) mathf = 10;
+	return (unsigned int)mathf;
+}
+
+static unsigned int sensorBar[] = {0, 0, 0, 0, 0, 0, 0};
+static unsigned int sensorBarCalibration[] = {0, 0, 0, 0, 0, 0, 0};
+
+void updateLineSensorValues()
+{
+	TCCR0 = (0<<CS02)|(0<<CS00);
+	
+	for(int mux = 0; mux < 7; mux++) {
+		enable_current_linesensor(mux);
+		PORTD = mux;
+		sensorBar[mux] = (unsigned int)adc_read(ch);
+		
+	}
+	TCCR0 = (1<<CS02)|(1<<CS00);
+}
+//volatile f1, f2, f3, f4, f5, f6, f7;
+void updateLineSensorCalibrationValues()
+{
+	TCCR0 = (0<<CS02)|(0<<CS00);
+	for(int mux = 0; mux < 7; mux++) {
+		enable_current_linesensor(mux);
+		PORTD = mux;
+		sensorBarCalibration[mux] = (unsigned int)adc_read(ch);
+		
+	}
+	//f1 = sensorBarCalibration[0];
+	//f2 = sensorBarCalibration[1];
+	//f3 = sensorBarCalibration[2];
+	//f4 = sensorBarCalibration[3];
+	//f5 = sensorBarCalibration[4];
+	//f6 = sensorBarCalibration[5];
+	//f7 = sensorBarCalibration[6];
+	//f7++;
+	TCCR0 = (1<<CS02)|(1<<CS00);
+}
+
+bool is_tape(){
+	int count = 0;
+	unsigned int sensorValue;;
+	unsigned int calibrationValue;
+	
+	for(int i = 0; i < 7; i++){
+		sensorValue = sensorBar[i];
+		calibrationValue = sensorBarCalibration[i];
+		
+		if(sensorValue >= calibrationValue - 50) {
+			count++;
+		}
+		
+		if(count > 2) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
+unsigned int tapeRegulation() {
+	unsigned int wrong = 0;
+	unsigned int count = 0;
+	
+	unsigned int sensorValue;
+	unsigned int calibrationValue;
+	
+	for(int i = 0; i < 7; i++){
+		sensorValue = sensorBar[i];
+		calibrationValue = sensorBarCalibration[i];
+		
+		if(sensorValue >= calibrationValue - 50) {
+			wrong += (i+1);
+			count++;
+		}
+	}
+	if(count == 0) {
+		return 6;
+	}
+	
+	return  10 - (wrong/count);
+	
+}
+
+static bool calibrate = false;
+static bool dontCalibrateMore = false;
 
 ISR(TIMER0_OVF_vect)
 {
@@ -106,11 +198,16 @@ ISR(TIMER0_OVF_vect)
 		case 0://start button
 			data_out = 0;
 			if(adc_read(ch) > 1000){
-				start_button_down = true;				
+				start_button_down = true;
 			} else if(start_button_down) {
 				start_button_down = false;
 				data_out=1;
+				if(!dontCalibrateMore) {
+					calibrate = true;
+				}
+				dontCalibrateMore = true;
 			}
+			id = ch;
 			break;
 		case 1: // autonom/remote
 			data_out = 0;
@@ -121,48 +218,69 @@ ISR(TIMER0_OVF_vect)
 				auto_button_down = false;
 				data_out=1;
 			}
+			id = ch;
 			break;
 		case 2: // line sensor
-			//enable_current_linesensor(mux);
-			PORTD = mux;			
-			id = mux+10; //so there is no duplicate for id.
-			_delay_ms(10);
-			data_out = adc_read(ch);
-			//disable_line_sensor();
-			mux++;
-			if (mux == 7) mux = 0;
+			if(calibrate) {
+				updateLineSensorCalibrationValues();
+				calibrate = false;
+			} else {
+				updateLineSensorValues();
+			}
+			
+			if(is_tape()) {
+				data_out = 1;
+			} else {
+				data_out = 0;
+			}
+			id = 18;			
 			break;
 			
 		case 3: // IR_sensor front left
-			data_out = adc_read(ch);
+			data_out = sideIrToCm((unsigned int)adc_read(ch));
+			id = ch;
 			break;
 		case 4: // IR-sensor back left
-			data_out = adc_read(ch);
+			data_out = sideIrToCm((unsigned int)adc_read(ch));
+			id = ch;
 			break;
 		case 5: //IR-sensor front
-			data_out = adc_read(ch); 
+			mathf = (float)adc_read(ch) * voltsPerUnit;
+			mathf = 60.495 * pow(mathf, -1.1904);
+			if(mathf < 20) mathf = 20;
+			if(mathf > 150) mathf = 150;
+			data_out = (unsigned int)mathf;
+			id = ch;
 			break;
 		case 6: // IR-sensor back right
-			data_out = adc_read(ch);
+			data_out = sideIrToCm((unsigned int)adc_read(ch));
+			id = ch;
 			break;
 		case 7: // IR-sensor front right
-			data_out = adc_read(ch);
+			data_out = sideIrToCm((unsigned int)adc_read(ch));
+			id = ch;
+			break;
+		case 8:
+			data_out = (unsigned int) tapeRegulation();
+			id = 19;
 			break;
 	}
-	
-	data_package datap = {ch, data_out};
+
+	data_package datap = {id, data_out};
 	i2c_write(GENERAL_CALL_ADDRESS, datap);	// Write an entire package to com-module.
 	
+	data_out = 0;
+	
 	ch++;
-	if (ch == 8) {
+	if (ch == 9) {
 		ch = 0;
 	}
-	TCNT0 = 241;
+	TCNT0 = 227;
 }
 
 void initTimerInteruppt() {
 	TIMSK = (1<<TOIE0);
-	TCNT0 = 241;
+	TCNT0 = 227;
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
 
@@ -183,5 +301,8 @@ int main(void)
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
 	
-	while(true){}
+	
+	while(true){
+		
+	}
 }

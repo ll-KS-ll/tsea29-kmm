@@ -5,7 +5,7 @@
  * Language: C															*
  * File type: Header													*
  *																		*
-/************************************************************************/
+ ************************************************************************/
 
 
 
@@ -14,61 +14,51 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "autonomous.h"
 #include "sensorValues.h"
 
+#define x_size 24
+#define y_size 24
+#define north 0
+#define east 1
+#define south 2
+#define west 3
+#define none 4
+
 //enum
-typedef enum {UNEXPLORED, EXPLORED, START, FESTISBOX} nodeStatus;	
+typedef enum {UNEXPLORED, EXPLORED, START, FESTISBOX} nodeStatus;
 typedef enum {OPEN, CLOSED} ways;
-typedef enum {NORTH, EAST, SOUTH, WEST}	dir;
+typedef enum {NORTH, EAST, SOUTH, WEST, DUNNO}	dir;
 
-//structs
-
-typedef struct {
-	 nodeStatus status;
-	 openNeighbours neighbours[];
+//struct
+typedef struct node {
+    nodeStatus status;
+    ways neighbours[4];
 } node;
 
-typedef struct {
-	dir p;
-	struct path *next;
-} path;
- 
-//var
-int north = 0;
-int east = 1;
-int south = 2;
-int west = 3;
-int x_size = 32;
-int y_size = 32;
-int xpos = 15;
-int ypos = 31;
-dir currentDirection = NORTH;
-//func 
-/************************************************************************
- *																		*
- * Author: Güntech							                            *
- * Purpose: Logic used by robot to drive through labyrinth				*
- * Language: C															*
- * File type: Source													*
- *																		*
-/************************************************************************/
 
-#include "labyrinthMap.h"
+dir correctPathNorth[x_size][y_size];
+dir correctPathWest[x_size][y_size];
+dir correctPathEast[x_size][y_size];
+dir correctPathSouth[x_size][y_size];
 
-node lastNode;
-node labyrinth[x_size][y_size];		//increase size if necessary
-dir targetPath;
-
+//functions
 void initMap();
-void addNode();
-void updateNewNeighbours();
-openNeighbours[] identifyNeighbours();
-path nextTarget();
-void traverseLabyrint(int, int, path);
-path getOut();
-void traverseGetOut();
-void updatePosition();
+void addNode(dir curDir);
+void addFestisNode(dir curDir);
+nodeStatus getCurrentNodeStatus(int x, int y);
+
+int findClosest(nodeStatus find);
+bool recursiveNorthFind(int x, int y, nodeStatus find);
+bool recursiveEastFind(int x, int y, nodeStatus find);
+bool recursiveWestFind(int x, int y, nodeStatus find);
+bool recursiveSouthFind(int x, int y, nodeStatus find);
+
+void setX(int x);
+void setY(int y);
+int getX();
+int getY();
+
+void resetVisited();
 
 
 #endif /* LABYRINTHMAP_H_ */
