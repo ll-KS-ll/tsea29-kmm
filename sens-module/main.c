@@ -122,7 +122,7 @@ void updateLineSensorValues()
 	}
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
-//volatile f1, f2, f3, f4, f5, f6, f7;
+
 void updateLineSensorCalibrationValues()
 {
 	TCCR0 = (0<<CS02)|(0<<CS00);
@@ -132,14 +132,6 @@ void updateLineSensorCalibrationValues()
 		sensorBarCalibration[mux] = (unsigned int)adc_read(ch);
 		
 	}
-	//f1 = sensorBarCalibration[0];
-	//f2 = sensorBarCalibration[1];
-	//f3 = sensorBarCalibration[2];
-	//f4 = sensorBarCalibration[3];
-	//f5 = sensorBarCalibration[4];
-	//f6 = sensorBarCalibration[5];
-	//f7 = sensorBarCalibration[6];
-	//f7++;
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
 
@@ -267,7 +259,7 @@ ISR(TIMER0_OVF_vect)
 	}
 
 	data_package datap = {id, data_out};
-	i2c_write(GENERAL_CALL_ADDRESS, datap);	// Write an entire package to com-module.
+	i2c_write(GENERAL_CALL_ADDRESS, datap);
 	
 	data_out = 0;
 	
