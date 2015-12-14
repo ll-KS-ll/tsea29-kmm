@@ -22,11 +22,10 @@ static unsigned int frontLeftDistance = 0;
 static unsigned int backLeftDistance = 0;
 static unsigned int frontRightDistance = 0;
 static unsigned int backRightDistance = 0;
-static uint16_t lineData;
+static unsigned int lineData = 0;
 static unsigned int recvSteeringCmd = 0;
 	
 
-// Convert values so they are between 70 - 0, larger number equals closer.
 void updateRegisters(uint8_t id, uint16_t dataIn) {
 	unsigned int data = dataIn;
 	bool data_changed = false;
@@ -92,7 +91,7 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 			break;
 		case TAPE_FOUND:
 			if(data)
-			data_changed = true;
+				data_changed = true;
 			break;
 	}
 	

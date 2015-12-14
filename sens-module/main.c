@@ -159,15 +159,9 @@ bool is_tape(){
 
 uint16_t lineData(){
 	uint16_t line_data = 0;
-	unsigned int sensorValue;;
-	unsigned int calibrationValue;
-	
 	for(int i = 0; i < 7; i++){
-		sensorValue = sensorBar[i];
-		calibrationValue = sensorBarCalibration[i];
-		
-		line_data << 1;
-		if(sensorValue >= calibrationValue - 50) line_data++;
+		if(sensorBar[i] >= sensorBarCalibration[i] - 50) 
+			line_data |= (1<<i);
 	}
 	return line_data;
 }
@@ -270,7 +264,7 @@ ISR(TIMER0_OVF_vect)
 			id = ch;
 			data_out = lineData();
 			break;
-		case 17:
+		case 11:
 			data_out = (unsigned int) tapeRegulation();
 			id = 19;
 			break;
@@ -278,11 +272,10 @@ ISR(TIMER0_OVF_vect)
 
 	data_package datap = {id, data_out};
 	i2c_write(GENERAL_CALL_ADDRESS, datap);
-	
 	data_out = 0;
 	
 	ch++;
-	if (ch == 18) {
+	if (ch > 11) {
 		ch = 0;
 	}
 	TCNT0 = 227;
