@@ -11,9 +11,11 @@
 #include "motorKernel.h"
 #include "clawKernel.h"
 #include "gyroController.h"
+#include "autonomous.h"
 
 void boot() {
 	initMotor();
 	initClaw();
 	initGyro();
+	initOneSquareTimer();
 }
