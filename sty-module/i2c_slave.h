@@ -1,5 +1,14 @@
-/*
-* I2C Slave. Interrupt driven implementation of a i2c slave. Data packages are automatically read to "datap".  
+/************************************************************************
+ *																		*
+ * Author: Güntech							                            *
+ * Purpose: I2C Slave. Interrupt driven implementation of an i2c slave.	*
+ *		Data packages are automatically read to "datap".				*	
+ * Language: C															*
+ * File type: Header													*
+ *																		*
+/************************************************************************/
+
+/*  
 *
 * Usage:
 *	Call initialize-function with address of this slave.

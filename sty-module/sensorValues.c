@@ -7,7 +7,6 @@
  *																		*
 /************************************************************************/
 
-#include <stdbool.h>
 #include "sensorValues.h"
 
 // Init all values to zero
@@ -22,12 +21,9 @@ static unsigned int frontLeftDistance = 0;
 static unsigned int backLeftDistance = 0;
 static unsigned int frontRightDistance = 0;
 static unsigned int backRightDistance = 0;
-static unsigned int sensorBar[] = {0, 0, 0, 0, 0, 0, 0};
-static unsigned int sensorBarCalibration[] = {0, 0, 0, 0, 0, 0, 0};
 static bool seesTape = false;
-static bool atFestisBox = false;
 static unsigned int tapeReg;
-
+static unsigned int activeSteeringCmd = 0;
 
 // Convert values so they are between 70 - 0, larger number equals closer.
 void updateRegisters(uint8_t id, uint16_t dataIn) {
@@ -68,34 +64,11 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 		case 7:
 			frontRightDistance = data;
 			break;
-		/*ful-hack*/
-		case 10:
-			sensorBar[0] = data;
+		
+		case 9:
+			activeSteeringCmd = data;
 			break;
-			
-		case 11:
-			sensorBar[1] = data;
-			break;
-			
-		case 12:
-			sensorBar[2] = data;
-			break;
-			
-		case 13:
-			sensorBar[3] = data;
-			break;
-			
-		case 14:
-			sensorBar[4] = data;
-			break;
-			
-		case 15:
-			sensorBar[5] = data;
-			break;
-			
-		case 16:
-			sensorBar[6] = data;
-			break;
+
 		case 17:
 			gyroValue = data;
 			gyroRate = (gyroValue - offset);
@@ -164,3 +137,6 @@ unsigned int getBackRightDistance() {
 	return backRightDistance;
 }
 
+unsigned int getActiveCmd() {
+	return activeSteeringCmd;
+}

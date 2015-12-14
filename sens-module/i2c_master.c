@@ -1,12 +1,13 @@
-/*
- * TSEA29.c
- * Program for Master Mode
- * Created: 2015-11-05 13:27:23
- * Author : Viktor & Victor
- * SDA = Serial Data
- * SCL = Serial CLock
- */ 
-#define F_CPU 15000000UL
+/************************************************************************
+ *																		*
+ * Author: Güntech							                            *
+ * Purpose: Program for master mode.								    *
+ * Language: C															*
+ * File type: Source													*
+ *																		*
+/************************************************************************/
+
+#define F_CPU 14745000UL
 
 #include <avr/io.h>
 #include <i2c_master.h>
@@ -29,6 +30,7 @@ void i2c_init_master( void )
 	
 	/* Set register for clock generation */
 	TWBR = 65;							// Bit rate: 100 kHz for F_SCL=14.745 MhZ
+	//TWBR = 16;
 	TWSR = (0<<TWPS1) | (0<<TWPS0);		// Setting prescalar bits 00 = 4^0 = 0
 	// SCL freq= F_CPU/(16 + 2*(TWBR)*4^TWPS)
 	
@@ -97,7 +99,12 @@ void i2c_read(uint8_t address, uint8_t id)
 {
 	if ( bus_busy ) // Don't start a new write if already writing.
 		return;
+	//while (bus_busy);
 	bus_busy = true;
+	if(id == 8)
+		styDataRead = 0;
+	else
+		comDataRead = 0;
 	rw_mode = I2C_READ;
 	transaction_state = 0;
 	adr = address + I2C_WRITE;
@@ -159,7 +166,13 @@ ISR(TWI_vect){
 			
 		case DATA_NACK_RECEIVED:	// Data byte has been received; NACK received.
 			dp.data = (recv_data<<8) + TWDR;	// Ldata received.
-			recv_datap = dp;	// Complete package read.
+			if(dp.id == 8){
+				sty_recv_datap = dp;	// Complete package read.
+				styDataRead = 1;
+			} else {
+				com_recv_datap = dp;
+				comDataRead = 1;	// All data have been read.
+			}
 			stop();				// End transmission.
 			break;		
 		/* ================== */

@@ -173,6 +173,12 @@
     <Compile Include="labyrinthMap.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="remoteControl.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="remoteControl.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="sensorValues.c">
       <SubType>compile</SubType>
     </Compile>

@@ -18,6 +18,7 @@
 #include "variables.h"
 #include "gyroController.h"
 #include "clawKernel.h"
+#include "remoteControl.h"
 
 int main(void)
 {
@@ -45,11 +46,7 @@ int main(void)
 			}
 		} else if(!getAutonom()) {
 			/* Do shit that the PC says to do */
-			if(getStart()) {
-				/* reset start so it only runs the labyrinth once */
-				updateRegisters(0, 1);
-				
-			}
+			executeCurrentCommand();
 		}
 	}
 }

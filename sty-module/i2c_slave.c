@@ -1,9 +1,13 @@
-/*
- * slave.c
- * Program for Slave Mode
- * Created: 2015-11-05 14:47:54
- *  Author: Viktor & Victor
- */ 
+/************************************************************************
+ *																		*
+ * Author: Güntech							                            *
+ * Purpose: Program for slave mode.										*
+ * Language: C															*
+ * File type: Source													*
+ *																		*
+/************************************************************************/
+
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "i2c_slave.h"
@@ -32,6 +36,7 @@ void i2c_init_slave( uint8_t address )
 	id = datah = true;
 	datap = &datap_buffer1;
 	buffer = 0;
+	cur_steer_cmd = 2; // Initiate robot with steering command stop aka don't do stupid shit.
 	
 }
 

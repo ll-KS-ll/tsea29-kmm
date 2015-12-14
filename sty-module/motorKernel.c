@@ -14,21 +14,12 @@
 #include "motorKernel.h"
 #include "variables.h"
 #include "gyroController.h"
-
-/*
-	Port 6 = DirLeft, Port 5 = PWMLeft
-	Port 3 = DirRight, Port 4 = PWMRight
-*/
+#include "i2c_slave.h"
 
 static bool booted = false;
 static int curPwrLeft = 0;
 static int curPwrRight = 0;
 
-/*
-PWM freq = 2000 that is 2kHz;
-
-
-*/
 
 void initMotor() {
 	/* Only initialize motor once */
@@ -96,27 +87,37 @@ void setMotorSpeed(int powerLeft, int powerRight) {
 void driveForward(int powerLeft, int powerRight) {
 	PORTD = (0<<3)|(1<<6);
 	setMotorSpeed(powerLeft, powerRight);
+	if (powerLeft == powerRight)
+		cur_steer_cmd = 1;
+	else if (powerRight < powerLeft)
+		cur_steer_cmd = 4;
+	else
+		cur_steer_cmd = 5;
 }
 
 void driveReverse(int powerLeft, int powerRight) {
 	PORTD = (1<<3)|(0<<6);
 	setMotorSpeed(powerLeft, powerRight);
+	cur_steer_cmd = 3;
 }
 
 void driveRotateLeft(int powerLeft, int powerRight) {
 	PORTD = (1<<3)|(1<<6);
 	setMotorSpeed(powerLeft, powerRight);
+	cur_steer_cmd = 7;
 }
 
 void driveRotateRight(int powerLeft, int powerRight) {
 	PORTD = (0<<3)|(0<<6);
 	setMotorSpeed(powerLeft, powerRight);
+	cur_steer_cmd = 6;
 }
 
 void stop() {
 	curPwrLeft = ZERO_SPEED;
 	curPwrRight = ZERO_SPEED;
 	setMotorSpeed(ZERO_SPEED, ZERO_SPEED);
+	cur_steer_cmd = 2;
 }
 
 /* 90-degree left turn */

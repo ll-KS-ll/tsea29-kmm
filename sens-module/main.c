@@ -91,7 +91,8 @@ void enable_current_linesensor(uint8_t mux){
 
 /* Timer interrupt:
 	256 - (14 745 000 / 1024(prescaler) / 1000(frequency)) = 227
-	Set TCNT to 227 and it will overflow once every 2 ms. */
+	Set TCNT to 227 and it will overflow once every 2 ms. Lower TCNT with ~15 to increase the timer by 1 ms. */
+ 
 bool start_button_down;
 bool auto_button_down;
 
@@ -256,6 +257,12 @@ ISR(TIMER0_OVF_vect)
 			data_out = (unsigned int) tapeRegulation();
 			id = 19;
 			break;
+		case 8: // Get active command from STYR.
+			data_out = sty_steer_cmd();
+			break;
+		case 9: // Get remote command from COM.
+			data_out = com_steer_cmd();
+			break;
 	}
 
 	data_package datap = {id, data_out};
@@ -264,7 +271,7 @@ ISR(TIMER0_OVF_vect)
 	data_out = 0;
 	
 	ch++;
-	if (ch == 9) {
+	if (ch == 10) {
 		ch = 0;
 	}
 	TCNT0 = 227;
@@ -293,8 +300,6 @@ int main(void)
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
 	
-	
-	while(true){
+	while(true){}
 		
-	}
 }

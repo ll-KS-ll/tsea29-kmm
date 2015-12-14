@@ -1,14 +1,13 @@
-/*
- * slave.c
- * Program for Slave Mode
- * Created: 2015-11-05 14:47:54
- * Author: Viktor & Victor
- */ 
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <stdbool.h>
-#include <i2c_slave.h>
+/************************************************************************
+ *																		*
+ * Author: Güntech							                            *
+ * Purpose: Program for slave mode.										*
+ * Language: C															*
+ * File type: Source													*
+ *																		*
+/************************************************************************/
 
+#include "i2c_slave.h"
 
 /* Variables to track progress of package */
 bool id, datah;
@@ -33,6 +32,7 @@ void i2c_init_slave( uint8_t address )
 	id = datah = true;
 	datap = &datap_buffer1;
 	buffer = 0;
+	write_data = 0;
 }
 
 /* Clear the i2c interrupt flag. */
