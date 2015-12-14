@@ -17,6 +17,7 @@
 // Init all values to zero
 static bool start = false;
 static bool autonom = false;
+static unsigned int tape = 0;
 static unsigned int frontDistance = 0;
 static unsigned int frontLeftDistance = 0;
 static unsigned int backLeftDistance = 0;
@@ -90,8 +91,11 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 			}
 			break;
 		case TAPE_FOUND:
-			if(data)
+			if(tape != data) 
+			{
+				tape = data;
 				data_changed = true;
+			}
 			break;
 	}
 	
