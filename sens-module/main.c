@@ -13,7 +13,8 @@
 #include <util/atomic.h>
 #include <util/delay.h>
 #include <math.h>
-#include <i2c_master.h>	// Sensor module is an i2c master.
+#include "i2c_master.h"	// Sensor module is an i2c master.
+#include "steer_cmd.h"
 
 
 float mathf;
@@ -181,9 +182,6 @@ unsigned int tapeRegulation() {
 	
 }
 
-static bool calibrate = false;
-static bool dontCalibrateMore = false;
-
 ISR(TIMER0_OVF_vect)
 {
 	switch(ch)
@@ -195,10 +193,6 @@ ISR(TIMER0_OVF_vect)
 			} else if(start_button_down) {
 				start_button_down = false;
 				data_out=1;
-				if(!dontCalibrateMore) {
-					calibrate = true;
-				}
-				dontCalibrateMore = true;
 			}
 			id = ch;
 			break;
@@ -214,13 +208,7 @@ ISR(TIMER0_OVF_vect)
 			id = ch;
 			break;
 		case 2: // line sensor
-			if(calibrate) {
-				updateLineSensorCalibrationValues();
-				calibrate = false;
-			} else {
-				updateLineSensorValues();
-			}
-			
+			updateLineSensorValues();
 			if(is_tape()) {
 				data_out = 1;
 			} else {
@@ -253,15 +241,20 @@ ISR(TIMER0_OVF_vect)
 			data_out = sideIrToCm((unsigned int)adc_read(ch));
 			id = ch;
 			break;
-		case 8:
-			data_out = (unsigned int) tapeRegulation();
-			id = 19;
-			break;
 		case 8: // Get active command from STYR.
 			data_out = sty_steer_cmd();
+			id = ch;
 			break;
 		case 9: // Get remote command from COM.
 			data_out = com_steer_cmd();
+			id = ch;
+			if ( data_out == 8 ) {
+				updateLineSensorCalibrationValues();
+			}
+			break;
+		case 10:
+			data_out = (unsigned int) tapeRegulation();
+			id = 19;
 			break;
 	}
 
@@ -271,15 +264,15 @@ ISR(TIMER0_OVF_vect)
 	data_out = 0;
 	
 	ch++;
-	if (ch == 10) {
+	if (ch == 11) {
 		ch = 0;
 	}
-	TCNT0 = 227;
+	TCNT0 = 114;
 }
 
 void initTimerInteruppt() {
 	TIMSK = (1<<TOIE0);
-	TCNT0 = 227;
+	TCNT0 = 114;
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
 

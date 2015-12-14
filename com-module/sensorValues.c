@@ -105,6 +105,10 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 		case LINESENSOR_6:
 			sensorBar[6] = data;
 			break;
+		case TAPE_FOUND:
+			if(data)
+				data_changed = true;
+			break;
 	}
 	
 	if (data_changed)

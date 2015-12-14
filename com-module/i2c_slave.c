@@ -117,6 +117,7 @@ ISR(TWI_vect){
 			
 		case DATA_ACK_TRANSMITTED:	// Data to master has been transmitted.
 			TWDR = write_data;		// Transmit ldata.
+			write_data = 0;			// Clear remote command to NOP. 
 			TWCR = (1<<TWEN) | (1<<TWIE) | (1<<TWINT);	// Last data. Expect NACK as response. Keep i2c and interrupts enabled. Clear interrupt flag.
 			break;
 		

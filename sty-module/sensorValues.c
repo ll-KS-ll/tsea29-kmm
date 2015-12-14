@@ -109,14 +109,6 @@ int getCurrentAngle() {
 	return (int) angle;
 }
 
-unsigned int *getSensorBar() {
-	return sensorBar;
-}
-
-unsigned int *getCalibrationBar() {
-	return sensorBarCalibration;
-}
-
 unsigned int getFrontDistance() {
 	return frontDistance;
 }

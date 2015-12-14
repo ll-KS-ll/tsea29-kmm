@@ -29,7 +29,7 @@
 #define LINESENSOR_4 14
 #define LINESENSOR_5 15
 #define LINESENSOR_6 16
-
+#define TAPE_FOUND 18
 
 void updateRegisters(uint8_t id, uint16_t data);
 bool getStart();
