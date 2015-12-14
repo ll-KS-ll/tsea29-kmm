@@ -16,11 +16,6 @@
 #include <i2c_master.h>	// Sensor module is an i2c master.
 
 
-
-volatile uint8_t count;
-volatile int angular_rate;
-volatile unsigned long ms;
-volatile float sec;
 float mathf;
 unsigned int math;
 float voltsperunit = 0.0049;
@@ -127,9 +122,7 @@ void updateLineSensorValues()
 	}
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
-
-
-volatile unsigned int l0, l1, l2, l3, l4, l5, l6;
+//volatile f1, f2, f3, f4, f5, f6, f7;
 void updateLineSensorCalibrationValues()
 {
 	TCCR0 = (0<<CS02)|(0<<CS00);
@@ -139,20 +132,14 @@ void updateLineSensorCalibrationValues()
 		sensorBarCalibration[mux] = (unsigned int)adc_read(ch);
 		
 	}
-	l0 = sensorBarCalibration[0];
-	//l0++;
-	//l1 = sensorBarCalibration[1];
-	//l1++;
-	//l2 = sensorBarCalibration[2];
-	//l2++;
-	//l3 = sensorBarCalibration[3];
-	//l3++;
-	//l4 = sensorBarCalibration[4];
-	//l4++;
-	//l5 = sensorBarCalibration[5];
-	//l5++;
-	//l6 = sensorBarCalibration[6];
-	//l6++;
+	//f1 = sensorBarCalibration[0];
+	//f2 = sensorBarCalibration[1];
+	//f3 = sensorBarCalibration[2];
+	//f4 = sensorBarCalibration[3];
+	//f5 = sensorBarCalibration[4];
+	//f6 = sensorBarCalibration[5];
+	//f7 = sensorBarCalibration[6];
+	//f7++;
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
 
@@ -165,7 +152,7 @@ bool is_tape(){
 		sensorValue = sensorBar[i];
 		calibrationValue = sensorBarCalibration[i];
 		
-		if(sensorValue >= calibrationValue - 20) {
+		if(sensorValue >= calibrationValue - 50) {
 			count++;
 		}
 		
@@ -177,10 +164,9 @@ bool is_tape(){
 }
 
 
-
 unsigned int tapeRegulation() {
-	int wrong = 0;
-	int count = 0;
+	unsigned int wrong = 0;
+	unsigned int count = 0;
 	
 	unsigned int sensorValue;
 	unsigned int calibrationValue;
@@ -189,10 +175,13 @@ unsigned int tapeRegulation() {
 		sensorValue = sensorBar[i];
 		calibrationValue = sensorBarCalibration[i];
 		
-		if(sensorValue >= calibrationValue - 20) {
+		if(sensorValue >= calibrationValue - 50) {
 			wrong += (i+1);
 			count++;
 		}
+	}
+	if(count == 0) {
+		return 6;
 	}
 	
 	return  10 - (wrong/count);
@@ -216,6 +205,7 @@ ISR(TIMER0_OVF_vect)
 				if(!dontCalibrateMore) {
 					calibrate = true;
 				}
+				dontCalibrateMore = true;
 			}
 			id = ch;
 			break;
@@ -227,7 +217,6 @@ ISR(TIMER0_OVF_vect)
 			else if(auto_button_down) {
 				auto_button_down = false;
 				data_out=1;
-				dontCalibrateMore = true;
 			}
 			id = ch;
 			break;
@@ -274,6 +263,7 @@ ISR(TIMER0_OVF_vect)
 		case 8:
 			data_out = (unsigned int) tapeRegulation();
 			id = 19;
+			break;
 	}
 
 	data_package datap = {id, data_out};

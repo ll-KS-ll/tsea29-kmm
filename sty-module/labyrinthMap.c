@@ -23,6 +23,10 @@ static int ypos = 11;
 static node labyrinth[x_size][y_size];		//increase size if necessary
 
 
+nodeStatus getCurrentNodeStatus(int x, int y) {
+	return labyrinth[x][y].status;
+}
+
 node create_default_node() {
 	node n;
 	n.status = UNEXPLORED;
@@ -56,10 +60,14 @@ void initMap() {
 
 // When robot has reached unexplored, set it as explored and update its walls.
 void addNode(dir curDir){
-    if(labyrinth[xpos][ypos].status == UNEXPLORED && !getSeesTape()) {
+    if(labyrinth[xpos][ypos].status == UNEXPLORED) {
         labyrinth[xpos][ypos].status = EXPLORED;
 		updateWalls(curDir);
-    } else if(labyrinth[xpos][ypos].status == UNEXPLORED && getSeesTape()) {
+	}
+}
+
+void addFestisNode(dir curDir) {
+	if(labyrinth[xpos][ypos].status == UNEXPLORED) {
 		labyrinth[xpos][ypos].status = FESTISBOX;
 		updateWalls(curDir);
 	}
@@ -98,15 +106,15 @@ void updateWalls(dir curDir) {
 			break;
 	}
 	
-	if (getFrontDistance() >= SIDE_OPEN){
-		labyrinth[xpos][ypos].neighbours[front] = OPEN;
-	}
-	if (getFrontRightDistance() >= SIDE_OPEN || getBackRightDistance() >= SIDE_OPEN){
-		labyrinth[xpos][ypos].neighbours[right] = OPEN;
-	}
-	if (getFrontLeftDistance() >= SIDE_OPEN || getBackLeftDistance() >= SIDE_OPEN){
-		labyrinth[xpos][ypos].neighbours[left] = OPEN;
-	}
+		if (getFrontDistance() >= SIDE_OPEN){
+			labyrinth[xpos][ypos].neighbours[front] = OPEN;
+		}
+		if (getFrontRightDistance() >= SIDE_OPEN || getBackRightDistance() >= SIDE_OPEN){
+			labyrinth[xpos][ypos].neighbours[right] = OPEN;
+		}
+		if (getFrontLeftDistance() >= SIDE_OPEN || getBackLeftDistance() >= SIDE_OPEN){
+			labyrinth[xpos][ypos].neighbours[left] = OPEN;
+		}
 	
 	labyrinth[xpos][ypos].neighbours[back] = OPEN;
 }
@@ -326,10 +334,7 @@ bool recursiveSouthFind(int x, int y, nodeStatus find){
 			correctPathSouth[x][y] = EAST;
 			return true;
 		}
-	}
-	
-	
-	
+	}	
 	return false;
 }
 

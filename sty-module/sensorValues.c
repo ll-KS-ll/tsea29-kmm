@@ -25,6 +25,7 @@ static unsigned int backRightDistance = 0;
 static unsigned int sensorBar[] = {0, 0, 0, 0, 0, 0, 0};
 static unsigned int sensorBarCalibration[] = {0, 0, 0, 0, 0, 0, 0};
 static bool seesTape = false;
+static bool atFestisBox = false;
 static unsigned int tapeReg;
 
 
@@ -111,7 +112,7 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 		case 19:
 			tapeReg = data;
 			break;
-			
+		
 	}
 }
 

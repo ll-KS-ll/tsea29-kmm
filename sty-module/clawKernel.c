@@ -42,7 +42,7 @@ void initClaw() {
 		
 		sei();
 	}
-	closeClaw();
+	openClaw();
 	raiseClaw();
 }
 
@@ -53,15 +53,15 @@ void stopClaw(){
 	sei();
 }
 void openClaw() {
-	OCR3A = 27;
+	OCR3A = 24;
 }
 
 void closeClaw(){
-	OCR3A = 8;
+	OCR3A = 10;
 }
 
 void raiseClaw() {
-	OCR3B = 24;
+	OCR3B = 23;
 }
 
 void lowerClaw() {

@@ -44,6 +44,8 @@ dir correctPathSouth[x_size][y_size];
 //functions
 void initMap();
 void addNode(dir curDir);
+void addFestisNode(dir curDir);
+nodeStatus getCurrentNodeStatus(int x, int y);
 
 int findClosest(nodeStatus find);
 bool recursiveNorthFind(int x, int y, nodeStatus find);
@@ -56,9 +58,6 @@ void setY(int y);
 int getX();
 int getY();
 
-void traverseGetOut();
-void selectNewPosition(int ,int);
-void getCurrentNodeNeighbour(int, int);
 void resetVisited();
 
 

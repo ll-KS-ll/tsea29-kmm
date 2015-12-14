@@ -21,6 +21,9 @@
 #define ONCE 1
 #define TWICE 2
 
+static bool atFestisBox = false;
+static bool foundFestisBoxAlready = false;
+
 /* Using PD-regulator to make robot drive in middle of corridor */
 int pdReg(){
 	int u = 0;
@@ -55,15 +58,11 @@ int alignLeft(){
 	int bl = getBackLeftDistance();
 	
 	// t = How wrongly the robot is rotated
-	t = (fl - bl) ;
+	t = (fl - bl);
 	
 	/* only align if error is worthy of aligning */
-	if(t > 2 || t < -2) {
-		u = 5 * t;	
-		return u;
-	} else {
-		return 0;
-	}
+	u = 5 * t;	
+	return u;
 }
 
 int leftReg(){
@@ -77,7 +76,6 @@ int leftReg(){
 	if(fl < 16 && bl < 16) {
 		return -10;
 	}
-	
 	// t = How wrongly the robot is rotated
 	t = (fl - bl);
 	
@@ -96,13 +94,10 @@ int alignRight(){
 
 	// t = How wrongly the robot is rotated
 	t = (br - fr);
+	
 	/* only align if error is worthy of aligning */
-	if(t > 2 || t < -2) {
-		u = 5 * t;
-		return u;
-	} else {
-		return 0;
-	}
+	u = 5 * t;
+	return u;
 
 }
 
@@ -115,7 +110,7 @@ int rightReg(){
 	int br = getBackRightDistance();
 
 	if(fr < 16 && br < 16) {
-		return -10;
+		return 10;
 	}
 	
 	// t = How wrongly the robot is rotated
@@ -163,7 +158,7 @@ void findNextTurnCrossingOrDeadend()
 		*/
 		if(getFrontDistance() >= ONE_SQUARE_DISTANCE && (getBackLeftDistance() >= SIDE_OPEN || getBackRightDistance() >= SIDE_OPEN)) {
 			/* All crossings except T-crossing is found */
-			_delay_ms(50);
+			_delay_ms(100);
 			stop();
 			return;
 		} else if (getFrontDistance() <= FRONT_CLOSED && getFrontLeftDistance() >= SIDE_OPEN && getFrontRightDistance() >= SIDE_OPEN) {
@@ -230,6 +225,9 @@ void moveOneNode(nodeStatus find){
 	
 	while(true) {
 		findNextTurnCrossingOrDeadend();
+		if(getSeesTape() && !foundFestisBoxAlready) {
+			atFestisBox = true;
+		}
 		if(find == FESTISBOX && getSeesTape()) {
 			stopOneSquareInterrupts();
 			stop();
@@ -247,6 +245,9 @@ void exitCrossingOrTurn(nodeStatus find) {
 	startOneSquareInterrupts();
 	while(true) {
 		regulateRobot();
+		if(getSeesTape() && !foundFestisBoxAlready) {
+			atFestisBox = true;
+		}
 		if(find == FESTISBOX && getSeesTape()) {
 			stopOneSquareInterrupts();
 			stop();
@@ -420,14 +421,14 @@ void advOneNodeInCorrectPath(dir map[][x_size], nodeStatus find) {
 }
 
 void placeSelfCloserToWall() {
-	while(getFrontDistance() >= 24 && getFrontDistance() <= 50) {
+	while(getFrontDistance() >= 23 && getFrontDistance() <= 50) {
 		driveForward(20, 20);
 	}
 	stop();
 }
 
 void correctSelf() {
-	if(getFrontLeftDistance() <= SIDE_OPEN && getBackLeftDistance() <= SIDE_OPEN && getFrontLeftDistance() >= 15 && getBackRightDistance() >= 15) {
+	if(getFrontLeftDistance() <= SIDE_OPEN && getBackLeftDistance() <= SIDE_OPEN && getFrontLeftDistance() >= 12 && getBackRightDistance() >= 12) {
 		while(alignLeft() < 0) {
 			driveRotateRight(20, 20);
 		}
@@ -436,7 +437,7 @@ void correctSelf() {
 		}
 	}
 	stop();
-	if(getFrontRightDistance() <= SIDE_OPEN && getBackRightDistance() <= SIDE_OPEN && getFrontRightDistance() >= 15 && getBackRightDistance() >= 15) {
+	if(getFrontRightDistance() <= SIDE_OPEN && getBackRightDistance() <= SIDE_OPEN && getFrontRightDistance() >= 12 && getBackRightDistance() >= 12) {
 		while(alignRight() > 0 ) {
 			driveRotateLeft(20, 20);
 		}
@@ -451,43 +452,29 @@ bool moveToNode(nodeStatus find)
 {
 	int path = findClosest(find);
 	
-	if(find == START) {
-		// pickUpFestisBox();
-	}
+	
 	
 	if(path == north) {
 		while(correctPathNorth[getX()][getY()] != DUNNO) {
 			advOneNodeInCorrectPath(correctPathNorth, find);
-			if(find == FESTISBOX && getSeesTape()) {
-				return true;
-			}
 			placeSelfCloserToWall();
 			correctSelf();
 		}
 	} else if(path == east) {
 		while(correctPathEast[getX()][getY()] != DUNNO) {
 			advOneNodeInCorrectPath(correctPathEast, find);
-			if(find == FESTISBOX && getSeesTape()) {
-				return true;
-			}
 			placeSelfCloserToWall();
 			correctSelf();
 		}
 	} else if(path == south) {
 		while(correctPathSouth[getX()][getY()] != DUNNO) {
 			advOneNodeInCorrectPath(correctPathSouth, find);
-			if(find == FESTISBOX && getSeesTape()) {
-				return true;
-			}
 			placeSelfCloserToWall();
 			correctSelf();
 		}
 	} else if(path == west) {
 		while(correctPathWest[getX()][getY()] != DUNNO) {
 			advOneNodeInCorrectPath(correctPathWest, find);
-			if(find == FESTISBOX && getSeesTape()) {
-				return true;
-			}
 			placeSelfCloserToWall();
 			correctSelf();
 		}
@@ -501,9 +488,9 @@ bool moveToNode(nodeStatus find)
 void followTape() {
 	unsigned int regValue = getTapeReg();
 	
-	if(regValue < 5) {
+	if(regValue < 6) {
 		driveRotateRight(15, 15);
-	} else if(regValue > 7) {
+	} else if(regValue > 6) {
 		driveRotateLeft(15, 15);
 	} else {
 		driveForward(15, 15);
@@ -515,42 +502,50 @@ void exploreLabyrinth() {
 	bool festisBoxReached = false;
 	bool exitedLabyrinth = false;
 	
-	
-	openClaw();
-	_delay_ms(200);
-	
 	/*
 	Write main loop for exploring labyrinth.
 	*/
 	while(!labyrinthExplored) {
 		labyrinthExplored = moveToNode(UNEXPLORED);
 		_delay_ms(200);
-		addNode(currentDir);
+		if(atFestisBox && !foundFestisBoxAlready) {
+			addFestisNode(currentDir);
+			atFestisBox = false;
+			foundFestisBoxAlready = true;
+		} else {
+			addNode(currentDir);
+		}
 	}
-	//
-	//lowerClaw();
-	//_delay_ms(500);
-	//closeClaw();
-	//_delay_ms(500);
-	//raiseClaw();
-	
-	// ******************************************
-	// ACTIVATE CODE WHEN LINESENSOR IS FINISHED
-	// ******************************************
-	
-	while(labyrinthExplored && !festisBoxReached) {
-		festisBoxReached = moveToNode(FESTISBOX);
-	}
-	
-	
-	/*
-		advanceToFestisBox();
-	*/
-	
-	
-	/* Go back to start */
-	while(labyrinthExplored && !exitedLabyrinth) {
+	if(getCurrentNodeStatus(getX(), getY()) == FESTISBOX) {
+		driveReverse(30, 30);
+		_delay_ms(2000);
+		stop();
+		while(!getSeesTape()) {
+			driveForward(40, 40);
+		}
+		stop();
+	} else {
 		exitedLabyrinth = moveToNode(START);
+		festisBoxReached = moveToNode(FESTISBOX);	
 	}
+	
+	openClaw();
+	driveForward(20, 20);
+	_delay_ms(500);
+	stop();
+	while(!getSeesTape()) {
+		followTape();
+	}
+	stop();
+	
+	lowerClaw();
+	_delay_ms(500);
+	closeClaw();
+	_delay_ms(500);
+	raiseClaw();
+
+	
+	exitedLabyrinth = moveToNode(START);
+	
 
 }
