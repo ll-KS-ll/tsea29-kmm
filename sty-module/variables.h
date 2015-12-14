@@ -25,8 +25,8 @@
 #define ONE_SQUARE_DISTANCE 60
 #define ONE_SQUARE 140
 
-#define LEFT_TURN 32
-#define RIGHT_TURN 36
+#define LEFT_TURN 33
+#define RIGHT_TURN 37
 
 #define KP 3
 #define KD 12

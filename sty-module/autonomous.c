@@ -50,7 +50,6 @@ int pdReg(){
 }
 
 int alignLeft(){
-	int u = 0;
 	int t = 0;		
 	
 	// get the distances
@@ -60,9 +59,7 @@ int alignLeft(){
 	// t = How wrongly the robot is rotated
 	t = (fl - bl);
 	
-	/* only align if error is worthy of aligning */
-	u = 5 * t;	
-	return u;
+	return t;
 }
 
 int leftReg(){
@@ -73,7 +70,7 @@ int leftReg(){
 	int fl = getFrontLeftDistance();
 	int bl = getBackLeftDistance();
 	
-	if(fl < 16 && bl < 16) {
+	if(fl < 13 && bl < 13) {
 		return -10;
 	}
 	// t = How wrongly the robot is rotated
@@ -85,7 +82,6 @@ int leftReg(){
 }
 
 int alignRight(){
-	int u = 0;
 	int t = 0;
 	
 	// get the distances
@@ -95,9 +91,7 @@ int alignRight(){
 	// t = How wrongly the robot is rotated
 	t = (br - fr);
 	
-	/* only align if error is worthy of aligning */
-	u = 5 * t;
-	return u;
+	return t;
 
 }
 
@@ -109,7 +103,7 @@ int rightReg(){
 	int fr = getFrontRightDistance();
 	int br = getBackRightDistance();
 
-	if(fr < 16 && br < 16) {
+	if(fr < 13 && br < 13) {
 		return 10;
 	}
 	
@@ -531,7 +525,7 @@ void exploreLabyrinth() {
 	
 	openClaw();
 	driveForward(20, 20);
-	_delay_ms(500);
+	_delay_ms(200);
 	stop();
 	while(!getSeesTape()) {
 		followTape();
