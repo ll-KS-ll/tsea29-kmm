@@ -19,13 +19,8 @@
 #define STY_CMD 8
 #define REMOTE_CMD 9
 
-#define LINE_SENSOR1 10
-#define LINE_SENSOR2 11
-#define LINE_SENSOR3 12
-#define LINE_SENSOR4 13
-#define LINE_SENSOR5 14
-#define LINE_SENSOR6 15
-#define LINE_SENSOR7 16
+#define LINESENSOR 10
+#define TAPE_FOUND 18
 /* ================ */
 
 /* ==== STY CMD ==== */
@@ -38,6 +33,14 @@
 #define CMD_ROTATE_R 6
 #define CMD_ROTATE_L 7
 #define CMD_CALIBRATE 8
+#define CMD_FOLLOW_TAPE 9
+/* ================= */
+
+/* ===== MODES ===== */
+#define MODE_REMOTE "Remote"
+#define MODE_AUTO "Auto"
+#define MODE_WAIT "Wait"
+#define MODE_STARTED "Started"
 /* ================= */
 
 namespace Ui {

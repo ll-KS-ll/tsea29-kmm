@@ -70,6 +70,9 @@ QString cmd2str(const quint16 &data)
     case CMD_CALIBRATE:
         return "Calibrate linesensor";
         break;
+    case CMD_FOLLOW_TAPE:
+        return "Follow tape";
+        break;
     default:
         return "Unknown command";
     }
@@ -97,26 +100,14 @@ void MainWindow::updateData(const quint8 &id, const quint16 &data)
         case LINE_SENSOR:
             // Old ID for the linesensor that is sent for no good reason.
             break;
-        case LINE_SENSOR1:
-            ui->reflex1->setText(QString::number(data));
-            break;
-        case LINE_SENSOR2:
-            ui->reflex2->setText(QString::number(data));
-            break;
-        case LINE_SENSOR3:
-            ui->reflex3->setText(QString::number(data));
-            break;
-        case LINE_SENSOR4:
-            ui->reflex4->setText(QString::number(data));
-            break;
-        case LINE_SENSOR5:
-            ui->reflex5->setText(QString::number(data));
-            break;
-        case LINE_SENSOR6:
-            ui->reflex6->setText(QString::number(data));
-            break;
-        case LINE_SENSOR7:
-            ui->reflex7->setText(QString::number(data));
+        case LINESENSOR:
+            ui->reflex0->setText( "[" + QString::number( (data & 0x01)>>0 ) + "]");
+            ui->reflex1->setText( "[" + QString::number( (data & 0x02)>>1 ) + "]");
+            ui->reflex2->setText( "[" + QString::number( (data & 0x04)>>2 ) + "]");
+            ui->reflex3->setText( "[" + QString::number( (data & 0x08)>>3 ) + "]");
+            ui->reflex4->setText( "[" + QString::number( (data & 0x10)>>4 ) + "]");
+            ui->reflex5->setText( "[" + QString::number( (data & 0x20)>>5 ) + "]");
+            ui->reflex6->setText( "[" + QString::number( (data & 0x40)>>6 ) + "]");
             break;
         case STY_CMD:
             if (ui->lbl_activeCmd->text() != cmd2str(data) && data != 0) {
@@ -125,16 +116,30 @@ void MainWindow::updateData(const quint8 &id, const quint16 &data)
             }
             break;
         case REMOTE_CMD:
-
-            break;
-        case BUTTON_AUTO:
-            if(data == 1)
+            if (data == CMD_CALIBRATE)
                 ui->logTextBox->append("Pressed autonom button");
             break;
-
+        case BUTTON_AUTO:
+            if(data == 1) {
+                ui->logTextBox->append("Pressed autonom button");
+                if (ui->lbl_auto->text() == MODE_REMOTE)
+                    ui->lbl_auto->setText(MODE_AUTO);
+                else
+                    ui->lbl_auto->setText(MODE_REMOTE);
+            }
+            break;
         case BUTTON_START:
-            if(data == 1)
+            if(data == 1) {
                 ui->logTextBox->append("Pressed start button");
+                if (ui->lbl_start->text() == MODE_WAIT)
+                    ui->lbl_start->setText(MODE_STARTED);
+                else
+                    ui->lbl_start->setText(MODE_WAIT);
+            }
+            break;
+        case TAPE_FOUND:
+            if(data == 1)
+                ui->logTextBox->append("Tape found");
             break;
 
         default:

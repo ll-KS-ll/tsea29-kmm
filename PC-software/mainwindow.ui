@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>702</width>
-    <height>545</height>
+    <height>546</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,7 +25,7 @@
      <rect>
       <x>20</x>
       <y>100</y>
-      <width>311</width>
+      <width>191</width>
       <height>181</height>
      </rect>
     </property>
@@ -36,19 +36,6 @@
      <string>Distanssensorer</string>
     </property>
     <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="1">
-      <widget class="QLabel" name="irFront">
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="text">
-        <string>no data</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="0">
       <widget class="QLabel" name="irFrontLeft">
        <property name="text">
@@ -77,14 +64,27 @@
        </property>
       </widget>
      </item>
+     <item row="0" column="0" colspan="3">
+      <widget class="QLabel" name="irFront">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>no data</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <widget class="QGroupBox" name="Commands">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>330</x>
       <y>100</y>
-      <width>331</width>
+      <width>351</width>
       <height>181</height>
      </rect>
     </property>
@@ -219,6 +219,16 @@
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
+      <widget class="QLabel" name="reflex0">
+       <property name="text">
+        <string>no data</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QLabel" name="reflex1">
        <property name="text">
         <string>no data</string>
@@ -270,16 +280,6 @@
      </item>
      <item>
       <widget class="QLabel" name="reflex6">
-       <property name="text">
-        <string>no data</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="reflex7">
        <property name="text">
         <string>no data</string>
        </property>
@@ -362,6 +362,35 @@ p, li { white-space: pre-wrap; }
     <property name="text">
      <string>Serial Port to FireFly. Ex.  &quot;COM3&quot; on Windows or &quot;/dev/rfcomm0&quot; on Linux.</string>
     </property>
+   </widget>
+   <widget class="QGroupBox" name="Mode">
+    <property name="geometry">
+     <rect>
+      <x>229</x>
+      <y>100</y>
+      <width>81</width>
+      <height>181</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Mode</string>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QLabel" name="lbl_auto">
+       <property name="text">
+        <string>Remote</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lbl_start">
+       <property name="text">
+        <string>Wait</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
  </widget>
