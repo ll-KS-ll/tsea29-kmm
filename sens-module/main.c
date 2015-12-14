@@ -21,7 +21,7 @@ float mathf;
 unsigned int math;
 float voltsperunit = 0.0049;
 
-int ch = 0; //ch = 2 = line sensor
+int ch = 0;
 uint16_t data_test = 0;
 uint8_t mux = 0b00000000;
 uint8_t id;
@@ -157,6 +157,21 @@ bool is_tape(){
 	return false;
 }
 
+uint16_t lineData(){
+	uint16_t line_data = 0;
+	unsigned int sensorValue;;
+	unsigned int calibrationValue;
+	
+	for(int i = 0; i < 7; i++){
+		sensorValue = sensorBar[i];
+		calibrationValue = sensorBarCalibration[i];
+		
+		line_data << 1;
+		if(sensorValue >= calibrationValue - 50) line_data++;
+	}
+	return line_data;
+}
+
 
 unsigned int tapeRegulation() {
 	unsigned int wrong = 0;
@@ -215,8 +230,7 @@ ISR(TIMER0_OVF_vect)
 				data_out = 0;
 			}
 			id = 18;			
-			break;
-			
+			break;			
 		case 3: // IR_sensor front left
 			data_out = sideIrToCm((unsigned int)adc_read(ch));
 			id = ch;
@@ -252,7 +266,11 @@ ISR(TIMER0_OVF_vect)
 				updateLineSensorCalibrationValues();
 			}
 			break;
-		case 10:
+		case 10: // Get line data.
+			id = ch;
+			data_out = lineData();
+			break;
+		case 17:
 			data_out = (unsigned int) tapeRegulation();
 			id = 19;
 			break;
@@ -264,7 +282,7 @@ ISR(TIMER0_OVF_vect)
 	data_out = 0;
 	
 	ch++;
-	if (ch == 11) {
+	if (ch == 18) {
 		ch = 0;
 	}
 	TCNT0 = 227;

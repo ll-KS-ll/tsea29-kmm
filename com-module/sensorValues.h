@@ -22,13 +22,7 @@
 #define BACK_RIGHT 6
 #define FRONT_RIGHT 7
 #define STEER_CMD 8
-#define LINESENSOR_0 10
-#define LINESENSOR_1 11
-#define LINESENSOR_2 12
-#define LINESENSOR_3 13
-#define LINESENSOR_4 14
-#define LINESENSOR_5 15
-#define LINESENSOR_6 16
+#define LINESENSOR 10
 #define TAPE_FOUND 18
 
 void updateRegisters(uint8_t id, uint16_t data);

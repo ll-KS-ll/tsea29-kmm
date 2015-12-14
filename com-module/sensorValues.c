@@ -22,7 +22,7 @@ static unsigned int frontLeftDistance = 0;
 static unsigned int backLeftDistance = 0;
 static unsigned int frontRightDistance = 0;
 static unsigned int backRightDistance = 0;
-static uint16_t sensorBar[] = {0, 0, 0, 0, 0, 0, 0};
+static uint16_t lineData;
 static unsigned int recvSteeringCmd = 0;
 	
 
@@ -83,31 +83,16 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 				data_changed = true;
 			}
 			break;
-		/*ful-hack*/
-		case LINESENSOR_0:
-			sensorBar[0] = data;
-			break;
-		case LINESENSOR_1:
-			sensorBar[1] = data;
-			break;
-		case LINESENSOR_2:
-			sensorBar[2] = data;
-			break;
-		case LINESENSOR_3:
-			sensorBar[3] = data;
-			break;
-		case LINESENSOR_4:
-			sensorBar[4] = data;
-			break;
-		case LINESENSOR_5:
-			sensorBar[5] = data;
-			break;
-		case LINESENSOR_6:
-			sensorBar[6] = data;
+		case LINESENSOR:
+			if (lineData != data)
+			{
+				lineData = data;
+				data_changed = true;
+			}
 			break;
 		case TAPE_FOUND:
 			if(data)
-				data_changed = true;
+			data_changed = true;
 			break;
 	}
 	

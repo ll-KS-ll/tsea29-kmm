@@ -68,7 +68,6 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 		case 9:
 			activeSteeringCmd = data;
 			break;
-
 		case 17:
 			gyroValue = data;
 			gyroRate = (gyroValue - offset);
