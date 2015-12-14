@@ -35,13 +35,13 @@ void adc_init()
 	ADCSRA = (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(0<<ADPS0);
 }
 
-uint16_t adc_read(uint8_t ch)
+uint16_t adc_read(uint8_t channel)
 {
 	// select the corresponding channel 0~7
 	// ANDing with ’7? will always keep the value
 	// of ‘ch’ between 0 and 7
-	ch &= 0b00000111;  // AND operation with 7
-	ADMUX = (ADMUX & 0xF8)|ch; // clears the bottom 3 bits before ORing
+	channel &= 0b00000111;  // AND operation with 7
+	ADMUX = (ADMUX & 0xF8)|channel; // clears the bottom 3 bits before ORing
 	
 	// start single convertion
 	// write ’1? to ADSC
@@ -119,9 +119,9 @@ void updateLineSensorValues()
 	for(int mux = 0; mux < 7; mux++) {
 		enable_current_linesensor(mux);
 		PORTD = mux;
-		sensorBar[mux] = (unsigned int)adc_read(ch);
-		
+		sensorBar[mux] = (unsigned int)adc_read(2);
 	}
+	
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
 
@@ -131,7 +131,7 @@ void updateLineSensorCalibrationValues()
 	for(int mux = 0; mux < 7; mux++) {
 		enable_current_linesensor(mux);
 		PORTD = mux;
-		sensorBarCalibration[mux] = (unsigned int)adc_read(ch);
+		sensorBarCalibration[mux] = (unsigned int)adc_read(2);
 		
 	}
 	TCCR0 = (1<<CS02)|(1<<CS00);
@@ -181,7 +181,6 @@ unsigned int tapeRegulation() {
 	return  10 - (wrong/count);
 	
 }
-
 ISR(TIMER0_OVF_vect)
 {
 	switch(ch)
@@ -209,6 +208,7 @@ ISR(TIMER0_OVF_vect)
 			break;
 		case 2: // line sensor
 			updateLineSensorValues();
+			
 			if(is_tape()) {
 				data_out = 1;
 			} else {
@@ -267,12 +267,12 @@ ISR(TIMER0_OVF_vect)
 	if (ch == 11) {
 		ch = 0;
 	}
-	TCNT0 = 114;
+	TCNT0 = 227;
 }
 
 void initTimerInteruppt() {
 	TIMSK = (1<<TOIE0);
-	TCNT0 = 114;
+	TCNT0 = 227;
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
 
@@ -293,6 +293,7 @@ int main(void)
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
 	
-	while(true){}
+	while(true){
+	}
 		
 }
