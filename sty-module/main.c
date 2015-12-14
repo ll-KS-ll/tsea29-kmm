@@ -32,45 +32,15 @@ int main(void)
 	
 	_delay_ms(1000);
 	
-	
-	//openClaw();
-	//_delay_ms(500);
-	//lowerClaw();
-	//_delay_ms(500);
-	//closeClaw();
-	//_delay_ms(500);
-	//raiseClaw();
-	
-	//volatile fr, br, fl, bl, test;
-	//while(1) {
-		//turnLeft(1);
-		//_delay_ms(1000);
-		//turnLeft(2);
-		//_delay_ms(1000);
-		//turnRight(1);
-		//_delay_ms(1000);
-		//turnRight(2);
-		//_delay_ms(1000);
-	//}
-	volatile test, temp;
 	/* Main loop */
 	while (1)
 	{
 		if(getAutonom()) {
 			if(getStart()) {
-				updateRegisters(0, 1);
-				
-				//while(!getSeesTape()) {
-					//followTape();
-				//}
-				//stop();
-				initMap();
 				///* reset start so it only runs the labyrinth once */
-				//followTape();
-		
-				// --------------------------
+				updateRegisters(0, 1);
+				initMap();
 				exploreLabyrinth();
-				// -------------------------
 				
 			}
 		} else if(!getAutonom()) {
@@ -78,11 +48,7 @@ int main(void)
 			if(getStart()) {
 				/* reset start so it only runs the labyrinth once */
 				updateRegisters(0, 1);
-				//fr = getFrontRightDistance();
-				//br = getBackRightDistance();
-				//fl = getFrontLeftDistance();
-				//bl = getBackLeftDistance();
-				//test++;
+				
 			}
 		}
 	}
