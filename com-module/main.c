@@ -25,11 +25,13 @@ int main(void)
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
 	
-	//playSong();
 	/* Main loop */
 	while ( 1 ) 
     {		
 		if(getSteerCmd() == 9) {
+			playSong();
+		}
+		if (write_data == 10){
 			playSong();
 		}
     }

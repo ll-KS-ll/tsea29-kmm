@@ -91,8 +91,8 @@ int song[songLength][2] = {
  }
  
 void pauseSong(){
-	TCCR3B |= (0 << CS31);    // Set prescaler to full 16MHz
-	TCCR2B |= (0 << CS21); // Set prescaler to divide by 8
+	TCCR3B |= (0 << CS31);  // Set prescaler to full 16MHz
+	TCCR2B |= (0 << CS21);	// Set prescaler to divide by 8
 }
  
  static int initSong = 0;
