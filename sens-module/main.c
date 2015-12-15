@@ -2,7 +2,7 @@
 * TSEA29.c
 *
 * Created: 2015-11-10 16:02:48
-* Author : sara
+* Author : Sara Svensson, Håkan Gudmundsson
 */
 
 #define F_CPU 15000000UL // Set clock frequency to 15 MHz
@@ -16,17 +16,33 @@
 #include "i2c_master.h"	// Sensor module is an i2c master.
 #include "steer_cmd.h"
 
-
+/* Variables used for converting frontDistance to cm */
+float voltsPerUnit = 0.0049;
 float mathf;
-unsigned int math;
-float voltsperunit = 0.0049;
 
-int ch = 0;
-uint16_t data_test = 0;
-uint8_t mux = 0b00000000;
+/* Variable used when reading from PORTA.
+* ch changes value at the same rate as the adc-mux
+* and decides which PORT0-7 we're reading from */
+int ch = 0; 
+/* mux is used when reading from line sensor 0-6. It
+* decides which one we are getting data from */
+uint8_t mux = 0;
+/* id is the bus data package identification number */
 uint8_t id;
+/* data_out is the data that's sent on the bus */
 uint16_t data_out = 0;
 
+/* Bool variables turns true when start/autonom button is pressed */
+bool start_button_down;
+bool auto_button_down;
+
+/* Arrays used for storing line sensor values and calibration values */
+static unsigned int sensorBar[] = {0, 0, 0, 0, 0, 0, 0};
+static unsigned int sensorBarCalibration[] = {0, 0, 0, 0, 0, 0, 0};
+
+const DIFF = 50;	
+
+/* Initziates the adc mux on PORTA */
 void adc_init()
 {
 	ADMUX = (1<<REFS0); // AREF = AVcc
@@ -35,6 +51,7 @@ void adc_init()
 	ADCSRA = (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(0<<ADPS0);
 }
 
+/* reads the adc value from the selected channel in PORTA */
 uint16_t adc_read(uint8_t channel)
 {
 	// select the corresponding channel 0~7
@@ -57,12 +74,15 @@ uint16_t adc_read(uint8_t channel)
 	return (ADC);
 }
 
-
-void disable_line_sensor(){
+/* Disables line sensor */
+void disable_line_sensor()
+{
 	PORTB = 0b00000000;
 }
 
-void enable_current_linesensor(uint8_t mux){
+/* Enables the chosen line sensor */
+void enable_current_linesensor(uint8_t mux)
+{
 	switch(mux){
 		case 0:
 			PORTB = 0b01000000;
@@ -87,21 +107,11 @@ void enable_current_linesensor(uint8_t mux){
 			break;
 	}
 }
-
-
-
-/* Timer interrupt:
-	256 - (14 745 000 / 1024(prescaler) / 1000(frequency)) = 227
-	Set TCNT to 227 and it will overflow once every 2 ms. Lower TCNT with ~15 to increase the timer by 1 ms. */
  
-bool start_button_down;
-bool auto_button_down;
-
-/* Variables used for converting frontDistance to cm */
-float mathf;
-float voltsPerUnit = 0.0049;
-
-unsigned int sideIrToCm(uint16_t data) {
+/* Converts input data from distance sensor to cm.
+* Returns an unsigned int representing cm */
+unsigned int sideIrToCm(uint16_t data) 
+{
 	mathf = data;
 	mathf = pow((3027.4/mathf), 1.2134);
 	if(mathf > 80) mathf = 80;
@@ -109,9 +119,8 @@ unsigned int sideIrToCm(uint16_t data) {
 	return (unsigned int)mathf;
 }
 
-static unsigned int sensorBar[] = {0, 0, 0, 0, 0, 0, 0};
-static unsigned int sensorBarCalibration[] = {0, 0, 0, 0, 0, 0, 0};
 
+/* Updates the line sensor values */
 void updateLineSensorValues()
 {
 	TCCR0 = (0<<CS02)|(0<<CS00);
@@ -125,6 +134,7 @@ void updateLineSensorValues()
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
 
+/* Stores the line sensor values when calibration button is pressed */
 void updateLineSensorCalibrationValues()
 {
 	TCCR0 = (0<<CS02)|(0<<CS00);
@@ -137,16 +147,21 @@ void updateLineSensorCalibrationValues()
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
 
+/* Checks whether robot is on tape or not by iterate
+* through sensorBar and check if three or more line sensors
+* have higher value than its calibration value. 
+* Returns a bool that is true if three or more
+* sensors have higher values than their calibration value */ 
 bool is_tape(){
 	int count = 0;
-	unsigned int sensorValue;;
+	unsigned int sensorValue;
 	unsigned int calibrationValue;
 	
 	for(int i = 0; i < 7; i++){
 		sensorValue = sensorBar[i];
 		calibrationValue = sensorBarCalibration[i];
 		
-		if(sensorValue >= calibrationValue - 50) {
+		if(sensorValue >= calibrationValue - DIFF) {
 			count++;
 		}
 		
@@ -157,16 +172,22 @@ bool is_tape(){
 	return false;
 }
 
+/* Iterates through the sensorBar and sets 1 on bit i in an uint16_t if
+* the line sensor value is bigger than its calibration value.
+* Returns an uint16_t number between 0-255 that shows which line sensors
+* that is on tape */ 
 uint16_t lineData(){
 	uint16_t line_data = 0;
 	for(int i = 0; i < 7; i++){
-		if(sensorBar[i] >= sensorBarCalibration[i] - 50) 
+		if(sensorBar[i] >= sensorBarCalibration[i] - DIFF) 
 			line_data |= (1<<i);
 	}
 	return line_data;
 }
 
-
+/* Gravity calculation that decides if the robot should turn left, right or
+* go straight while following tape.
+* Returns ?? for go forward, ?? for turn left and ?? for turn right */
 unsigned int tapeRegulation() {
 	unsigned int wrong = 0;
 	unsigned int count = 0;
@@ -178,7 +199,7 @@ unsigned int tapeRegulation() {
 		sensorValue = sensorBar[i];
 		calibrationValue = sensorBarCalibration[i];
 		
-		if(sensorValue >= calibrationValue - 50) {
+		if(sensorValue >= calibrationValue - DIFF) {
 			wrong += (i+1);
 			count++;
 		}
@@ -190,6 +211,11 @@ unsigned int tapeRegulation() {
 	return  10 - (wrong/count);
 	
 }
+
+/* Interrupt routine that runs every time TIMER0 overflows.
+* Has cases that handles that get data from all the different sensors
+* and buttons.
+* The data is then transported to the other modules through the bus */
 ISR(TIMER0_OVF_vect)
 {
 	switch(ch)
@@ -264,7 +290,7 @@ ISR(TIMER0_OVF_vect)
 			id = ch;
 			data_out = lineData();
 			break;
-		case 11:
+		case 11: //
 			data_out = (unsigned int) tapeRegulation();
 			id = 19;
 			break;
@@ -281,6 +307,10 @@ ISR(TIMER0_OVF_vect)
 	TCNT0 = 227;
 }
 
+
+/*  Initiates TIMER0 for overflow interrupts every 2 ms.
+	256 - (14 745 000 / 1024(prescaler) / 1000(frequency)) = 227
+	Set TCNT to 227 and it will overflow once every 2 ms. Lower TCNT with ~15 to increase the timer by 1 ms. */
 void initTimerInteruppt() {
 	TIMSK = (1<<TOIE0);
 	TCNT0 = 227;
@@ -294,8 +324,8 @@ int main(void)
 	
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
-	DDRD = 0xFF; //PORTD0-5 as OUTPUT, PORTD6-7 as INPUT
-	PORTB = 0b01111111;
+	DDRD = 0xFF; //PORTD0-5 as OUTPUT
+	PORTB = 0x00;
 	
 	initTimerInteruppt();
 	adc_init();
