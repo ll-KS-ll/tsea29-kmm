@@ -1,9 +1,10 @@
 /************************************************************************
  *																		*
- * Author: Güntech							                            *
+ * Author: Güntech - Victor Karlsson Sehlin/Viktor Wällstedt            *
  * Purpose: Program for slave mode.										*
  * Language: C															*
  * File type: Source													*
+ * Version: 1.0															*
  *																		*
 /************************************************************************/
 

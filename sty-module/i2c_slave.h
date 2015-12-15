@@ -1,10 +1,11 @@
 /************************************************************************
  *																		*
- * Author: Güntech							                            *
+ * Author: Güntech - Victor Karlsson Sehlin/Viktor Wällstedt            *
  * Purpose: I2C Slave. Interrupt driven implementation of an i2c slave.	*
  *		Data packages are automatically read to "datap".				*	
  * Language: C															*
  * File type: Header													*
+ * Version: 1.0															*
  *																		*
 /************************************************************************/
 

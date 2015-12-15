@@ -1,11 +1,12 @@
-/************************************************************************
- *																		*
- * Author: Güntech														*
- * Purpose: Storage for the different sensor values						*
- * Language: C															*
- * File type: Header													*
- *																		*
-/************************************************************************/
+/********************************************************************************
+ *																				*
+ * Author: Güntech - Lukas Lindqvist/Viktor Wällstedt/Victor Karlsson Sehlin	*
+ * Purpose: Storage for the different sensor values								*
+ * Language: C																	*
+ * File type: Header															*
+ * Version: 1.0																	*
+ *																				*
+/********************************************************************************/
 
 #include "sensorValues.h"
 

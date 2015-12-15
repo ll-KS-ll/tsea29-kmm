@@ -1,9 +1,12 @@
-/*
- * variables.h
- *
- * Created: 2015-11-24 09:33:29
- *  Author: Lukas
- */ 
+/********************************************************************************
+ *																				*
+ * Author: Güntech - Lukas Lindqvist											*
+ * Purpose: Storage for the different variables 								*
+ * Language: C																	*
+ * File type: Header															*
+ * Version: 1.0																	*
+ *																				*
+/********************************************************************************/
 
 #include <stdint-gcc.h>
 
@@ -25,12 +28,15 @@
 #define ONE_SQUARE_DISTANCE 60
 #define ONE_SQUARE 140
 
+/* Turn variables */
 #define LEFT_TURN 33
 #define RIGHT_TURN 37
 
+/* PD-Regulation variables */
 #define KP 3
 #define KD 12
 
+/* Gyro port variable */
 #define GYRO 1
 
 

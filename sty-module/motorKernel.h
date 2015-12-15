@@ -1,9 +1,10 @@
 /************************************************************************
  *																		*
- * Author: Güntech							                            *
+ * Author: Güntech - Lukas Lindqvist/Jacob Johansson                    *
  * Purpose: Kernel for the motors										*
  * Language: C															*
  * File type: Header													*
+ * Version: 1.0															*
  *																		*
 /************************************************************************/
 
@@ -12,7 +13,6 @@
 #define MOTORKERNEL_H_
 
 void initMotor();
-void goForwardWithCurrentSpeed();
 void adjust(int u);
 void driveForward(int leftSpeed, int rightSpeed);
 void driveReverse(int leftSpeed, int rightSpeed);

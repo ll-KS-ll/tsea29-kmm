@@ -2,7 +2,7 @@
 * TSEA29.c
 *
 * Created: 2015-11-10 16:02:48
-* Author : Sara Svensson, Håkan Gudmundsson
+* Author : Sara Svensson, Håkan Gudmundsson, Lukas Lindqvist
 * v1.0
 *
 */
@@ -187,7 +187,7 @@ uint16_t lineData(){
 
 /* Gravity calculation that decides if the robot should turn left, right or
 * go straight while following tape.
-* Returns ?? for go forward, ?? for turn left and ?? for turn right */
+* Returns 6 for go forward, >6 for turn left and <6 for turn right */
 unsigned int tapeRegulation() {
 	unsigned int wrong = 0;
 	unsigned int count = 0;
@@ -216,6 +216,7 @@ unsigned int tapeRegulation() {
 * Has cases that handles that get data from all the different sensors
 * and buttons.
 * The data is then transported to the other modules through the bus */
+//volatile test;
 ISR(TIMER0_OVF_vect)
 {
 	switch(ch)
@@ -290,7 +291,7 @@ ISR(TIMER0_OVF_vect)
 			id = ch;
 			data_out = lineData();
 			break;
-		case 11: //tape regulation
+		case 11: // Get tape-regulation value
 			data_out = (unsigned int) tapeRegulation();
 			id = 19;
 			break;

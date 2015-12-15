@@ -1,9 +1,10 @@
 /************************************************************************
  *																		*
- * Author: Güntech							                            *
+ * Author: Güntech - Jacob Johansson/Lukas Lindqvist                    *
  * Purpose: Logic used by robot to drive through labyrinth				*
  * Language: C															*
  * File type: Source													*
+ * Version: 1.0															*
  *																		*
  ************************************************************************/
 
@@ -14,19 +15,21 @@
 #include <util/delay.h>
 #include "sensorValues.h"
 
-//var
-
-
-
+//# ------ Variables -------- #//
 static int xpos = 11;
 static int ypos = 11;
 static node labyrinth[x_size][y_size];		//increase size if necessary
 
-
+/*
+ * getCurrentNodeStatus(int x, int y) - Returns the nodeStatus of the node on the given location
+ */
 nodeStatus getCurrentNodeStatus(int x, int y) {
 	return labyrinth[x][y].status;
 }
 
+/*
+ * create_default_node() - returns a default node
+ */
 node create_default_node() {
 	node n;
 	n.status = UNEXPLORED;
@@ -38,7 +41,9 @@ node create_default_node() {
 	return n;
 }
 
-//insert the first node to the map
+/*
+ * initMap() - Places robot in map and sets up starting node. And resets all other nodes.
+ */
 void initMap() {
 	
 	// Set all nodes to unexplored
@@ -58,7 +63,9 @@ void initMap() {
 	labyrinth[xpos][ypos].neighbours[south] = CLOSED;
 }
 
-// When robot has reached unexplored, set it as explored and update its walls.
+/*
+ * addNode(dir curDir) - Adds the node the robot is on to the map
+ */
 void addNode(dir curDir){
     if(labyrinth[xpos][ypos].status == UNEXPLORED) {
         labyrinth[xpos][ypos].status = EXPLORED;
@@ -66,6 +73,9 @@ void addNode(dir curDir){
 	}
 }
 
+/*
+ * addFestisNode(dir curDir) - Sets the current node as the node with the item.
+ */
 void addFestisNode(dir curDir) {
 	if(labyrinth[xpos][ypos].status == UNEXPLORED) {
 		labyrinth[xpos][ypos].status = FESTISBOX;
@@ -73,6 +83,9 @@ void addFestisNode(dir curDir) {
 	}
 }
 
+/*
+ * updateWalls(dir curDir) - Used by addNode() and addFestisNode() to set which walls are open or closed in a node
+ */
 void updateWalls(dir curDir) {
 	int front;
 	int left;
@@ -122,7 +135,9 @@ void updateWalls(dir curDir) {
 static bool visited[x_size][y_size];
 
 
-//traverse the map via the nodes to a target node
+/*
+ * findClosest(nodeStatus find) - Using the recursive functions it finds the shortest path to the given nodeStatus ie. UNEXPLORED, START or FESTISBOX
+ */
 int findClosest(nodeStatus find){
 	
     resetVisited();
@@ -171,7 +186,9 @@ int findClosest(nodeStatus find){
 	
 }
 
-//help function to traverse the labyrinth
+/*
+ * recursiveDirectionFind(int x, int y, nodeStatus find) - Recursive functions used to the find the cloeset path from given position to a nodeStatus
+ */
 bool recursiveNorthFind(int x, int y, nodeStatus find){
 	
     if(labyrinth[x][y].status == find){
@@ -213,7 +230,9 @@ bool recursiveNorthFind(int x, int y, nodeStatus find){
 	return false;
 }
 
-//help function to traverse the labyrinth
+/*
+ * recursiveDirectionFind(int x, int y, nodeStatus find) - Recursive functions used to the find the cloeset path from given position to a nodeStatus
+ */
 bool recursiveEastFind(int x, int y, nodeStatus find){
 	
 	if(labyrinth[x][y].status == find){
@@ -256,7 +275,9 @@ bool recursiveEastFind(int x, int y, nodeStatus find){
 	return false;
 }
 
-//help function to traverse the labyrinth
+/*
+ * recursiveDirectionFind(int x, int y, nodeStatus find) - Recursive functions used to the find the cloeset path from given position to a nodeStatus
+ */
 bool recursiveWestFind(int x, int y, nodeStatus find){
 	
 	if(labyrinth[x][y].status == find){
@@ -298,7 +319,9 @@ bool recursiveWestFind(int x, int y, nodeStatus find){
 	return false;
 }
 
-//help function to traverse the labyrinth
+/*
+ * recursiveDirectionFind(int x, int y, nodeStatus find) - Recursive functions used to the find the cloeset path from given position to a nodeStatus
+ */
 bool recursiveSouthFind(int x, int y, nodeStatus find){
 	
 	if(labyrinth[x][y].status == find){
@@ -338,7 +361,7 @@ bool recursiveSouthFind(int x, int y, nodeStatus find){
 	return false;
 }
 
-//read given path to determine where we are
+
 void setX(int x) {
 	xpos = x;
 }
@@ -355,6 +378,9 @@ int getY() {
 	return ypos;
 }
 
+/*
+ * resetVisited() - Resets the map that tells if a recursive function has been to a square or not
+ */
 void resetVisited(){
     for(int x = 0; x < x_size; x++){
         for(int y = 0; y < y_size; y++){
@@ -363,6 +389,9 @@ void resetVisited(){
     }
 }
 
+/*
+ * resetCorrectPaths() - Resets all the the maps that tells which path to drive
+ */
 void resetCorrectPaths() {
 	for(int x = 0; x < x_size; x++) {
 		for(int y = 0; y < y_size; y++) {

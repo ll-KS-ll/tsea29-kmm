@@ -1,9 +1,10 @@
 /************************************************************************
  *																		*
- * Author: Güntech							                            *
+ * Author: Güntech - Lukas Lindqvist		                            *
  * Purpose: Logic used by robot to drive through labyrinth				*
  * Language: C															*
  * File type: Source													*
+ * Version: 1.0															*
  *																		*
 /************************************************************************/
 
@@ -23,8 +24,11 @@
 
 static bool atFestisBox = false;
 static bool foundFestisBoxAlready = false;
+static dir currentDir = NORTH;
 
-/* Using PD-regulator to make robot drive in middle of corridor */
+/*
+ * pdReg() - returns data using all four ir-sensors to drive in the middle and perpendicular to walls on both sides
+ */
 int pdReg(){
 	int u = 0;
 	int e = 0;
@@ -49,6 +53,9 @@ int pdReg(){
 	return u;
 }
 
+/*
+ * alignLeft() - returns data that indicates how wrongly the robot is turned in respect to the wall on the left
+ */
 int alignLeft(){
 	int t = 0;		
 	
@@ -62,6 +69,9 @@ int alignLeft(){
 	return t;
 }
 
+/*
+ * leftReg() - returns data using leftside ir-sensors to drive in the perpendicular to the walls and not to close to them
+ */
 int leftReg(){
 	int u = 0;
 	int t = 0;
@@ -81,6 +91,9 @@ int leftReg(){
 	return u;
 }
 
+/*
+ * alignLeft() - returns data that indicates how wrongly the robot is turned in respect to the wall on the right
+ */
 int alignRight(){
 	int t = 0;
 	
@@ -95,6 +108,9 @@ int alignRight(){
 
 }
 
+/*
+ * leftReg() - returns data using rightside ir-sensors to drive in the perpendicular to the walls and not to close to them
+ */
 int rightReg(){
 	int u = 0;
 	int t = 0;		
@@ -115,21 +131,33 @@ int rightReg(){
 	return u;
 }
 
+/*
+ * leftRegulator() - Gets the value from leftReg() and then adjusts the robot using the adjust() function
+ */
 void leftRegulator() {
 	int regulate = leftReg();
 	adjust(regulate);
 }
 
+/*
+ * rightRegulator() - Gets the value from rightReg() and then adjusts the robot using the adjust() function
+ */
 void rightRegulator() {
 	int regulate = rightReg();
 	adjust(regulate);
 }
 
+/*
+ * pdRegulator() - Gets the value from pdReg() and then adjusts the robot using the adjust() function
+ */
 void pdRegulator() {
 	int regulate = pdReg();
 	adjust(regulate);
 }
 
+/*
+ * regulateRobot() - Depending on which walls it can see on both sides it uses the appropriate regulation
+ */
 void regulateRobot() {
 	if(getBackLeftDistance() <= SIDE_OPEN && getFrontLeftDistance() <= SIDE_OPEN && getBackRightDistance() <= SIDE_OPEN && getFrontRightDistance() <= SIDE_OPEN) {
 		pdRegulator();
@@ -142,6 +170,9 @@ void regulateRobot() {
 	}
 }
 
+/*
+ * findNextTurnCrossingOrDeadend() - Does exactly what the name implies
+ */
 void findNextTurnCrossingOrDeadend()
 {
 		/* What we want to do:
@@ -177,10 +208,9 @@ void findNextTurnCrossingOrDeadend()
 }
 
 
-/* Timer interrupt:
-	256 - (14 745 000 / 1024(prescaler) / 5(frequency)) = 144
-	Set TCNT to 144 and it will overflow once every 10 ms. */
-
+/*
+ * Creates a timer that will overflow every 10ms. So when oneSquare has reached 100, one seconds has pased.
+ */
 unsigned int oneSquare;
 ISR(TIMER2_OVF_vect) {
 	oneSquare++;
@@ -205,6 +235,9 @@ void initOneSquareTimer() {
 	
 }
 
+/*
+ * inPath() - returns true if it can see walls on both sides.
+ */
 bool inPath() {
 	if(getFrontDistance >= SIDE_OPEN && (getFrontLeftDistance() <= SIDE_OPEN && getFrontRightDistance() <= SIDE_OPEN)) {
 		return true;
@@ -213,7 +246,9 @@ bool inPath() {
 	}
 }
 
-//Move the equivalent of one node
+/*
+ * moveOneNode(nodeStatusFind) - Drives one node using oneSquare timer. If it finds tape and is looking for it, it will stop.
+ */
 void moveOneNode(nodeStatus find){
 	startOneSquareInterrupts();
 	
@@ -235,6 +270,9 @@ void moveOneNode(nodeStatus find){
 	}
 }
 
+/*
+ * exitCrossingOrTurn(nodeStatusFind) - Drives one node using oneSquare timer. If it finds tape and is looking for it, it will stop.
+ */
 void exitCrossingOrTurn(nodeStatus find) {
 	startOneSquareInterrupts();
 	while(true) {
@@ -255,8 +293,10 @@ void exitCrossingOrTurn(nodeStatus find) {
 	}
 }
 
-static dir currentDir = NORTH;
-
+/*
+ * advOneNodeInCorrectPath(dir map[][], nodeStatus find) - Advances one node in the direction given by the 2d-array passed into
+ * the function. 
+ */
 void advOneNodeInCorrectPath(dir map[][x_size], nodeStatus find) {
 	switch(currentDir) {
 		case NORTH:
@@ -414,40 +454,47 @@ void advOneNodeInCorrectPath(dir map[][x_size], nodeStatus find) {
 	}
 }
 
+/*
+ * placeSlefCloserToWall() - Drives up to a wall infront of it
+ */
 void placeSelfCloserToWall() {
-	while(getFrontDistance() >= 23 && getFrontDistance() <= 50) {
+	while(getFrontDistance() >= 23 && getFrontDistance() <= 35) {
 		driveForward(20, 20);
 	}
 	stop();
 }
 
+/*
+ * correctSelf() - Straightens out robot so its perpendicular to any walls beside it
+ */
 void correctSelf() {
 	if(getFrontLeftDistance() <= SIDE_OPEN && getBackLeftDistance() <= SIDE_OPEN && getFrontLeftDistance() >= 12 && getBackRightDistance() >= 12) {
-		while(alignLeft() < 0) {
+		while(alignLeft() < 1) {
 			driveRotateRight(20, 20);
 		}
-		while(alignLeft() > 0) {
+		while(alignLeft() > 1) {
 			driveRotateLeft(20, 20);
 		}
 	}
 	stop();
 	if(getFrontRightDistance() <= SIDE_OPEN && getBackRightDistance() <= SIDE_OPEN && getFrontRightDistance() >= 12 && getBackRightDistance() >= 12) {
-		while(alignRight() > 0 ) {
+		while(alignRight() > 1 ) {
 			driveRotateLeft(20, 20);
 		}
-		while(alignRight() < 0) {
+		while(alignRight() < 1) {
 			driveRotateRight(20, 20);
 		}
 	}
 	stop();
 }
 
+/*
+ * moveToNode(nodeStatus find) - Finds the closest node of type given
+ * as parameter and drives there.
+ */
 bool moveToNode(nodeStatus find)
 {
 	int path = findClosest(find);
-	
-	
-	
 	if(path == north) {
 		while(correctPathNorth[getX()][getY()] != DUNNO) {
 			advOneNodeInCorrectPath(correctPathNorth, find);
@@ -479,25 +526,31 @@ bool moveToNode(nodeStatus find)
 	return false;
 }
 
+/*
+ * followTape() - Regulation for following the tape
+ */
 void followTape() {
 	unsigned int regValue = getTapeReg();
 	
 	if(regValue < 6) {
-		driveRotateRight(15, 15);
+		driveRotateRight(18, 18);
 	} else if(regValue > 6) {
-		driveRotateLeft(15, 15);
+		driveRotateLeft(18, 18);
 	} else {
-		driveForward(15, 15);
+		driveForward(18, 18);
 	}
 }
 
-void exploreLabyrinth() {
+/*
+ * solveLabyrinth() - Solves the labyrinth
+ */
+void solveLabyrinth() {
 	bool labyrinthExplored = false;
 	bool festisBoxReached = false;
 	bool exitedLabyrinth = false;
 	
 	/*
-	Write main loop for exploring labyrinth.
+		Main loop for exploring labyrinth.
 	*/
 	while(!labyrinthExplored) {
 		labyrinthExplored = moveToNode(UNEXPLORED);
@@ -510,6 +563,8 @@ void exploreLabyrinth() {
 			addNode(currentDir);
 		}
 	}
+	// Checks if the last square it explored is the square with the item
+	// If so it will pick it up
 	if(getCurrentNodeStatus(getX(), getY()) == FESTISBOX) {
 		driveReverse(30, 30);
 		_delay_ms(2000);
@@ -519,10 +574,13 @@ void exploreLabyrinth() {
 		}
 		stop();
 	} else {
+		// Go home after exploring labyrinth, then drive to item
+		// Pick it up and go back home.
 		exitedLabyrinth = moveToNode(START);
 		festisBoxReached = moveToNode(FESTISBOX);	
 	}
 	
+	// Picks up item
 	openClaw();
 	driveForward(20, 20);
 	_delay_ms(200);
@@ -538,8 +596,12 @@ void exploreLabyrinth() {
 	_delay_ms(500);
 	raiseClaw();
 
-	
+	// Go back to start
 	exitedLabyrinth = moveToNode(START);
+	
+	while(!getSeesTape()) {
+		driveForward(50, 50);
+	}
 	
 
 }

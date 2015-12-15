@@ -1,9 +1,10 @@
 	/************************************************************************
  *																		*
- * Author: Güntech														*
+ * Author: Güntech - Lukas Lindqvist/Jacob Johansson					*
  * Purpose: Kernel for the claw											*
  * Language: C															*
  * File type: Source													*
+ * Version: 1.0															*
  *																		*
 /************************************************************************/
 
@@ -15,9 +16,9 @@
 
 static bool booted = false;
 
-/* One tick should be 20 ms 
-	PWM_freq = fclk/prescaler*256(clock bit length)
-	 */
+/* 
+ * initClaw() - initializes the Fast PWM signal for the claw.
+ */
 void initClaw() {
 	/* Only initialize claws once */
 	if(!booted) {		
