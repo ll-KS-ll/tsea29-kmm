@@ -13,6 +13,7 @@
 #include "i2c_slave.h"	// Com module is a Slave on the I2C-bus. 
 #include "bluetooth.h"	// Add bluetooth compatibility.
 #include "sensorValues.h" // Storage of sensor values received over I2C.
+#include "sound.h"
 
 /* Simple program waiting for data on the i2c bus. */
 int main(void)
@@ -24,10 +25,13 @@ int main(void)
 	/* Enable the Global Interrupt Enable flag so that interrupts can be processed. */
 	sei();
 	
+	//playSong();
 	/* Main loop */
 	while ( 1 ) 
     {		
-    
+		if(getSteerCmd() == 9) {
+			playSong();
+		}
     }
 	
 }

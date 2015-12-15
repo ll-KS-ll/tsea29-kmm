@@ -18,6 +18,7 @@
 #include "sensorValues.h"
 #include "variables.h"
 #include "labyrinthMap.h"
+#include "i2c_slave.h"
 
 #define ONCE 1
 #define TWICE 2
@@ -80,9 +81,9 @@ int leftReg(){
 	int fl = getFrontLeftDistance();
 	int bl = getBackLeftDistance();
 	
-	if(fl < 13 && bl < 13) {
-		return -10;
-	}
+	//if(fl < 13 && bl < 13) {
+		//return -10;
+	//}
 	// t = How wrongly the robot is rotated
 	t = (fl - bl);
 	
@@ -119,9 +120,9 @@ int rightReg(){
 	int fr = getFrontRightDistance();
 	int br = getBackRightDistance();
 
-	if(fr < 13 && br < 13) {
-		return 10;
-	}
+	//if(fr < 13 && br < 13) {
+		//return 10;
+	//}
 	
 	// t = How wrongly the robot is rotated
 	t = (br - fr);
@@ -458,7 +459,7 @@ void advOneNodeInCorrectPath(dir map[][x_size], nodeStatus find) {
  * placeSlefCloserToWall() - Drives up to a wall infront of it
  */
 void placeSelfCloserToWall() {
-	while(getFrontDistance() >= 23 && getFrontDistance() <= 35) {
+	while(getFrontDistance() >= 22 && getFrontDistance() <= 35) {
 		driveForward(20, 20);
 	}
 	stop();
@@ -468,8 +469,8 @@ void placeSelfCloserToWall() {
  * correctSelf() - Straightens out robot so its perpendicular to any walls beside it
  */
 void correctSelf() {
-	if(getFrontLeftDistance() <= SIDE_OPEN && getBackLeftDistance() <= SIDE_OPEN && getFrontLeftDistance() >= 12 && getBackRightDistance() >= 12) {
-		while(alignLeft() < 1) {
+	if(getFrontLeftDistance() <= SIDE_OPEN && getBackLeftDistance() <= SIDE_OPEN && getFrontLeftDistance() >= 12 && getBackLeftDistance() >= 12) {
+		while(alignLeft() < -1) {
 			driveRotateRight(20, 20);
 		}
 		while(alignLeft() > 1) {
@@ -478,10 +479,10 @@ void correctSelf() {
 	}
 	stop();
 	if(getFrontRightDistance() <= SIDE_OPEN && getBackRightDistance() <= SIDE_OPEN && getFrontRightDistance() >= 12 && getBackRightDistance() >= 12) {
-		while(alignRight() > 1 ) {
+		while(alignRight() > 1) {
 			driveRotateLeft(20, 20);
 		}
-		while(alignRight() < 1) {
+		while(alignRight() < -1) {
 			driveRotateRight(20, 20);
 		}
 	}
@@ -532,6 +533,7 @@ bool moveToNode(nodeStatus find)
 void followTape() {
 	unsigned int regValue = getTapeReg();
 	
+	
 	if(regValue < 6) {
 		driveRotateRight(18, 18);
 	} else if(regValue > 6) {
@@ -574,9 +576,7 @@ void solveLabyrinth() {
 		}
 		stop();
 	} else {
-		// Go home after exploring labyrinth, then drive to item
-		// Pick it up and go back home.
-		exitedLabyrinth = moveToNode(START);
+		// Pick it up and go back home
 		festisBoxReached = moveToNode(FESTISBOX);	
 	}
 	
@@ -590,18 +590,24 @@ void solveLabyrinth() {
 	}
 	stop();
 	
+	cur_steer_cmd = 9;
 	lowerClaw();
 	_delay_ms(500);
 	closeClaw();
 	_delay_ms(500);
 	raiseClaw();
-
 	// Go back to start
 	exitedLabyrinth = moveToNode(START);
 	
-	while(!getSeesTape()) {
-		driveForward(50, 50);
+	if(getFrontLeftDistance() >= SIDE_OPEN || getFrontRightDistance() >= SIDE_OPEN) {
+		stop();
 	}
+	
+	while(!getSeesTape() && getFrontRightDistance() <= SIDE_OPEN && getFrontLeftDistance() <= SIDE_OPEN) {
+		driveForward(100, 100);
+	}
+	_delay_ms(200);
+	stop();
 	
 
 }

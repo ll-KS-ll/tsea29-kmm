@@ -29,8 +29,8 @@
 #define ONE_SQUARE 140
 
 /* Turn variables */
-#define LEFT_TURN 33
-#define RIGHT_TURN 37
+#define LEFT_TURN 32
+#define RIGHT_TURN 35
 
 /* PD-Regulation variables */
 #define KP 3

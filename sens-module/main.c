@@ -129,7 +129,6 @@ void updateLineSensorValues()
 		PORTD = mux;
 		sensorBar[mux] = (unsigned int)adc_read(2);
 	}
-	disable_line_sensor();
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
 
@@ -143,7 +142,6 @@ void updateLineSensorCalibrationValues()
 		sensorBarCalibration[mux] = (unsigned int)adc_read(2);
 		
 	}
-	disable_line_sensor();
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
 

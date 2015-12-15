@@ -101,3 +101,7 @@ void updateRegisters(uint8_t id, uint16_t dataIn) {
 		bt_transmit(data);
 	}
 }
+
+unsigned int getSteerCmd() {
+	return recvSteeringCmd;
+}

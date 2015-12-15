@@ -34,5 +34,6 @@ uint16_t getFrontLeftDistance();
 uint16_t getFrontRightDistance();
 uint16_t getBackLeftDistance();
 uint16_t getBackRightDistance();
+unsigned int getSteerCmd();
 
 #endif /* SENSORVALUES_H_ */
