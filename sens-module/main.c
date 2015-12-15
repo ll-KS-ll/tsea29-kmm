@@ -3,6 +3,8 @@
 *
 * Created: 2015-11-10 16:02:48
 * Author : Sara Svensson, Håkan Gudmundsson
+* v1.0
+*
 */
 
 #define F_CPU 15000000UL // Set clock frequency to 15 MHz
@@ -24,9 +26,6 @@ float mathf;
 * ch changes value at the same rate as the adc-mux
 * and decides which PORT0-7 we're reading from */
 int ch = 0; 
-/* mux is used when reading from line sensor 0-6. It
-* decides which one we are getting data from */
-uint8_t mux = 0;
 /* id is the bus data package identification number */
 uint8_t id;
 /* data_out is the data that's sent on the bus */
@@ -130,7 +129,7 @@ void updateLineSensorValues()
 		PORTD = mux;
 		sensorBar[mux] = (unsigned int)adc_read(2);
 	}
-	
+	disable_line_sensor();
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
 
@@ -144,6 +143,7 @@ void updateLineSensorCalibrationValues()
 		sensorBarCalibration[mux] = (unsigned int)adc_read(2);
 		
 	}
+	disable_line_sensor();
 	TCCR0 = (1<<CS02)|(1<<CS00);
 }
 
@@ -290,7 +290,7 @@ ISR(TIMER0_OVF_vect)
 			id = ch;
 			data_out = lineData();
 			break;
-		case 11: //
+		case 11: //tape regulation
 			data_out = (unsigned int) tapeRegulation();
 			id = 19;
 			break;
@@ -324,7 +324,7 @@ int main(void)
 	
 	DDRA = 0x00; //PORTA as INPUT
 	DDRB = 0xFF; // PORTB as OUTPUT
-	DDRD = 0xFF; //PORTD0-5 as OUTPUT
+	DDRD = 0xFF; //PORTD as OUTPUT
 	PORTB = 0x00;
 	
 	initTimerInteruppt();
