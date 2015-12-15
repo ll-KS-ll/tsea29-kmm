@@ -1,9 +1,12 @@
-/*
- * gyroController.c
- *
- * Created: 2015-11-30 18:46:24
- *  Author: Lukas
- */ 
+/************************************************************************
+ *																		*
+ * Author: Güntech - Lukas Lindqvist/Sara Svensson/Håkan Gudmundsson	*
+ * Purpose: To read the gyro										    *
+ * Language: C															*
+ * File type: Source													*
+ * Version: 1.0															*
+ *																		*
+/************************************************************************/
 
 #include "gyroController.h"
 #include "variables.h"
@@ -20,6 +23,9 @@ void initAdc()
 
 volatile uint8_t gv = 0;
 
+/*
+ * adcReadGyro(uint8_t ch) - Reads data from the gyro
+ */
 uint8_t adcReadGyro(uint8_t ch)
 {
 	// select the corresponding channel 0~7
@@ -43,9 +49,7 @@ uint8_t adcReadGyro(uint8_t ch)
 }
 
 
-/* Timer interrupt:
-	256 - (14 745 000 / 1024(prescaler) / 100(frequency)) = 144
-	Set TCNT to 144 and it will overflow once every 10 ms. */
+/* Timer interrupt: will overflow once every 10 ms. */
 ISR(TIMER0_OVF_vect) {
 	updateRegisters(17, adcReadGyro(GYRO)); // reduce by 2 because gyro noice
 	TCNT0 = 144;

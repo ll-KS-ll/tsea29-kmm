@@ -1,9 +1,10 @@
 /************************************************************************
  *																		*
- * Author: Güntech														*
+ * Author: Güntech - Lukas Lindqvist/Jacob Johansson					*
  * Purpose: Kernel for the motors										*
  * Language: C															*
  * File type: Source													*
+ * Version: 1.0															*
  *																		*
 /************************************************************************/
 

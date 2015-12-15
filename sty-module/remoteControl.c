@@ -1,9 +1,10 @@
 /************************************************************************
  *																		*
- * Author: Güntech							                            *
+ * Author: Güntech - Victor Karlsson Sehlin/Viktor Wällstedt            *
  * Purpose: Execute command from the PC-Software.						*
  * Language: C															*
  * File type: Source													*
+ * Version: 1.0															*
  *																		*
 /************************************************************************/
 

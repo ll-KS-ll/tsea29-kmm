@@ -1,8 +1,9 @@
 /************************************************************************
  *																		*
- * Author: Güntech							                            *
+ * Author: Güntech - Lukas Lindqvist 		                            *
  * Purpose: Drive robot through labyrinth								*
  * Language: C															*
+ * Version: 1.0															*
  *																		*
 /************************************************************************/
 
@@ -15,10 +16,8 @@
 #include "autonomous.h"
 #include "boot.h"
 #include "sensorValues.h"
-#include "variables.h"
-#include "gyroController.h"
-#include "clawKernel.h"
 #include "remoteControl.h"
+
 
 int main(void)
 {
@@ -38,10 +37,10 @@ int main(void)
 	{
 		if(getAutonom()) {
 			if(getStart()) {
-				///* reset start so it only runs the labyrinth once */
+				/* reset start so it only runs the labyrinth once */
 				updateRegisters(0, 1);
 				initMap();
-				exploreLabyrinth();
+				solveLabyrinth();
 				
 			}
 		} else if(!getAutonom()) {
