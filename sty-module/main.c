@@ -43,8 +43,8 @@ int main(void)
 				solveLabyrinth();
 				
 			}
-		} else if(!getAutonom()) {
-			/* Do shit that the PC says to do */
+		} else {
+			/* Do what the PC says to do */
 			executeCurrentCommand();
 		}
 	}

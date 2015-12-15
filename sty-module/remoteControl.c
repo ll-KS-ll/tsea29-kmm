@@ -9,6 +9,8 @@
 /************************************************************************/
 
 #include "remoteControl.h"
+#include "motorKernel.h"
+#include "sensorValues.h"
 
 void executeCurrentCommand()
 {

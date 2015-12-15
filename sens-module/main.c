@@ -2,7 +2,7 @@
 * TSEA29.c
 *
 * Created: 2015-11-10 16:02:48
-* Author : Sara Svensson, Håkan Gudmundsson
+* Author : Sara Svensson, Håkan Gudmundsson, Lukas Lindqvist
 */
 
 #define F_CPU 15000000UL // Set clock frequency to 15 MHz
@@ -217,6 +217,7 @@ unsigned int tapeRegulation() {
 * Has cases that handles that get data from all the different sensors
 * and buttons.
 * The data is then transported to the other modules through the bus */
+//volatile test;
 ISR(TIMER0_OVF_vect)
 {
 	switch(ch)
@@ -285,13 +286,15 @@ ISR(TIMER0_OVF_vect)
 			id = ch;
 			if ( data_out == 8 ) {
 				updateLineSensorCalibrationValues();
+				//test;
+				//test;
 			}
 			break;
 		case 10: // Get line data.
 			id = ch;
 			data_out = lineData();
 			break;
-		case 11: //
+		case 11: // Get tape-regulation value
 			data_out = (unsigned int) tapeRegulation();
 			id = 19;
 			break;

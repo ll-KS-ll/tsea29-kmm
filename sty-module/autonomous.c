@@ -469,19 +469,19 @@ void placeSelfCloserToWall() {
  */
 void correctSelf() {
 	if(getFrontLeftDistance() <= SIDE_OPEN && getBackLeftDistance() <= SIDE_OPEN && getFrontLeftDistance() >= 12 && getBackRightDistance() >= 12) {
-		while(alignLeft() < 0) {
+		while(alignLeft() < 1) {
 			driveRotateRight(20, 20);
 		}
-		while(alignLeft() > 0) {
+		while(alignLeft() > 1) {
 			driveRotateLeft(20, 20);
 		}
 	}
 	stop();
 	if(getFrontRightDistance() <= SIDE_OPEN && getBackRightDistance() <= SIDE_OPEN && getFrontRightDistance() >= 12 && getBackRightDistance() >= 12) {
-		while(alignRight() > 0 ) {
+		while(alignRight() > 1 ) {
 			driveRotateLeft(20, 20);
 		}
-		while(alignRight() < 0) {
+		while(alignRight() < 1) {
 			driveRotateRight(20, 20);
 		}
 	}
@@ -598,6 +598,10 @@ void solveLabyrinth() {
 
 	// Go back to start
 	exitedLabyrinth = moveToNode(START);
+	
+	while(!getSeesTape()) {
+		driveForward(50, 50);
+	}
 	
 
 }
