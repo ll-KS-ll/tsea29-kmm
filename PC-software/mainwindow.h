@@ -34,6 +34,7 @@
 #define CMD_ROTATE_L 7
 #define CMD_CALIBRATE 8
 #define CMD_FOLLOW_TAPE 9
+#define CMD_MUSIC 10
 /* ================= */
 
 /* ===== MODES ===== */
@@ -70,6 +71,7 @@ private slots:
     void on_btn_rotateRight_clicked();
     void on_btn_rotateLeft_clicked();
     void on_btn_calibrate_clicked();
+    void on_btn_music_clicked();
 
 private:
     Ui::MainWindow *ui;

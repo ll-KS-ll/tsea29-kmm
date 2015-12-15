@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->btn_rotateRight->setShortcut(QKeySequence(tr("E")));
 
     ui->btn_calibrate->setShortcut(QKeySequence(tr("C")));
+    ui->btn_music->setShortcut(QKeySequence(tr("M")));
 }
 
 MainWindow::~MainWindow()
@@ -72,6 +73,9 @@ QString cmd2str(const quint16 &data)
         break;
     case CMD_FOLLOW_TAPE:
         return "Follow tape";
+        break;
+    case CMD_MUSIC:
+        return "Play music";
         break;
     default:
         return "Unknown command";
@@ -176,3 +180,4 @@ void MainWindow::on_btn_rotateLeft_clicked() { btServer->writeCommand(CMD_ROTATE
 
 void MainWindow::on_btn_calibrate_clicked() { btServer->writeCommand(CMD_CALIBRATE); }
 
+void MainWindow::on_btn_music_clicked() { btServer->writeCommand(CMD_MUSIC);}
