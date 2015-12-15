@@ -188,7 +188,7 @@ uint16_t lineData(){
 
 /* Gravity calculation that decides if the robot should turn left, right or
 * go straight while following tape.
-* Returns ?? for go forward, ?? for turn left and ?? for turn right */
+* Returns 6 for go forward, >6 for turn left and <6 for turn right */
 unsigned int tapeRegulation() {
 	unsigned int wrong = 0;
 	unsigned int count = 0;
