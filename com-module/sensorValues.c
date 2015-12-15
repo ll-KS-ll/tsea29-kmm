@@ -1,11 +1,7 @@
 /************************************************************************
  *																		*
  * Author: Güntech														*
-<<<<<<< HEAD
  * Purpose: Storage for the different sensor values						*
-=======
- * Purpose: Storage for the different sensor values.					*
->>>>>>> GUI
  * Language: C															*
  * File type: Header													*
  *																		*
