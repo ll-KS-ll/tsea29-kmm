@@ -470,19 +470,19 @@ void placeSelfCloserToWall() {
  */
 void correctSelf() {
 	if(getFrontLeftDistance() <= SIDE_OPEN && getBackLeftDistance() <= SIDE_OPEN && getFrontLeftDistance() >= 12 && getBackLeftDistance() >= 12) {
-		while(alignLeft() < -1) {
+		while(alignLeft() < -2) {
 			driveRotateRight(20, 20);
 		}
-		while(alignLeft() > 1) {
+		while(alignLeft() > 2) {
 			driveRotateLeft(20, 20);
 		}
-	}
+	}	
 	stop();
 	if(getFrontRightDistance() <= SIDE_OPEN && getBackRightDistance() <= SIDE_OPEN && getFrontRightDistance() >= 12 && getBackRightDistance() >= 12) {
-		while(alignRight() > 1) {
+		while(alignRight() > 2) {
 			driveRotateLeft(20, 20);
 		}
-		while(alignRight() < -1) {
+		while(alignRight() < -2) {
 			driveRotateRight(20, 20);
 		}
 	}
